@@ -23,7 +23,7 @@
   --gain:#1b7f52; --gain-bg:#e1f2e8; --gain-line:#a7d8bd;
   --loss:#bf3a33; --loss-bg:#fbe6e4; --loss-line:#efb1ab;
   --flat:#8a93a2; --star:#e0a12c;
-  --c-amber:#b7791f; --c-blue:#3b6fd4; --c-green:#2f8f5b; --c-pink:#c24584; --c-violet:#7a55c7; --c-slate:#5b6474;
+  --c-amber:#b7791f; --c-blue:#3b6fd4; --c-green:#2f8f5b; --c-pink:#c24584; --c-violet:#7a55c7; --c-slate:#5b6474; --c-red:#c43d3d; --c-orange:#cf6519; --c-yellow:#a98608; --c-lime:#5a931c; --c-teal:#178a81; --c-cyan:#1a86a8; --c-indigo:#4b52c2; --c-purple:#9043b3; --c-rose:#c2416a; --c-brown:#8a5a3c;
   --rail:#161a21; --rail-ink:#d3d8e1; --rail-muted:#7f8796; --rail-hover:#222833;
   --shadow:0 1px 2px rgba(20,24,32,.06),0 4px 14px rgba(20,24,32,.05);
   --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
@@ -36,7 +36,7 @@
   --gain:#4fc38c; --gain-bg:#12281d; --gain-line:#1f553b;
   --loss:#f2766c; --loss-bg:#2d1615; --loss-line:#6a2b27;
   --flat:#78818f; --star:#f0b54a;
-  --c-amber:#e0a548; --c-blue:#7aa2f0; --c-green:#5cc48c; --c-pink:#ea7fb5; --c-violet:#a88bea; --c-slate:#97a0af;
+  --c-amber:#e0a548; --c-blue:#7aa2f0; --c-green:#5cc48c; --c-pink:#ea7fb5; --c-violet:#a88bea; --c-slate:#97a0af; --c-red:#f07a72; --c-orange:#f29a5c; --c-yellow:#e3c450; --c-lime:#a4d465; --c-teal:#4fc7bd; --c-cyan:#5cc3e3; --c-indigo:#8f95ef; --c-purple:#c08ae6; --c-rose:#ef8aa7; --c-brown:#c8997a;
   --rail:#0a0c0f; --rail-ink:#d3d8e1; --rail-muted:#727a88; --rail-hover:#171b21;
   --shadow:0 1px 2px rgba(0,0,0,.4);
   color-scheme:dark}}
@@ -46,7 +46,7 @@
   --gain:#4fc38c; --gain-bg:#12281d; --gain-line:#1f553b;
   --loss:#f2766c; --loss-bg:#2d1615; --loss-line:#6a2b27;
   --flat:#78818f; --star:#f0b54a;
-  --c-amber:#e0a548; --c-blue:#7aa2f0; --c-green:#5cc48c; --c-pink:#ea7fb5; --c-violet:#a88bea; --c-slate:#97a0af;
+  --c-amber:#e0a548; --c-blue:#7aa2f0; --c-green:#5cc48c; --c-pink:#ea7fb5; --c-violet:#a88bea; --c-slate:#97a0af; --c-red:#f07a72; --c-orange:#f29a5c; --c-yellow:#e3c450; --c-lime:#a4d465; --c-teal:#4fc7bd; --c-cyan:#5cc3e3; --c-indigo:#8f95ef; --c-purple:#c08ae6; --c-rose:#ef8aa7; --c-brown:#c8997a;
   --rail:#0a0c0f; --rail-ink:#d3d8e1; --rail-muted:#727a88; --rail-hover:#171b21;
   --shadow:0 1px 2px rgba(0,0,0,.4);
   color-scheme:dark}
@@ -561,6 +561,11 @@ a.focus-item{text-decoration:none;color:inherit}
 .prof-colors button{width:30px;height:30px;border-radius:50%;border:2px solid transparent;padding:0}
 .prof-colors button[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--surface) inset}
 @media (max-width:820px){.rail .nav{flex:none;overflow-y:visible}#railProfile{margin-top:0;border-top:0;padding-top:0;order:2}.prof-btn{padding:4px}.prof-btn .pn,.prof-btn .chev{display:none}.prof-menu{left:auto;right:0;bottom:auto;top:calc(100% + 8px)}}
+
+.swatches{display:flex;flex-wrap:wrap;gap:6px}
+.sw{width:24px;height:24px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);padding:0;cursor:pointer}
+.sw:hover{transform:scale(1.12)}
+.sw[aria-checked="true"]{box-shadow:0 0 0 2px var(--ink)}
 @media (max-width:1180px){.home-grid,.rp,.settings{grid-template-columns:minmax(0,1fr)}.ymonths{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:820px){.ymonths{grid-template-columns:repeat(2,minmax(0,1fr))}.fgrid{grid-template-columns:minmax(0,1fr)}.ftabs{flex-direction:row;flex-wrap:wrap}.rp-cards,.explore{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:1180px){.dash3,.dash-main{grid-template-columns:minmax(0,1fr)}.dash-main>.stack:last-child{order:-1}}
@@ -786,7 +791,9 @@ const todayIso = () => iso(new Date());
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const COLORS = ['amber','blue','green','pink','violet','slate'];
+const COLORS = ['amber','blue','green','pink','violet','slate','red','orange','yellow','lime','teal','cyan','indigo','purple','rose','brown'];
+const colorName = c => c[0].toUpperCase() + c.slice(1);
+const swatches = (cur, attrs) => `<div class="swatches" role="radiogroup" aria-label="Color">${COLORS.map(c => `<button type="button" role="radio" class="sw" ${attrs(c)} aria-checked="${cur === c}" aria-label="${colorName(c)}" title="${colorName(c)}" style="background:var(--c-${c})"></button>`).join('')}</div>`;
 const cls = v => v > 0 ? 'gain' : v < 0 ? 'loss' : 'flat';
 const num = v => (v === '' || v == null || isNaN(+v)) ? null : +v;
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -2203,8 +2210,8 @@ function settingsView() {
       ${accs.map(a => { const ts = S.allTrades.filter(t => acctOf(t) === a.id), net = ts.reduce((x, t) => x + t.pnl, 0), cash = S.cash.filter(c => (c.accountId || 'main') === a.id).reduce((x, c) => x + c.amount, 0), lastT = ts.map(t => t.date).sort().pop(); return `<tr><td><b>${esc(a.name)}</b></td><td>${esc(a.broker || '–')}</td><td class="r num">${priv(money(+a.startingBalance || 0))}</td><td class="r num ${cls(net)}">${priv(money((+a.startingBalance || 0) + net + cash))}</td><td class="r num">${ts.length}</td><td class="num">${lastT || '–'}</td><td class="r" style="white-space:nowrap"><button class="ghost" data-action="acctEdit" data-v="${a.id}">Edit</button> ${ts.length ? '' : `<button class="del${S.armed === 'acc-' + a.id ? ' armed' : ''}" data-action="acctDel" data-v="${a.id}">${S.armed === 'acc-' + a.id ? 'Confirm' : 'Delete'}</button>`}</td></tr>`; }).join('')}</tbody></table></div>`;
   } else if (tab === 'tags') {
     body = `<div class="toolbar"><div><h3 class="h3">Tag categories</h3><div class="hint">Rename categories, change their color and add or remove tags. Removing a tag here keeps it on trades that already use it.</div></div><button class="primary" data-action="addCat">Add category</button></div>
-      <div class="stack">${S.cats.map(c => `<div class="panel card cat" style="${tc(c)}"><div class="pb-row"><span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--tc);flex:none"></span><input class="fin" data-catf="name" data-cat="${c.id}" value="${esc(c.name)}" aria-label="Category name" style="font-weight:600"><select class="fin" style="width:auto" data-catf="color" data-cat="${c.id}" aria-label="Color">${COLORS.map(x => `<option value="${x}" ${c.color === x ? 'selected' : ''}>${x[0].toUpperCase() + x.slice(1)}</option>`).join('')}</select><button class="del${S.armed === 'cat-' + c.id ? ' armed' : ''}" data-action="delCat" data-cat="${c.id}">${S.armed === 'cat-' + c.id ? 'Confirm' : 'Delete'}</button></div>
-        <div class="tagbox">${(c.tags || []).map(x => `<span class="tagchip" style="${tc(c)}">${esc(x)}<button data-action="dropTag" data-cat="${c.id}" data-tag="${esc(x)}" aria-label="Remove ${esc(x)}">×</button></span>`).join('')}<input class="tagadd" data-tagadd="${c.id}" placeholder="Add tag and press Enter" aria-label="Add tag to ${esc(c.name)}"></div></div>`).join('') || '<div class="hint">No categories yet.</div>'}</div>`;
+      <div class="stack">${S.cats.map(c => `<div class="panel card cat" style="${tc(c)}"><div class="pb-row"><span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--tc);flex:none"></span><input class="fin" data-catf="name" data-cat="${c.id}" value="${esc(c.name)}" aria-label="Category name" style="font-weight:600"><button class="del${S.armed === 'cat-' + c.id ? ' armed' : ''}" data-action="delCat" data-cat="${c.id}">${S.armed === 'cat-' + c.id ? 'Confirm' : 'Delete'}</button></div>
+        ${swatches(COLORS.includes(c.color) ? c.color : 'slate', x => `data-action="catColor" data-cat="${c.id}" data-v="${x}"`)}<div class="tagbox">${(c.tags || []).map(x => `<span class="tagchip" style="${tc(c)}">${esc(x)}<button data-action="dropTag" data-cat="${c.id}" data-tag="${esc(x)}" aria-label="Remove ${esc(x)}">×</button></span>`).join('')}<input class="tagadd" data-tagadd="${c.id}" placeholder="Add tag and press Enter" aria-label="Add tag to ${esc(c.name)}"></div></div>`).join('') || '<div class="hint">No categories yet.</div>'}</div>`;
   } else if (tab === 'fees') {
     const rows = S.fees || [];
     body = `<div class="toolbar"><div><h3 class="h3">Commissions &amp; fees</h3><div class="hint">Round-trip cost per contract or share, by symbol root (MNQ, ES, AAPL). Used when you add a trade by hand or import a file that has no fee column.</div></div><button class="primary" data-action="feeAdd">Add symbol</button></div>
@@ -2959,7 +2966,7 @@ function renderModal() {
   else if (m.kind === 'zoom') box.innerHTML = `<div class="sheet wide lightbox" role="dialog" aria-modal="true" aria-label="Attachment"><div class="sheet-head"><span></span><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div><img src="${esc(m.arg)}" alt="Attachment"></div>`;
   else if (m.kind === 'cat') box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">New tag category</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
       <form class="form" data-form="cat"><label class="full">Name<input id="catName" required placeholder="Emotions, Market conditions…"></label>
-      <label class="full">Color<select id="catColor">${COLORS.map(c => `<option value="${c}">${c[0].toUpperCase() + c.slice(1)}</option>`).join('')}</select></label>
+      <div class="full"><div class="label" style="margin-bottom:6px">Color</div><input type="hidden" id="catColor" value="${S.newCatColor || 'blue'}">${swatches(S.newCatColor || 'blue', x => `data-action="newCatColor" data-v="${x}"`)}</div>
       <div class="full actions"><button type="button" class="secondary" data-action="close">Cancel</button><button class="primary" type="submit">Add category</button></div></form></div>`;
   else if (m.kind === 'manage') box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">Manage tags</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
       <div class="hint">Removing a tag here takes it off the list. Trades that already use it keep it.</div>
@@ -3082,7 +3089,7 @@ document.addEventListener('click', async e => {
     case 'toggleTag': { const t = byId(id), cat = b.dataset.cat, tag = b.dataset.tag; const cur = tagsOf(t, cat); const nxt = cur.includes(tag) ? cur.filter(x => x !== tag) : [...cur, tag]; patchTrade(id, { tags: { ...(t.tags || {}), [cat]: nxt } }); return; }
     case 'createTag': { const t = byId(id), cat = b.dataset.cat, tag = (b.dataset.tag || '').trim().slice(0, 40); if (!tag) return; ensureTagInCat(cat, tag); S.tagQuery = ''; const cur = tagsOf(t, cat); if (!cur.includes(tag)) patchTrade(id, { tags: { ...(t.tags || {}), [cat]: [...cur, tag] } }); else render(); return; }
     case 'untag': { const t = byId(id), cat = b.dataset.cat; patchTrade(id, { tags: { ...(t.tags || {}), [cat]: tagsOf(t, cat).filter(x => x !== b.dataset.tag) } }); return; }
-    case 'addCat': if (!needDb()) return; return openModal('cat');
+    case 'addCat': if (!needDb()) return; S.newCatColor = COLORS[S.cats.length % COLORS.length]; return openModal('cat');
     case 'manageTags': return openModal('manage');
     case 'dropTag': { const c = catById(b.dataset.cat); c.tags = (c.tags || []).filter(x => x !== b.dataset.tag); saveCat(c); renderModal(); render(); return; }
     case 'delCat': {
@@ -3299,6 +3306,8 @@ document.addEventListener('click', async e => {
     case 'profMenu': S.profMenu = !S.profMenu; S.accMenu = false; S.dashMenu = false; S.repMenu = false; renderProfile(); return;
     case 'profColor': saveProfile({ avatarColor: b.dataset.v }); break;
     case 'profSave': { const v = ($('profName') ? $('profName').value : '').trim().slice(0, 40); await saveProfile({ displayName: v }); toast('Profile saved'); break; }
+    case 'catColor': { const c = catById(b.dataset.cat); if (!c || !needDb()) return; c.color = b.dataset.v; saveCat(c); break; }
+    case 'newCatColor': { S.newCatColor = b.dataset.v; const nm = $('catName') ? $('catName').value : ''; renderModal(); if ($('catName')) { $('catName').value = nm; $('catName').focus(); } return; }
     case 'repTab': S.rep.tab = b.dataset.v; S.repMenu = false; break;
     case 'recentTab': S.recentTab = b.dataset.v; break;
     case 'cash': return openModal('cash');
