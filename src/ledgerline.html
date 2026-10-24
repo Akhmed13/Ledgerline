@@ -210,6 +210,7 @@ select.fin{font-family:var(--f-body)}
 .menu ul{list-style:none;margin:0;padding:0;max-height:220px;overflow-y:auto}
 .menu li button{width:100%;display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 8px;border-radius:6px;text-align:left;font-size:13px}
 .menu li button:hover{background:var(--surface-2)}
+.menu li button{justify-content:flex-start}.menu li button input{width:auto;flex:none;margin:0}
 .foot-links{display:flex;justify-content:space-between;gap:10px;font-size:12.5px}
 .rules{display:flex;flex-direction:column;gap:10px}
 .rules h5{margin:0;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
@@ -227,6 +228,26 @@ select.fin{font-family:var(--f-body)}
 .att button{position:absolute;right:5px;top:5px;background:var(--surface);border:1px solid var(--line);border-radius:6px;font-size:11px;padding:1px 6px}
 .drop{border:1.5px dashed var(--line);border-radius:10px;padding:18px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:8px;align-items:center}
 .drop.over{border-color:var(--accent);background:var(--accent-soft)}
+
+/* v14: trade preview + details */
+.drawer{padding-bottom:0}
+.drawer>*{flex-shrink:0}
+.mm .fin{width:84px;max-width:84px;margin:0}
+.mm:has(.fin){flex-wrap:nowrap}
+.dr-foot{position:sticky;bottom:0;margin:auto -16px 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+.pvrows{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0;margin:0}
+.pvrows dt,.pvrows dd{padding:8px 0;border-top:1px solid var(--line);margin:0;font-size:13px}
+.pvrows dt{color:var(--muted)}
+.pvrows dd{text-align:right;font-family:var(--f-num)}
+.pvrows dd .fin{max-width:170px;margin-left:auto}
+.mm{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.mm .chip.l{color:var(--loss);border-color:var(--loss-line)}.mm .chip.g{color:var(--gain);border-color:var(--gain-line)}
+.spark{margin-top:4px}
+.tick{display:inline-block;padding:1px 7px;border-radius:6px;background:var(--surface-2);border:1px solid var(--line);font-weight:600;font-size:12px}
+.tagbox .tsel{margin-left:auto;color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:4px;background:none;border:0;padding:2px 4px;cursor:pointer}
+.rtabs{display:flex;gap:4px;padding:8px 12px 0;border-bottom:1px solid var(--line)}
+.rtabs button{border:0;background:none;padding:8px 10px;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font:inherit;font-size:13px}
+.rtabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 .chartcard{padding:0;overflow:hidden}
 .chartcard .shot{display:block;width:100%;max-height:520px;object-fit:contain;background:var(--surface-2)}
 .section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px}
@@ -1175,7 +1196,7 @@ function tradeView() {
   if (!t) return `<div class="panel empty"><h3>This trade isn't in your journal</h3><p>It may have been deleted.</p><button class="secondary" data-action="view" data-view="log">Back to trade log</button></div>`;
   const list = navList(), idx = list.findIndex(x => x.id === t.id);
   const prev = idx > 0 ? list[idx - 1] : null, next = idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null;
-  const tabs = [['stats', 'Stats'], ['playbook', 'Playbook'], ['executions', 'Executions'], ['attachments', 'Attachments']];
+  const tabs = [['stats', 'Stats'], ['playbook', 'Strategy'], ['executions', 'Executions'], ['attachments', 'Attachments']];
   return `<div class="tv-head"><div class="tv-title">
       <button class="icon-btn" data-action="view" data-view="log" aria-label="Back to trade log"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M7.5 2L3.5 6l4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       <h1>${esc(t.symbol)}</h1><span class="when">${dateLabel(t.date)}${t.time ? ' · ' + esc(t.time) : ''}</span>${t.sample ? '<span class="chip">sample</span>' : ''}</div>
@@ -1183,13 +1204,15 @@ function tradeView() {
       <button class="ghost" data-action="toggleRev" data-id="${t.id}" aria-pressed="${!!t.reviewed}" style="${t.reviewed ? 'color:var(--gain);border-color:var(--gain-line)' : ''}">${t.reviewed ? '✓ Reviewed' : 'Mark reviewed'}</button>
       <button class="icon-btn" data-action="open" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button>
       <button class="icon-btn" data-action="open" data-id="${next ? next.id : ''}" ${next ? '' : 'disabled'} aria-label="Older trade">›</button>
+      <button class="ghost" data-action="replayTrade" data-id="${t.id}">▶ Replay</button>
+      <button class="ghost" data-action="shareTrade" data-id="${t.id}">Share</button>
       ${unitSeg()}
       <button class="del${S.armed === 'tv-' + t.id ? ' armed' : ''}" data-action="delTrade" data-id="${t.id}">${S.armed === 'tv-' + t.id ? 'Confirm delete' : 'Delete'}</button>
     </div></div>
   <div class="tv">
     <section class="panel"><div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${S.tab === k}" data-action="tab" data-v="${k}">${l}</button>`).join('')}</div>
       <div class="tabbody">${S.tab === 'stats' ? statsTab(t) : S.tab === 'playbook' ? playbookTab(t) : S.tab === 'executions' ? execTab(t) : attachTab(t)}</div></section>
-    <div class="stack">${chartCard(t)}${notesCard(t)}</div>
+    <div class="stack">${rightCard(t)}${(S.rtab || 'chart') === 'notes' ? '' : notesCard(t)}</div>
   </div>`;
 }
 function fin(t, k, step = 'any', ph = '') { return `<input class="fin" data-keep data-field="${k}" data-id="${t.id}" type="number" step="${step}" value="${t[k] ?? ''}" placeholder="${ph}" aria-label="${k}">`; }
@@ -1209,6 +1232,10 @@ function statsTab(t, withTags = true) {
     <dt>Quantity</dt><dd>${fin(t, 'qty', 'any', 'contracts / shares')}</dd>
     <dt>Entry price</dt><dd>${fin(t, 'entry')}</dd>
     <dt>Exit price</dt><dd>${fin(t, 'exit')}</dd>
+    ${withTags ? (() => { const rp = runningPnl(t), ae = rp && rp.entry != null ? rp.entry : num(t.entry), ax = rp && rp.exit != null ? rp.exit : num(t.exit), bp = bestPnl(t); return `<dt>Average entry</dt><dd class="num">${ae == null ? '–' : ae.toFixed(2)}</dd>
+    <dt>Average exit</dt><dd class="num">${ax == null ? '–' : ax.toFixed(2)}</dd>
+    <dt>Best exit price</dt><dd class="num">${num(t.mfe) == null ? '<span class="hint">Set best price (MFE)</span>' : num(t.mfe).toFixed(2)}${bp != null ? ` <span class="hint">${priv(money(bp))} possible</span>` : ''}</dd>
+    <dt>Best exit time</dt><dd><input class="fin" data-keep data-field="mfeTime" data-id="${t.id}" type="time" value="${esc(t.mfeTime || '')}" aria-label="Best exit time"></dd>`; })() : ''}
     <dt>Point value</dt><dd>${fin(t, 'mult', 'any', '1 for stocks, 5 for MES')}</dd>
     <dt>Fees</dt><dd>${fin(t, 'fees')}</dd>
     <dt>Net P&amp;L</dt><dd>${pnlCalc != null ? `<span class="${cls(t.pnl)}">${priv(money(t.pnl))}</span> <span class="hint">from prices</span>` : `<input class="fin" data-keep data-field="pnl" data-id="${t.id}" type="number" step="any" value="${t.pnl}" aria-label="Net P&L">`}</dd>
@@ -1219,7 +1246,7 @@ function statsTab(t, withTags = true) {
     <dt>Net ROI</dt><dd class="${cls(t.pnl)}">${roi_ == null ? '–' : roi_.toFixed(2) + '%'}</dd>
     <dt>Adjusted cost</dt><dd>${cost_ == null ? '–' : priv(money(cost_))}</dd>
     <dt>Gross P&amp;L</dt><dd class="${cls(gross)}">${priv(money(gross))}</dd>
-    <dt>Playbook</dt><dd><select class="fin" data-keep data-field="playbookId" data-id="${t.id}"><option value="">None</option>${S.playbooks.filter(p => !p.archived || p.id === t.playbookId).map(p => `<option value="${p.id}" ${t.playbookId === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></dd>
+    <dt>Strategy</dt><dd><select class="fin" data-keep data-field="playbookId" data-id="${t.id}"><option value="">None</option>${S.playbooks.filter(p => !p.archived || p.id === t.playbookId).map(p => `<option value="${p.id}" ${t.playbookId === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></dd>
     <dt>Trade rating</dt><dd><div class="stars" role="group" aria-label="Trade rating">${[1, 2, 3, 4, 5].map(i => `<button data-action="rate" data-id="${t.id}" data-v="${i}" class="${(t.rating || 0) >= i ? 'on' : ''}" aria-label="${i} star${i > 1 ? 's' : ''}">★</button>`).join('')}</div></dd>
     <div class="sep"></div>
     <dt>Profit target</dt><dd>${fin(t, 'target', 'any', 'price')}</dd>
@@ -1241,7 +1268,7 @@ function tagSection(t) {
     const opts = (c.tags || []).slice().sort((a, b) => a.localeCompare(b));
     return `<div class="cat" style="${tc(c)}"><div class="cat-head"><span><span class="dot"></span>${esc(c.name)}</span></div>
       <div class="tagbox">${tags.map(x => `<span class="tagchip" style="${tc(c)}">${esc(x)}<button data-action="untag" data-id="${t.id}" data-cat="${c.id}" data-tag="${esc(x)}" aria-label="Remove ${esc(x)}">×</button></span>`).join('')}
-        <button class="linkish" data-action="tagMenu" data-cat="${c.id}" style="color:var(--muted)">${open ? 'Close' : tags.length ? '+ Add' : 'Select tags'}</button></div>
+        <button class="tsel" data-action="tagMenu" data-cat="${c.id}" aria-expanded="${open}">${open ? 'Close' : tags.length ? 'Add' : 'Select tag'} <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" style="transform:rotate(${open ? 180 : 0}deg)"><path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div>
       ${open ? `<div class="menu"><input id="tagSearch" placeholder="Search or create a tag" autocomplete="off" aria-label="Search ${esc(c.name)} tags">
         <ul id="tagList">${opts.map(o => `<li data-name="${esc(o.toLowerCase())}"><button data-action="toggleTag" data-id="${t.id}" data-cat="${c.id}" data-tag="${esc(o)}"><input type="checkbox" tabindex="-1" ${tags.includes(o) ? 'checked' : ''} aria-hidden="true">${esc(o)}</button></li>`).join('')}</ul>
         <button class="linkish" id="createTag" data-action="createTag" data-id="${t.id}" data-cat="${c.id}" hidden></button></div>` : ''}
@@ -1815,14 +1842,77 @@ async function importRun() {
 
 /* ---------- trade preview drawer ---------- */
 const statusPill = t => t.pnl > 0 ? '<span class="status win">WIN</span>' : t.pnl < 0 ? '<span class="status loss">LOSS</span>' : '<span class="status be">EVEN</span>';
+
+function pathPts(t) {
+  const rp = runningPnl(t);
+  if (rp && rp.pts.length > 1) return { pts: [['', 0], ...rp.pts], est: false, start: rp.start };
+  const e = num(t.entry), q = num(t.qty), m = num(t.mult) || 1, d = dirOf(t);
+  const pnlAt = px => (px - e) * d * q * m;
+  const pts = [[t.time || 'Entry', 0]];
+  if (e != null && q) {
+    const a = num(t.mae), b = num(t.mfe), mid = [];
+    if (a != null) mid.push(['Worst', pnlAt(a)]);
+    if (b != null) mid.push([t.mfeTime || 'Best', pnlAt(b)]);
+    if (t.mfeTime && a != null && mid.length === 2 && t.mfeTime < (t.time || '')) mid.reverse();
+    pts.push(...mid);
+  }
+  pts.push([t.exitTime || 'Exit', t.pnl + (num(t.fees) || 0)]);
+  return { pts, est: true, start: t.time || 'Entry' };
+}
+function pathChart(t, w, h) {
+  const P = pathPts(t);
+  return `${lineChart(P.pts, { w, h, axis: true, dots: true, label: x => x || P.start, aria: 'Running P&L' })}${P.est ? '<div class="hint">Estimated from entry, worst and best price. Log fills on Executions for the exact path.</div>' : ''}`;
+}
+function pvStats(t) {
+  const r = roi(t), cost = (num(t.entry) && num(t.qty)) ? num(t.entry) * num(t.qty) * (num(t.mult) || 1) : null, gross = t.pnl + (num(t.fees) || 0);
+  const e = num(t.entry), q = num(t.qty), m = num(t.mult) || 1, d = dirOf(t), a = num(t.mae), b = num(t.mfe), x = num(t.exit);
+  const maeP = e != null && q && a != null ? (a - e) * d * q * m : null, mfeP = e != null && q && b != null ? (b - e) * d * q * m : null;
+  let scale = '';
+  if (a != null && b != null && x != null && a !== b) { const pct = Math.max(0, Math.min(1, (x - a) / (b - a))); scale = `<div class="scale" title="Exit landed ${Math.round(pct * 100)}% of the way from worst to best price"><i style="left:${pct * 100}%"></i></div>`; }
+  const risk = riskOf(t), tgt = targetOf(t);
+  return `<dl class="pvrows">
+    <dt>Side</dt><dd class="${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side.toUpperCase())}</dd>
+    <dt>Account</dt><dd><select class="fin" data-keep data-field="accountId" data-id="${t.id}">${allAccounts().map(ac => `<option value="${ac.id}" ${acctOf(t) === ac.id ? 'selected' : ''}>${esc(ac.name)}</option>`).join('')}</select></dd>
+    <dt>Contracts / shares traded</dt><dd>${q ?? '–'}</dd>
+    <dt>Commissions &amp; fees</dt><dd>${priv(money(num(t.fees) || 0))}</dd>
+    <dt>Net ROI</dt><dd class="${cls(t.pnl)}">${r == null ? '–' : r.toFixed(2) + '%'}</dd>
+    <dt>Gross P&amp;L</dt><dd class="${cls(gross)}">${priv(money(gross))}</dd>
+    <dt>Adjusted cost</dt><dd>${cost == null ? '–' : priv(money(cost))}</dd>
+    <dt>Strategy</dt><dd><select class="fin" data-keep data-field="playbookId" data-id="${t.id}"><option value="">Select strategy</option>${S.playbooks.filter(p => !p.archived || p.id === t.playbookId).map(p => `<option value="${p.id}" ${t.playbookId === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></dd>
+    <dt>Exit scale</dt><dd>${scale || '<span class="hint">Add worst and best price</span>'}</dd>
+    <dt>Price MAE / MFE</dt><dd><div class="mm">${maeP != null ? `<span class="chip l">${priv(money(maeP))}</span>` : '<span class="chip">MAE –</span>'}${mfeP != null ? `<span class="chip g">${priv(money(mfeP))}</span>` : '<span class="chip">MFE –</span>'}</div></dd>
+    <dt>Worst / best price</dt><dd><div class="mm">${fin(t, 'mae', 'any', 'worst')}${fin(t, 'mfe', 'any', 'best')}</div></dd>
+    <dt>Trade rating</dt><dd><div class="stars" role="group" aria-label="Trade rating" style="justify-content:flex-end">${[1, 2, 3, 4, 5].map(i => `<button data-action="rate" data-id="${t.id}" data-v="${i}" class="${(t.rating || 0) >= i ? 'on' : ''}" aria-label="${i} star${i > 1 ? 's' : ''}">★</button>`).join('')}</div></dd>
+    <dt>Profit target</dt><dd>${fin(t, 'target', 'any', 'price')}</dd>
+    <dt>Stop loss</dt><dd>${fin(t, 'stop', 'any', 'price')}</dd>
+    <dt>Initial target</dt><dd class="gain">${tgt != null ? priv(money(tgt)) : '–'}</dd>
+    <dt>Trade risk</dt><dd>${risk ? `<span class="loss">${priv(money(-risk))}</span>` : '–'}</dd>
+    <dt>Planned R-multiple</dt><dd>${tgt != null && risk ? (tgt / risk).toFixed(2) + 'R' : '–'}</dd>
+    <dt>Realized R-multiple</dt><dd class="${cls(t.pnl)}">${risk ? rOf(t).toFixed(2) + 'R' : '–'}</dd>
+  </dl>
+  <div class="label" style="margin-top:6px">Running P&amp;L</div><div class="spark">${pathChart(t, 440, 130)}</div>`;
+}
+function chartTab(t) {
+  const shot = (t.attachments || [])[0];
+  return `${shot ? `<img class="shot" style="width:100%;border-radius:8px;border:1px solid var(--line)" src="${esc(shot.url)}" alt="Chart screenshot" data-action="zoom" data-src="${esc(shot.url)}">` : ''}
+    <div class="actions" style="justify-content:flex-start"><button class="secondary sm" data-action="replayTrade" data-id="${t.id}">▶ Open in replay</button></div>${attachTab(t)}`;
+}
+function rightCard(t) {
+  const k = S.rtab || 'chart', tabs = [['chart', 'Chart'], ['notes', 'Notes'], ['running', 'Running P&L']];
+  const head = `<div class="rtabs" role="tablist">${tabs.map(([v, l]) => `<button role="tab" aria-selected="${k === v}" data-action="rtab" data-v="${v}">${l}</button>`).join('')}</div>`;
+  if (k === 'notes') return notesCard(t).replace('<section class="panel card">', `<section class="panel card" style="padding-top:0">${head}`);
+  if (k === 'running') return `<section class="panel chartcard">${head}<div style="padding:16px">${pathChart(t, 640, 220)}</div></section>`;
+  return chartCard(t).replace('<section class="panel chartcard">', `<section class="panel chartcard">${head}`);
+}
 function previewSheet() {
   const t = byId(S.modal.arg);
   if (!t) return `<div class="drawer" role="dialog" aria-modal="true" aria-label="Trade preview"><div class="dr-head"><h3>Trade not found</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div><p class="hint">It may have been deleted.</p></div>`;
   const list = navList(), idx = list.findIndex(x => x.id === t.id), prev = idx > 0 ? list[idx - 1] : null, next = idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null;
   const tab = S.ptab || 'stats', r = roi(t), dur = duration(t), acc = acctById(acctOf(t));
-  const tabs = [['stats', 'Stats'], ['playbook', 'Playbook'], ['tags', 'Tags'], ['executions', 'Executions'], ['notes', 'Notes'], ['attachments', 'Media']];
+  const tabs = [['stats', 'Stats'], ['playbook', 'Strategy'], ['tags', 'Tags'], ['executions', 'Executions'], ['chart', 'Chart'], ['notes', 'Notes']];
   let body = '';
-  if (tab === 'stats') body = statsTab(t, false);
+  if (tab === 'stats') body = pvStats(t);
+  else if (tab === 'chart' || tab === 'attachments') body = chartTab(t);
   else if (tab === 'playbook') body = playbookTab(t);
   else if (tab === 'tags') body = tagSection(t);
   else if (tab === 'executions') { const rp = runningPnl(t); body = execTab(t) + (rp && rp.pts.length > 1 ? `<div class="label">Running P&amp;L</div><div class="eq">${lineChart([['', 0], ...rp.pts], { w: 440, h: 150, axis: true, dots: true, label: x => x || rp.start })}</div>` : ''); }
@@ -1831,12 +1921,13 @@ function previewSheet() {
   return `<div class="drawer" role="dialog" aria-modal="true" aria-labelledby="pvTitle">
     <div class="dr-head"><div class="tv-title"><button class="icon-btn" data-action="preview" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button><h3 id="pvTitle">${esc(t.symbol)}</h3><button class="icon-btn" data-action="preview" data-id="${next ? next.id : ''}" ${next ? '' : 'disabled'} aria-label="Older trade">›</button>
       <span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side.toUpperCase())}</span><span class="chip">${isOpen(t) ? 'Open' : 'Closed'}</span>${statusPill(t)}</div>
-      <button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
+      <span style="display:flex;gap:6px"><button class="secondary sm" data-action="replayTrade" data-id="${t.id}">▶ Replay</button><button class="icon-btn" data-action="close" aria-label="Close">✕</button></span></div>
     <div class="hint">${dateLabel(t.date)}${t.time ? ' · opened ' + esc(t.time) : ''}${t.exitTime ? ' · closed ' + esc(t.exitTime) : ''}${dur ? ' · held ' + dur : ''}${acc ? ' · ' + esc(acc.name) : ''}</div>
     <div class="netbig" style="border-color:${t.pnl > 0 ? 'var(--gain)' : t.pnl < 0 ? 'var(--loss)' : 'var(--line)'}"><div class="label">Net P&amp;L</div><div class="big ${cls(t.pnl)}">${fmt(t.pnl, rOf(t))}</div><div class="legend">${r != null ? `<span class="chip">ROI ${r.toFixed(2)}%</span>` : ''}<span class="chip">Gross ${priv(money(t.pnl + (num(t.fees) || 0)))}</span>${riskOf(t) ? `<span class="chip">${rOf(t).toFixed(2)}R</span>` : ''}</div></div>
-    <div class="actions" style="justify-content:flex-start"><button class="ghost" data-action="replayTrade" data-id="${t.id}">▶ Replay</button><button class="ghost" data-action="aiTrade" data-id="${t.id}">Review with Claude</button><button class="ghost" data-action="open" data-id="${t.id}">Open full page</button><button class="ghost" data-action="toggleRev" data-id="${t.id}" style="${t.reviewed ? 'color:var(--gain);border-color:var(--gain-line)' : ''}">${t.reviewed ? '✓ Reviewed' : 'Mark reviewed'}</button></div>
+    <div class="actions" style="justify-content:flex-start"><button class="ghost" data-action="aiTrade" data-id="${t.id}">Review with Claude</button><button class="ghost" data-action="toggleRev" data-id="${t.id}" style="${t.reviewed ? 'color:var(--gain);border-color:var(--gain-line)' : ''}">${t.reviewed ? '✓ Reviewed' : 'Mark reviewed'}</button></div>
     <div class="tabs" role="tablist" style="padding:0">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${tab === k}" data-action="ptab" data-v="${k}">${l}</button>`).join('')}</div>
-    <div class="tabbody" style="padding:4px 0">${body}</div></div>`;
+    <div class="tabbody" style="padding:4px 0">${body}</div>
+    <div class="dr-foot"><button class="secondary" data-action="close">Close</button><button class="primary" data-action="open" data-id="${t.id}">Go to trade details</button></div></div>`;
 }
 
 /* ---------- day view pieces ---------- */
@@ -2714,7 +2805,7 @@ const LOG_COLS = {
   reviewed: ['Reviewed', t => `<td><button class="rev${t.reviewed ? ' on' : ''}" data-action="toggleRev" data-id="${t.id}" aria-label="${t.reviewed ? 'Reviewed' : 'Not reviewed'}" aria-pressed="${!!t.reviewed}"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 5.2l2 2 4-4.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button></td>`],
   date: ['Open date', t => `<td class="num">${t.date}</td>`],
   time: ['Open time', t => `<td class="num">${esc(t.time || '–')}</td>`],
-  symbol: ['Symbol', t => `<td><b>${esc(t.symbol)}</b>${t.sample ? ' <span class="chip">sample</span>' : ''}</td>`],
+  symbol: ['Symbol', t => `<td><span class="tick">${esc(t.symbol)}</span>${t.sample ? ' <span class="chip">sample</span>' : ''}</td>`],
   status: ['Status', t => { const st = t.pnl > 0 ? 'win' : t.pnl < 0 ? 'loss' : 'be'; return `<td><span class="status ${st}">${st === 'be' ? 'EVEN' : st.toUpperCase()}</span></td>`; }],
   side: ['Side', t => `<td><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span></td>`],
   entry: ['Entry price', t => `<td class="r num">${t.entry ?? '–'}</td>`, 1],
@@ -2760,7 +2851,7 @@ function colDefs() {
   S.cats.forEach(c => { if (c.id === 'setups' || c.id === 'mistakes') return; d['cat:' + c.id] = [c.name, t => `<td><div class="tags-cell">${tagsOf(t, c.id).map(x => `<span class="tagchip" style="${tc(c)}">${esc(x)}</span>`).join('') || '<span class="muted">–</span>'}</div></td>`]; });
   return d;
 }
-const DEFAULT_DAY_COLS = ['time', 'symbol', 'side', 'net', 'roi', 'r', 'playbook', 'tags', 'replay'];
+const DEFAULT_DAY_COLS = ['time', 'symbol', 'side', 'instrument', 'net', 'roi', 'r', 'playbook', 'tags', 'replay'];
 try { const c = JSON.parse(localStorage.getItem('ll-cols') || 'null'); if (Array.isArray(c) && c.length) S.cols = c.filter(k => LOG_COLS[k] || k.startsWith('cat:')); } catch (e) {}
 try { const c = JSON.parse(localStorage.getItem('ll-daycols') || 'null'); S.dayCols = Array.isArray(c) && c.length ? c.filter(k => LOG_COLS[k] || k.startsWith('cat:')) : DEFAULT_DAY_COLS.slice(); } catch (e) { S.dayCols = DEFAULT_DAY_COLS.slice(); }
 const colTarget = () => S.modal && S.modal.arg === 'day' ? 'day' : 'log';
@@ -3207,6 +3298,8 @@ document.addEventListener('click', async e => {
     case 'impRun': importRun(); return;
     case 'preview': if (!id) return; S.tagMenu = null; S.ptab = S.ptab || 'stats'; return openModal('preview', id);
     case 'ptab': S.ptab = b.dataset.v; S.tagMenu = null; break;
+    case 'rtab': saveNote(true); S.rtab = b.dataset.v; break;
+    case 'shareTrade': { const t = byId(id); if (!t) return; const r = roi(t); const txt = `${t.symbol} ${t.side} · ${dateLabel(t.date)}${t.time ? ' ' + t.time : ''}${t.exitTime ? '–' + t.exitTime : ''}\nNet P&L ${money(t.pnl)}${r != null ? ' · ROI ' + r.toFixed(2) + '%' : ''}${riskOf(t) ? ' · ' + rOf(t).toFixed(2) + 'R' : ''}\nEntry ${t.entry ?? '–'} → Exit ${t.exit ?? '–'} · Qty ${t.qty ?? '–'}`; try { await navigator.clipboard.writeText(txt); toast('Trade summary copied. Paste it anywhere to share.'); } catch (_) { toast('Copying isn’t allowed here.'); } return; }
     case 'accMenu': S.accMenu = !S.accMenu; S.dashMenu = false; break;
     case 'accToggle': {
       e.preventDefault(); const all = allAccounts().map(a => a.id), v = b.dataset.v;
