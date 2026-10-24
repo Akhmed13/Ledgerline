@@ -575,61 +575,156 @@ a.focus-item{text-decoration:none;color:inherit}
 <input type="file" id="fileIn" accept="image/*" multiple hidden>
 
 <script>
-/* Standalone mode: when the page is opened outside Claude (e.g. GitHub Pages or Vercel), there is no
-   window.claude. This provides a local stand-in for the db, assets and downloads capabilities, stored
-   in this browser's IndexedDB. Inside Claude this block does nothing. */
+/* Standalone mode. Outside Claude there is no window.claude, so this provides the db, assets and downloads
+   capabilities itself. When the site is deployed with its /api/docs backend (Vercel + DATABASE_URL), data is saved in
+   the database behind a password. Anywhere else (a plain static host or a local file) it falls back to this
+   browser's IndexedDB. Inside Claude this block does nothing. */
 (() => {
   if (window.claude) return;
-  const DBN = 'ledgerline-local', STORE = 'docs';
-  const mem = new Map(), docL = new Map(), colL = new Map();
-  let idb = null;
-  const openIdb = () => new Promise(res => { try { const r = indexedDB.open(DBN, 1); r.onupgradeneeded = () => r.result.createObjectStore(STORE); r.onsuccess = () => res(r.result); r.onerror = () => res(null); } catch (e) { res(null); } });
-  const loadAll = () => new Promise(res => {
-    if (!idb) { try { const raw = localStorage.getItem(DBN); if (raw) Object.entries(JSON.parse(raw)).forEach(([k, v]) => mem.set(k, v)); } catch (e) {} return res(); }
-    try { const tx = idb.transaction(STORE, 'readonly'), st = tx.objectStore(STORE), rq = st.openCursor(); rq.onsuccess = () => { const c = rq.result; if (c) { mem.set(c.key, c.value); c.continue(); } else res(); }; rq.onerror = () => res(); } catch (e) { res(); }
-  });
-  const persist = (path, val) => new Promise((res, rej) => {
-    if (!idb) { try { localStorage.setItem(DBN, JSON.stringify(Object.fromEntries(mem))); res(); } catch (e) { rej({ code: 'quota_exceeded', message: 'Browser storage is full.' }); } return; }
-    try { const tx = idb.transaction(STORE, 'readwrite'), st = tx.objectStore(STORE); val === undefined ? st.delete(path) : st.put(val, path); tx.oncomplete = () => res(); tx.onerror = () => rej({ code: 'quota_exceeded', message: 'Browser storage is full.' }); } catch (e) { rej({ code: 'unavailable', message: String(e) }); }
-  });
+  const API = 'api/docs', KEY = 'll-key', DBN = 'ledgerline-local', STORE = 'docs';
+  const mem = new Map(), docL = new Map(), colL = new Map(), pending = new Map();
+  let mode = 'local', idb = null, cursor = null, queue = [], flushTimer = null, polling = null, apiKey = '';
+  const err = (code, message) => Object.assign(new Error(message), { code, message });
   const clone = v => JSON.parse(JSON.stringify(v));
   const parentOf = p => p.split('/').slice(0, -1).join('/');
-  const docSnap = path => { const v = mem.get(path); const data = v === undefined ? undefined : clone(v); return { id: path.split('/').pop(), exists: v !== undefined, data: () => data, metadata: { fromCache: false, hasPendingWrites: false } }; };
+  const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  const lsGet = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
+  const lsSet = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} };
+
+  /* ---- browser storage (local mode, and a record of data saved before the database was connected) ---- */
+  const openIdb = () => new Promise(res => { try { const r = indexedDB.open(DBN, 1); r.onupgradeneeded = () => r.result.createObjectStore(STORE); r.onsuccess = () => res(r.result); r.onerror = () => res(null); } catch (e) { res(null); } });
+  const idbAll = () => new Promise(res => {
+    const out = new Map();
+    if (!idb) { try { const raw = localStorage.getItem(DBN); if (raw) Object.entries(JSON.parse(raw)).forEach(([k, v]) => out.set(k, v)); } catch (e) {} return res(out); }
+    try { const rq = idb.transaction(STORE, 'readonly').objectStore(STORE).openCursor(); rq.onsuccess = () => { const c = rq.result; if (c) { out.set(c.key, c.value); c.continue(); } else res(out); }; rq.onerror = () => res(out); } catch (e) { res(out); }
+  });
+  const idbPut = (path, val) => new Promise((res, rej) => {
+    if (!idb) { try { localStorage.setItem(DBN, JSON.stringify(Object.fromEntries(mem))); res(); } catch (e) { rej(err('quota_exceeded', 'Browser storage is full.')); } return; }
+    try { const tx = idb.transaction(STORE, 'readwrite'), st = tx.objectStore(STORE); val === undefined ? st.delete(path) : st.put(val, path); tx.oncomplete = () => res(); tx.onerror = () => rej(err('quota_exceeded', 'Browser storage is full.')); } catch (e) { rej(err('unavailable', String(e))); }
+  });
+  const idbClear = () => new Promise(res => { if (!idb) { try { localStorage.removeItem(DBN); } catch (e) {} return res(); } try { const tx = idb.transaction(STORE, 'readwrite'); tx.objectStore(STORE).clear(); tx.oncomplete = () => res(); tx.onerror = () => res(); } catch (e) { res(); } });
+
+  /* ---- server API ---- */
+  async function api(method, query, body) {
+    let r;
+    try { r = await fetch(API + (query ? '?' + query : ''), { method, headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' }); }
+    catch (e) { throw err('unavailable', "Can't reach the server. Check your connection."); }
+    let j = {}; try { j = await r.json(); } catch (e) {}
+    if (r.status === 401) { lsSet(KEY, ''); showGate('Your password was not accepted. Enter it again.'); throw err('invalid_argument', 'Not signed in.'); }
+    if (r.status === 413) throw err('quota_exceeded', j.error || 'Too large to save.');
+    if (!r.ok) throw err('unavailable', j.error || `Server error ${r.status}`);
+    return j;
+  }
+  async function loadAllRemote() {
+    mem.clear(); let after = '', first = true;
+    for (;;) { const j = await api('GET', after ? 'after=' + encodeURIComponent(after) : ''); if (first) { cursor = j.cursor; first = false; } j.docs.forEach(([p, d]) => mem.set(p, d)); if (!j.next) break; after = j.next; }
+  }
+  async function poll() {
+    if (mode !== 'server' || !cursor || document.hidden) return;
+    try {
+      let exact = false;
+      for (;;) {
+        const j = await api('GET', 'since=' + encodeURIComponent(cursor) + (exact ? '&exact=1' : ''));
+        j.changes.forEach(([p, d]) => {
+          if (pending.has(p)) return;
+          const cur = mem.get(p);
+          if (d === null) { if (cur !== undefined) { mem.delete(p); notify(p); } }
+          else if (JSON.stringify(cur) !== JSON.stringify(d)) { mem.set(p, d); notify(p); }
+        });
+        cursor = j.cursor; if (!j.more) break; exact = true;
+      }
+    } catch (e) { /* try again on the next tick */ }
+  }
+  function scheduleFlush() { clearTimeout(flushTimer); flushTimer = setTimeout(flush, 120); }
+  async function flush() {
+    if (!queue.length) return;
+    const batch = queue; queue = [];
+    const latest = new Map(); batch.forEach(op => latest.set(op.path, op));
+    const ops = [...latest.values()], groups = []; let cur = [], bytes = 0;
+    ops.forEach(op => { const size = op.data == null ? 50 : JSON.stringify(op.data).length; if (cur.length && (bytes + size > 3_000_000 || cur.length >= 400)) { groups.push(cur); cur = []; bytes = 0; } cur.push(op); bytes += size; });
+    if (cur.length) groups.push(cur);
+    for (const g of groups) {
+      const paths = new Set(g.map(o => o.path)), mine = batch.filter(b => paths.has(b.path));
+      let failure = null;
+      try { await api('POST', '', { ops: g.map(o => ({ path: o.path, data: o.data })) }); } catch (e) { failure = e; }
+      mine.forEach(b => { const n = (pending.get(b.path) || 1) - 1; n > 0 ? pending.set(b.path, n) : pending.delete(b.path); failure ? b.reject(failure) : b.resolve(); });
+    }
+  }
+
+  /* ---- shared document store ---- */
+  const docSnap = path => { const v = mem.get(path), data = v === undefined ? undefined : clone(v); return { id: path.split('/').pop(), exists: v !== undefined, data: () => data, metadata: { fromCache: false, hasPendingWrites: pending.has(path) } }; };
   const colSnap = path => { const docs = [...mem.keys()].filter(k => parentOf(k) === path).sort().map(docSnap); return { docs, size: docs.length, empty: !docs.length, docChanges: () => docs.map((d, i) => ({ type: 'added', doc: d, oldIndex: -1, newIndex: i })), metadata: { fromCache: false, hasPendingWrites: false } }; };
-  const notify = path => setTimeout(() => {
-    (docL.get(path) || []).forEach(fn => fn(docSnap(path)));
-    const col = parentOf(path); (colL.get(col) || []).forEach(fn => fn(colSnap(col)));
-  }, 0);
+  const notify = path => setTimeout(() => { (docL.get(path) || []).forEach(fn => fn(docSnap(path))); const col = parentOf(path); (colL.get(col) || []).forEach(fn => fn(colSnap(col))); }, 0);
   const listen = (map, key, fn, snap) => { const set = map.get(key) || new Set(); set.add(fn); map.set(key, set); setTimeout(() => fn(snap()), 0); return () => set.delete(fn); };
   const merge = (a, b) => { const o = { ...a }; Object.entries(b).forEach(([k, v]) => { if (v && typeof v === 'object' && !Array.isArray(v) && v.__delete__) delete o[k]; else if (v && typeof v === 'object' && !Array.isArray(v) && o[k] && typeof o[k] === 'object' && !Array.isArray(o[k])) o[k] = merge(o[k], v); else o[k] = v; }); return o; };
-  const write = async (path, val) => { if (val === undefined) mem.delete(path); else mem.set(path, clone(val)); notify(path); await persist(path, val === undefined ? undefined : mem.get(path)); };
-  const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  function write(path, val) {
+    if (val === undefined) mem.delete(path); else mem.set(path, clone(val));
+    notify(path);
+    if (mode === 'local') return idbPut(path, val === undefined ? undefined : mem.get(path));
+    return new Promise((resolve, reject) => { pending.set(path, (pending.get(path) || 0) + 1); queue.push({ path, data: val === undefined ? null : mem.get(path), resolve, reject }); scheduleFlush(); });
+  }
   const docRef = path => ({
     id: path.split('/').pop(), path,
     get: async () => docSnap(path),
     set: async data => write(path, data),
-    update: async data => { if (!mem.has(path)) throw { code: 'invalid_argument', message: 'Document does not exist.' }; return write(path, merge(mem.get(path), data)); },
+    update: async data => { if (!mem.has(path)) throw err('invalid_argument', 'Document does not exist.'); return write(path, merge(mem.get(path), data)); },
     delete: async () => write(path, undefined),
-    onSnapshot: (next) => listen(docL, path, next, () => docSnap(path)),
+    onSnapshot: next => listen(docL, path, next, () => docSnap(path)),
     collection: sub => colRef(path + '/' + sub),
     acquire: async () => ({ acquired: true })
   });
-  const colRef = path => {
-    const q = { path, doc: id => docRef(path + '/' + (id || rid())), add: async data => { const r = docRef(path + '/' + rid()); await r.set(data); return r; }, get: async () => colSnap(path), onSnapshot: next => listen(colL, path, next, () => colSnap(path)) };
-    q.where = () => q; q.orderBy = () => q; q.limit = () => q; return q;
-  };
+  const colRef = path => { const q = { path, doc: id => docRef(path + '/' + (id || rid())), add: async data => { const r = docRef(path + '/' + rid()); await r.set(data); return r; }, get: async () => colSnap(path), onSnapshot: next => listen(colL, path, next, () => colSnap(path)) }; q.where = () => q; q.orderBy = () => q; q.limit = () => q; return q; };
   const db = { doc: docRef, collection: colRef };
+
+  /* ---- assets and downloads ---- */
   const toDataURL = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
   async function shrink(blob) {
     if (!/^image\/(png|jpe?g|webp)$/.test(blob.type) || blob.size < 400000) return blob;
     try { const bmp = await createImageBitmap(blob), sc = Math.min(1, 1600 / Math.max(bmp.width, bmp.height)), c = document.createElement('canvas'); c.width = Math.round(bmp.width * sc); c.height = Math.round(bmp.height * sc); c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height); return await new Promise(r => c.toBlob(b => r(b || blob), 'image/jpeg', .82)); } catch (e) { return blob; }
   }
-  const assets = { upload: async blob => { const b = await shrink(blob); return { id: rid(), url: await toDataURL(b), sizeBytes: b.size, contentType: b.type }; }, list: async () => ({ assets: [], usage: {} }), delete: async () => {} };
+  const assets = { upload: async blob => { const b = await shrink(blob); if (b.size > 1_400_000) throw err('quota_exceeded', 'That image is too large. Try a smaller screenshot.'); return { id: rid(), url: await toDataURL(b), sizeBytes: b.size, contentType: b.type }; }, list: async () => ({ assets: [], usage: {} }), delete: async () => {} };
   const downloads = { save: async ({ filename, data }) => { const b = data instanceof Blob ? data : new Blob([data], { type: 'text/plain' }), u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); return { status: 'saved' }; } };
-  const ready = openIdb().then(d => { idb = d; return loadAll(); });
+
+  /* ---- password screen ---- */
+  let gateResolve = null;
+  function showGate(msg, setup) {
+    let g = document.getElementById('llGate');
+    if (!g) { g = document.createElement('div'); g.id = 'llGate'; g.className = 'scrim'; g.style.zIndex = '90'; document.body.appendChild(g); }
+    g.hidden = false;
+    g.innerHTML = setup
+      ? `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="gTitle"><h3 id="gTitle">Finish setting up the database</h3><p class="hint">${msg}</p><p class="hint">In Vercel, open the project → Settings → Environment Variables, add the missing variable for Production and Preview, then redeploy.</p></div>`
+      : `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="gTitle"><h3 id="gTitle">Sign in to Ledgerline</h3><p class="hint">Enter the password set as LEDGERLINE_PASSWORD in your Vercel project.</p>
+        <form class="form" id="llGateForm"><label class="full">Password<input id="llGatePw" type="password" autocomplete="current-password" required></label>${msg ? `<div class="full banner"><span>${msg}</span></div>` : ''}<div class="full actions"><button class="primary" type="submit">Sign in</button></div></form></div>`;
+    const f = document.getElementById('llGateForm');
+    if (f) { setTimeout(() => document.getElementById('llGatePw').focus(), 30); f.addEventListener('submit', async e => { e.preventDefault(); e.stopPropagation(); apiKey = document.getElementById('llGatePw').value; const btn = f.querySelector('button'); btn.disabled = true; btn.textContent = 'Checking…'; try { await api('GET', 'check=1'); lsSet(KEY, apiKey); g.hidden = true; if (gateResolve) { const r = gateResolve; gateResolve = null; r(); } } catch (x) { if (!document.getElementById('llGate').hidden && x.message !== 'Not signed in.') showGate(x.message); } }); }
+  }
+
+  /* ---- start-up ---- */
+  async function start() {
+    idb = await openIdb();
+    let probe = null;
+    if (location.protocol !== 'file:') { try { const r = await fetch(API + '?probe=1', { cache: 'no-store' }); if (r.ok) probe = await r.json(); } catch (e) {} }
+    if (!probe || !probe.backend) { mode = 'local'; (await idbAll()).forEach((v, k) => mem.set(k, v)); return; }
+    mode = 'server';
+    if (!probe.configured.db || !probe.configured.password) { showGate(!probe.configured.db ? 'The DATABASE_URL variable is missing.' : 'Add a LEDGERLINE_PASSWORD variable: the password you will use to open your journal.', true); await new Promise(() => {}); }
+    apiKey = lsGet(KEY);
+    if (!apiKey) { await new Promise(r => { gateResolve = r; showGate(''); }); }
+    else { try { await api('GET', 'check=1'); } catch (e) { await new Promise(r => { gateResolve = r; if (e.message !== 'Not signed in.') showGate(e.message); }); } }
+    await loadAllRemote();
+    const old = await idbAll(); window.__llLocal.oldCount = old.size; window.__llLocal._old = old;
+    polling = setInterval(poll, 15000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
+    window.addEventListener('beforeunload', e => { if (queue.length || pending.size) { flush(); e.preventDefault(); e.returnValue = ''; } });
+  }
+  const ready = start();
+
   window.__llLocal = {
+    get mode() { return mode; }, oldCount: 0, _old: null,
     backup: () => downloads.save({ filename: `ledgerline-backup-${new Date().toISOString().slice(0, 10)}.json`, data: new Blob([JSON.stringify({ app: 'ledgerline', version: 1, docs: Object.fromEntries(mem) })], { type: 'application/json' }) }),
-    restore: async text => { const j = JSON.parse(text); if (!j || j.app !== 'ledgerline' || !j.docs) throw new Error('Not a Ledgerline backup file.'); for (const k of [...mem.keys()]) await write(k, undefined); for (const [k, v] of Object.entries(j.docs)) await write(k, v); return Object.keys(j.docs).length; }
+    restore: async text => { const j = JSON.parse(text); if (!j || j.app !== 'ledgerline' || !j.docs) throw new Error('Not a Ledgerline backup file.'); const w = []; for (const k of [...mem.keys()]) if (!(k in j.docs)) w.push(write(k, undefined)); for (const [k, v] of Object.entries(j.docs)) w.push(write(k, v)); await Promise.all(w); return Object.keys(j.docs).length; },
+    copyOld: async () => { const old = window.__llLocal._old; if (!old || !old.size) return 0; await Promise.all([...old].map(([k, v]) => write(k, v))); await idbClear(); window.__llLocal.oldCount = 0; window.__llLocal._old = null; return old.size; },
+    dropOld: async () => { await idbClear(); window.__llLocal.oldCount = 0; window.__llLocal._old = null; },
+    signOut: () => { lsSet(KEY, ''); location.reload(); }
   };
   window.claude = { use: async name => { await ready; return name === 'db' ? db : name === 'assets' ? assets : name === 'downloads' ? downloads : null; } };
 })();
@@ -803,9 +898,11 @@ function topbar(title, sub, scope, extra = '') {
 }
 function banner() {
   if (S.dbMissing) return `<div class="banner"><span>Saving isn't available in this view. Open the journal from your Claude account to record trades.</span></div>`;
+  if (S.netErr) return `<div class="banner"><span>${esc(S.netErr)}</span><button data-action="netErrClose">Dismiss</button></div>`;
   if (!S.loaded) return `<div class="banner"><span>Loading your journal…</span></div>`;
   const samples = S.allTrades.filter(t => t.sample).length;
-  if (window.__llLocal && !S.allTrades.length && !S.localHintClosed) return `<div class="banner"><span>Your journal is saved in this browser only. Settings → Data has backup and restore.</span><button data-action="localHint">Got it</button></div>`;
+  if (window.__llLocal && window.__llLocal.mode === 'server' && window.__llLocal.oldCount && !S.localHintClosed) return `<div class="banner"><span>This browser has ${window.__llLocal.oldCount} records saved before your database was connected.</span><span><button data-action="llCopyOld">Copy them to the database</button> <button data-action="localHint">Not now</button></span></div>`;
+  if (window.__llLocal && window.__llLocal.mode === 'local' && !S.allTrades.length && !S.localHintClosed) return `<div class="banner"><span>Your journal is saved in this browser only. Settings → Data has backup and restore.</span><button data-action="localHint">Got it</button></div>`;
   if (samples) return `<div class="banner"><span><b>${samples} sample trades</b> are filling the journal so you can see how it works. Your own trades appear alongside them.</span><button data-action="clearSamples">${S.armed === 'samples' ? 'Confirm: remove samples' : 'Remove sample trades'}</button></div>`;
   return '';
 }
@@ -2082,8 +2179,11 @@ function settingsView() {
     const samples = S.allTrades.filter(t => t.sample).length;
     body = `<h3 class="h3">Your data</h3><div class="pb-stats"><span><b>${S.allTrades.length}</b> trades</span><span><b>${Object.keys(S.journal).length}</b> journal days</span><span><b>${S.notes.length}</b> notes</span><span><b>${S.playbooks.length}</b> playbooks</span></div>
       <div class="actions" style="justify-content:flex-start"><button class="ghost" data-action="csvAll">Download all trades (CSV)</button>${samples ? `<button class="del${S.armed === 'samples' ? ' armed' : ''}" data-action="clearSamples">${S.armed === 'samples' ? `Confirm: remove ${samples} sample trades` : `Remove ${samples} sample trades`}</button>` : ''}</div>
-      ${window.__llLocal ? `<div class="banner" style="background:var(--surface-2);border-color:var(--line)"><span>This copy runs outside Claude, so everything is saved in this browser only. Download a backup now and then, and use it to move your journal to another browser or computer.</span></div>
-      <div class="actions" style="justify-content:flex-start"><button class="primary" data-action="llBackup">Download backup</button><label class="ghost" style="cursor:pointer">Restore from backup<input type="file" id="llRestore" accept=".json,application/json" hidden></label></div>` : '<p class="hint">Everything is stored with this journal. Anyone you share it with can see it.</p>'}`;
+      ${window.__llLocal ? (window.__llLocal.mode === 'server' ? `<div class="banner" style="background:var(--surface-2);border-color:var(--line)"><span>Your journal is saved in your database, so it's the same on every device where you sign in. Changes from other devices show up within about 15 seconds.</span></div>
+      ${window.__llLocal.oldCount ? `<div class="banner"><span>This browser still holds ${window.__llLocal.oldCount} records saved before the database was connected.</span><span><button data-action="llCopyOld">Copy them to the database</button> <button data-action="llDropOld">Discard</button></span></div>` : ''}
+      <div class="actions" style="justify-content:flex-start"><button class="primary" data-action="llBackup">Download backup</button><label class="ghost" style="cursor:pointer">Restore from backup<input type="file" id="llRestore" accept=".json,application/json" hidden></label><button class="ghost" data-action="llSignOut">Sign out on this device</button></div>`
+      : `<div class="banner" style="background:var(--surface-2);border-color:var(--line)"><span>This copy runs outside Claude without its database, so everything is saved in this browser only. Download a backup now and then, and use it to move your journal to another browser or computer.</span></div>
+      <div class="actions" style="justify-content:flex-start"><button class="primary" data-action="llBackup">Download backup</button><label class="ghost" style="cursor:pointer">Restore from backup<input type="file" id="llRestore" accept=".json,application/json" hidden></label></div>`) : '<p class="hint">Everything is stored with this journal. Anyone you share it with can see it.</p>'}`;
   }
   return `<div class="settings"><nav class="panel card set-nav" aria-label="Settings sections">${tabs.map(([k, l]) => `<button data-action="settings" data-v="${k}" aria-pressed="${tab === k}">${l}</button>`).join('')}</nav><section class="panel card set-body">${body}</section></div>`;
 }
@@ -2803,7 +2903,7 @@ function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = fals
 function writeErr(e) {
   if (e && e.code === 'invalid_argument') toast("You don't have permission to change this journal.");
   else if (e && e.code === 'quota_exceeded') toast('The journal is full. Delete some old trades to add new ones.');
-  else toast("That didn't save. Check your connection and try again.");
+  else { toast("That didn't save. Check your connection and try again."); if (window.__llLocal && window.__llLocal.mode === 'server') { S.netErr = "Some changes didn't reach the database. Check your connection; changes made after it's back will save normally."; rerender(); } }
 }
 function needDb() { if (!S.db) { toast("Saving isn't available in this view."); return false; } return true; }
 const queues = {};
@@ -3120,7 +3220,11 @@ document.addEventListener('click', async e => {
     case 'colMove': { const k = b.dataset.v, i = S.cols.indexOf(k), j = i + +b.dataset.d; if (j < 0 || j >= S.cols.length) return; [S.cols[i], S.cols[j]] = [S.cols[j], S.cols[i]]; try { localStorage.setItem('ll-cols', JSON.stringify(S.cols)); } catch (_) {} render(); renderModal(); return; }
     case 'colReset': S.cols = DEFAULT_COLS.slice(); try { localStorage.setItem('ll-cols', JSON.stringify(S.cols)); } catch (_) {} render(); renderModal(); return;
     case 'llBackup': window.__llLocal && window.__llLocal.backup(); return;
+    case 'llSignOut': window.__llLocal && window.__llLocal.signOut(); return;
+    case 'llCopyOld': { const n = await window.__llLocal.copyOld().catch(e => { writeErr(e); return -1; }); if (n >= 0) toast(`${n} records copied to the database`); break; }
+    case 'llDropOld': await window.__llLocal.dropOld(); toast('Old browser data discarded'); break;
     case 'localHint': S.localHintClosed = true; break;
+    case 'netErrClose': S.netErr = ''; break;
     case 'repTab': S.rep.tab = b.dataset.v; S.repMenu = false; break;
     case 'recentTab': S.recentTab = b.dataset.v; break;
     case 'cash': return openModal('cash');

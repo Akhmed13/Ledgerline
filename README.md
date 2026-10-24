@@ -2,17 +2,26 @@
 
 A trading journal: dashboard, P&L calendar, trade log and review pages, daily journal, notebook, reports with cross analysis, playbooks, progress tracker, replay, economic calendar, agents, prop firm tracking and settings.
 
-## Two ways to run it
+## Running it on Vercel with your own database
 
-### As a website (Vercel, GitHub Pages, any static host)
+Every create, read, update and delete runs server-side in `api/docs.js`, a Vercel serverless function that talks to the database at `DATABASE_URL`. The page itself keeps no data of its own; it loads from and saves to that API.
 
-`index.html` at the repository root is the complete site. Deploy the repository as a static site with no build step and no framework preset; the host serves `index.html` at `/`.
+Set these environment variables in the Vercel project (Production and Preview), then redeploy:
 
-In this mode the journal saves everything in the visitor's own browser (IndexedDB):
+| Variable | Value |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL: `postgres://user:password@host:5500/dbname` · MySQL/MariaDB: `mysql://user:password@host:5500/dbname` |
+| `LEDGERLINE_PASSWORD` | The password you'll type to open the journal. Without it the API refuses all requests, so nobody else can read or change your data. |
 
-- Data stays on that browser and computer. It isn't shared between devices or visitors.
-- **Settings → Data → Download backup** saves a JSON file; **Restore from backup** loads it into another browser.
-- Ask Claude, AI reviews and the briefing and session-review agents are unavailable, because they need Claude.
+- The table `ledgerline_docs` is created automatically on first use. The database user needs permission to create tables.
+- `host` must be reachable from the internet (a public IP or DDNS name with the port forwarded), because Vercel's servers connect from outside your network.
+- PostgreSQL without SSL: add `?sslmode=disable`. With a self-signed certificate: `?sslmode=no-verify`.
+- Server logs appear in Vercel under the project's **Logs** tab, prefixed `[ledgerline]`. Connection problems are logged there and shown on the sign-in screen with a hint.
+- Changes made on one device appear on others within about 15 seconds.
+
+### Without a backend
+
+Opened from a plain static host or as a local file (no `/api/docs`), the page falls back to saving in the browser's IndexedDB, with backup and restore under **Settings → Data**.
 
 ### As a Claude artifact
 
@@ -40,7 +49,7 @@ That regenerates `index.html` by wrapping the source in a full HTML document.
 
 ## Data
 
-Records are organised in these collections, in the artifact database or in browser storage:
+Records are stored as JSON documents (one row per document in `ledgerline_docs`), grouped in these collections:
 
 `trades`, `accounts`, `imports`, `templates`, `candles`, `econ`, `props`, `propTx`, `tagcats`, `playbooks`, `journal`, `notes`, `cash`, `dashTemplates`, and the `settings` documents `account`, `rules`, `notebook`, `fees` and `agents`.
 
@@ -49,7 +58,9 @@ Records are organised in these collections, in the artifact database or in brows
 ## Repository layout
 
 ```
-index.html               the standalone website (generated)
+api/docs.js              server-side storage API (Vercel function)
+package.json             server dependencies (pg, mysql2)
+index.html               the website (generated)
 src/ledgerline.html      the journal source / Claude artifact
 build.py                 rebuilds index.html from the source
 sample-data/trades.json  demo trades
