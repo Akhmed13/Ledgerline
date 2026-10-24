@@ -1,0 +1,12 @@
+{
+  "name": "Ledgerline Journal",
+  "short_name": "Ledgerline",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#161a21",
+  "background_color": "#eceef2",
+  "display": "standalone",
+  "start_url": "/"
+}
