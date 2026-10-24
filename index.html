@@ -455,6 +455,36 @@ button.hc:hover{border-color:var(--ink)}
 .msg h4,.ai-answer h4{margin:8px 0 4px;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
 .msg ul,.msg ol,.ai-answer ul,.ai-answer ol{margin:4px 0 6px;padding-left:20px}
 .ai-answer{font-size:14px;line-height:1.6;max-height:60vh;overflow-y:auto;overflow-wrap:anywhere}
+
+/* v15: insights */
+.ins-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+.ins{display:flex;flex-direction:column;gap:10px}
+.ins-top{display:flex;justify-content:space-between;align-items:center}
+.ins .label{display:flex;align-items:center;gap:7px;letter-spacing:.12em}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+.live{width:8px;height:8px;border-radius:50%;background:var(--gain);box-shadow:0 0 0 3px var(--gain-line)}
+.ins-q{align-self:flex-end;background:var(--accent-soft);border:1px solid var(--line);border-radius:12px 12px 4px 12px;padding:8px 12px;font-weight:500;max-width:90%}
+.ins-ans{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface-2)}
+.ins-ans .big{font-family:var(--f-num);font-size:26px;font-weight:600;letter-spacing:-.02em}
+.ins-f{list-style:none;margin:10px 0 0;padding:10px 0 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--muted)}
+.ins-f b{font-family:var(--f-num);margin-right:4px}
+.ins-f li.dim{opacity:.6}
+.ins-foot{margin-top:10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gain);font-family:var(--f-num)}
+.t-amber{color:var(--c-amber,#c98a12)}.t-gain{color:var(--gain)}.t-loss{color:var(--loss)}.t-muted{color:var(--muted)}
+.t-bg-amber{background:var(--c-amber,#c98a12)}.t-bg-gain{background:var(--gain)}
+.ins-box{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.ins-box.warn{border-color:color-mix(in srgb,var(--c-amber,#c98a12) 45%,var(--line))}
+.ins-title{font-weight:600;margin-bottom:4px}.ins-box.warn .ins-title{color:var(--c-amber,#c98a12)}.ins-box.ok .ins-title{color:var(--gain)}
+.ins-row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+.ins-row>span:first-child{color:var(--muted)}
+.ins-bar{height:6px;border-radius:4px;background:var(--line);overflow:hidden;margin-bottom:4px}
+.ins-bar span{display:block;height:100%;border-radius:4px}
+.ins-agent{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.ins-badge{font-size:10.5px;font-weight:700;letter-spacing:.08em;border:1px solid currentColor;border-radius:6px;padding:2px 7px;background:none;font-family:var(--f-num)}
+button.ins-badge{cursor:pointer}
+.sent-form{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--muted)}
+.sent-form input{width:64px;border:1px solid var(--line);background:var(--surface-2);border-radius:6px;padding:4px 6px}
+@media (max-width:900px){.ins-grid{grid-template-columns:1fr}}
 .home-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:start}
 .focus{display:flex;flex-direction:column;gap:6px}
 .explore{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -2052,12 +2082,129 @@ function homeView() {
       <div class="chat">${chat}</div>
       <form class="ask" data-form="ask"><input id="askIn" data-keep placeholder="Ask anything about your trades, setups or habits" autocomplete="off" aria-label="Question for Claude"><button class="primary" type="submit" ${S.aiBusy ? 'disabled' : ''}>${S.aiBusy ? 'Thinking…' : 'Ask'}</button></form>
       <div class="fchips">${AI_SUGGEST.map(q => `<button class="fchip" data-action="askChip" data-v="${esc(q)}">${esc(q)}</button>`).join('')}${S.chat.length ? '<button class="linkish" data-action="clearChat">Clear chat</button>' : ''}</div></section>
+    ${insightsRow()}
     <div class="home-grid">
       <section class="panel card"><div class="label">Recommended focus</div><div class="focus">${focus.map(([t, d, a, v]) => `<button class="focus-item" data-action="${a}" data-v="${esc(v)}" data-d="${esc(v)}"><b>${esc(t)}</b><span>${esc(d)}</span></button>`).join('')}</div></section>
       <div class="stack">${todayEventsCard()}<section class="panel card"><div class="label">Last 7 days</div><div class="pb-stats"><span><b class="${cls(ws.net)}">${fmt(ws.net, ws.rs, true)}</b> net</span><span><b>${ws.n}</b> trades</span><span><b>${(ws.wr * 100).toFixed(0)}%</b> win rate</span><span><b>${ratioTxt(ws.pf)}</b> PF</span></div></section>
         <section class="panel card"><div class="label">Explore</div><div class="explore">${explore.map(([v, t, d]) => `<button class="focus-item" data-action="view" data-view="${v}"><b>${t}</b><span>${d}</span></button>`).join('')}</div></section></div>
     </div></div>`;
 }
+
+/* ---------- insights: pattern finder, behavior alert, active agents ---------- */
+const DOW_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+function insightPool() {
+  const all = filteredTrades().filter(t => t.date && t.pnl != null), from = iso(new Date(Date.now() - 60 * 864e5));
+  const recent = all.filter(t => t.date >= from);
+  return recent.length >= 5 ? { ts: recent, span: 'last 60 days' } : { ts: all, span: 'all time' };
+}
+const holdOf = t => (t.time && t.exitTime && toMin(t.exitTime) >= toMin(t.time)) ? toMin(t.exitTime) - toMin(t.time) : null;
+const avgOf = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+function worstDow(ts) {
+  const by = {}; ts.forEach(t => { const d = dowOf(t.date); by[d] = (by[d] || 0) + t.pnl; });
+  const k = Object.keys(by).sort((a, b) => by[a] - by[b])[0]; return k == null ? 5 : +k;
+}
+function defaultPatternQ() { const P = insightPool(); return P.ts.length ? `Why do I keep losing on ${DOW_FULL[worstDow(P.ts)]}s?` : 'Why do I keep losing on Fridays?'; }
+function parsePatternQ(q, ts) {
+  const lq = q.toLowerCase();
+  const di = DOW_FULL.findIndex(d => lq.includes(d.toLowerCase()) || new RegExp('\\b' + d.slice(0, 3).toLowerCase() + '\\b').test(lq));
+  if (di >= 0) return { label: DOW_FULL[di], short: DOW_FULL[di], test: t => dowOf(t.date) === di };
+  if (/afternoon|after lunch|late/.test(lq)) return { label: 'Afternoon (after 12:00)', short: 'Afternoon', test: t => t.time && t.time >= '12:00' };
+  if (/morning|open|first hour/.test(lq)) return { label: 'Morning (before 11:00)', short: 'Morning', test: t => t.time && t.time < '11:00' };
+  if (/\bshorts?\b/.test(lq)) return { label: 'Short trades', short: 'Short', test: t => t.side === 'Short' };
+  if (/\blongs?\b/.test(lq)) return { label: 'Long trades', short: 'Long', test: t => t.side === 'Long' };
+  const syms = [...new Set(ts.map(t => rootOf(t.symbol)))];
+  const sym = syms.find(s => s && new RegExp('\\b' + s.replace(/[^A-Za-z0-9]/g, '') + '\\b', 'i').test(q));
+  if (sym) return { label: sym, short: sym, test: t => rootOf(t.symbol) === sym };
+  const cat = S.cats.flatMap(c => (c.tags || []).map(g => [c, g])).find(([, g]) => lq.includes(g.toLowerCase()));
+  if (cat) return { label: cat[1], short: cat[1], test: t => tagsOf(t, cat[0].id).includes(cat[1]) };
+  const w = worstDow(ts); return { label: DOW_FULL[w], short: DOW_FULL[w], test: t => dowOf(t.date) === w, guessed: true };
+}
+function patternFind(q) {
+  const P = insightPool(), sl = parsePatternQ(q, P.ts), A = P.ts.filter(sl.test), B = P.ts.filter(t => !sl.test(t));
+  const net = A.reduce((a, t) => a + t.pnl, 0), losses = A.filter(t => t.pnl < 0), wins = A.filter(t => t.pnl > 0), F = [];
+  const timed = losses.filter(t => t.time);
+  if (timed.length >= 2) {
+    const late = timed.filter(t => t.time >= '14:00').length / timed.length, early = timed.filter(t => t.time < '10:00').length / timed.length;
+    const [pct, txt] = late >= early ? [late, 'of losses happen after 2 PM'] : [early, 'of losses happen before 10 AM'];
+    F.push({ big: Math.round(pct * 100) + '%', txt, tone: 'amber', hit: pct >= .5 });
+  }
+  const hw = avgOf(wins.map(holdOf).filter(x => x != null)), hl = avgOf(losses.map(holdOf).filter(x => x != null));
+  if (hw && hl) {
+    if (hw < hl) F.push({ big: (hl / hw).toFixed(hl / hw >= 10 ? 0 : 1).replace(/\.0$/, '') + '×', txt: 'shorter hold on winning trades', tone: 'amber', hit: hl / hw >= 1.5 });
+    else F.push({ big: (hw / hl).toFixed(1).replace(/\.0$/, '') + '×', txt: 'longer hold on winning trades', tone: 'gain', hit: false });
+  }
+  const perDay = ts => { const d = new Set(ts.map(t => t.date)).size; return d ? ts.length / d : 0; };
+  if (A.length && B.length) {
+    const diff = perDay(A) - perDay(B), r = Math.round(diff * 10) / 10;
+    F.push({ big: (r > 0 ? '+' : '') + r, txt: `${Math.abs(r) === 1 ? 'trade' : 'trades'} per day vs other ${sl.short === sl.label && DOW_FULL.includes(sl.label) ? 'days' : 'trades'}`, tone: r > 0 ? 'loss' : 'gain', hit: r >= 1 });
+    const wa = A.length ? wins.length / A.length : 0, wb = B.filter(t => t.pnl > 0).length / B.length, dd = Math.round((wa - wb) * 100);
+    F.push({ big: (dd > 0 ? '+' : '') + dd + ' pts', txt: 'win rate vs everything else', tone: dd < 0 ? 'loss' : 'gain', hit: dd <= -10 });
+  }
+  return { q, sl, span: P.span, n: A.length, net, F, hits: F.filter(f => f.hit).length };
+}
+function patternCard() {
+  const q = S.patternQ || defaultPatternQ(), R = patternFind(q);
+  const chips = [defaultPatternQ(), 'Why do I lose in the afternoon?', 'Why do my shorts lose?'].filter((x, i, a) => a.indexOf(x) === i && x !== q);
+  return `<section class="panel card ins ins-ask"><div class="ins-top"><span class="label"><i class="ldot"></i>Ask your journal</span><i class="live" title="Computed from your trades"></i></div>
+    <div class="ins-q">${esc(q)}</div>
+    <div class="ins-ans">
+      ${R.n ? `<div class="big ${cls(R.net)}">${priv(money(R.net, 0))}</div><div class="hint">${esc(R.sl.label)} P&amp;L · ${R.span} · ${R.n} trade${R.n === 1 ? '' : 's'}${R.sl.guessed ? ' · showing your weakest weekday' : ''}</div>
+      <ul class="ins-f">${R.F.map(f => `<li class="${f.hit ? '' : 'dim'}"><b class="t-${f.tone}">${esc(f.big)}</b> ${esc(f.txt)}</li>`).join('') || '<li class="dim">Add entry and exit times to find timing patterns.</li>'}</ul>
+      <div class="ins-foot">${R.hits} pattern${R.hits === 1 ? '' : 's'} detected</div>` : `<div class="hint">No trades match “${esc(R.sl.label)}” yet.</div>`}
+    </div>
+    <form class="ask" data-form="pattern"><input id="patIn" data-keep placeholder="Why do I lose on…" autocomplete="off" aria-label="Ask about a pattern"><button class="secondary" type="submit">Ask</button></form>
+    <div class="fchips">${chips.map(c => `<button class="fchip" data-action="patQ" data-v="${esc(c)}">${esc(c)}</button>`).join('')}${R.n ? `<button class="linkish" data-action="patClaude">Explain with Claude</button>` : ''}</div>
+  </section>`;
+}
+function revengeStats() {
+  const P = insightPool(), by = {}; P.ts.filter(t => t.time).forEach(t => (by[t.date + '|' + acctOf(t)] = by[t.date + '|' + acctOf(t)] || []).push(t));
+  let after = 0, quick = 0, quickW = 0, waited = 0, waitedW = 0;
+  Object.values(by).forEach(day => {
+    day.sort((a, b) => a.time.localeCompare(b.time));
+    for (let i = 1; i < day.length; i++) {
+      const p = day[i - 1], t = day[i]; if (p.pnl >= 0) continue;
+      const gap = toMin(t.time) - toMin(p.exitTime && p.exitTime >= p.time ? p.exitTime : p.time); if (gap < 0) continue;
+      after++; if (gap < 4) { quick++; if (t.pnl > 0) quickW++; } if (gap >= 30) { waited++; if (t.pnl > 0) waitedW++; }
+    }
+  });
+  return { span: P.span, after, quick, quickPct: after ? quick / after : 0, quickWr: quick ? quickW / quick : null, waited, waitedWr: waited ? waitedW / waited : null };
+}
+function behaviorCard() {
+  const R = revengeStats(), bad = R.after && (R.quickPct >= .15 || (R.quickWr != null && R.waitedWr != null && R.quickWr < R.waitedWr - .1));
+  const bar = (v, tone) => `<div class="ins-bar"><span class="t-bg-${tone}" style="width:${Math.round((v || 0) * 100)}%"></span></div>`;
+  return `<section class="panel card ins"><div class="ins-top"><span class="label"><i class="ldot"></i>Behavior alert</span></div>
+    ${!R.after ? `<div class="hint">No trades after a loss with entry times yet. Once there are, this shows whether you jump back in too fast.</div>` : `
+    <div class="ins-box ${bad ? 'warn' : 'ok'}"><div class="ins-title">${bad ? '⚠ Revenge trading' : '✓ No revenge pattern'}</div>
+      <div class="ins-row"><span>Re-entry &lt; 4 min after a loss</span><b class="t-amber">${Math.round(R.quickPct * 100)}%</b></div>${bar(R.quickPct, 'amber')}
+      <div class="ins-row"><span>Win rate after waiting 30+ min</span><b class="t-gain">${R.waitedWr == null ? '–' : Math.round(R.waitedWr * 100) + '%'}</b></div>${bar(R.waitedWr, 'gain')}
+    </div>
+    <div class="hint">${R.quick} of ${R.after} trades after a loss came within 4 minutes${R.quickWr != null ? `, winning ${Math.round(R.quickWr * 100)}% of the time` : ''} · ${R.span}</div>`}
+  </section>`;
+}
+function sentimentOf(s) {
+  const v = num(s.vix), p = num(s.spy); if (v == null && p == null) return null;
+  if ((p != null && p <= -0.3) || (v != null && v >= 5)) return ['Bearish', 'amber'];
+  if ((p != null && p >= 0.3) && (v == null || v <= 0)) return ['Bullish', 'gain'];
+  return ['Neutral', 'muted'];
+}
+function agentsCard() {
+  const A = S.agents, sn = A.sentiment || {}, fresh = sn.date === todayIso(), mood = fresh ? sentimentOf(sn) : null;
+  const ld = [...new Set(filteredTrades().map(t => t.date))].sort().pop(), dayTs = ld ? filteredTrades().filter(t => t.date === ld) : [];
+  const counts = {}; let tagged = 0;
+  dayTs.forEach(t => { let hit = false; (A.tagger.rules || []).forEach(r => { if (r.cat && r.tag && ruleHit(t, r)) { hit = true; const k = r.cat + '|' + r.tag; counts[k] = (counts[k] || 0) + 1; } }); if (hit) tagged++; });
+  const top = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0], [tc_, tt_] = top ? top.split('|') : [];
+  const catName = id => (S.cats.find(c => c.id === id) || {}).name || id;
+  const sg = v => v == null || v === '' ? '' : (+v > 0 ? '+' : '') + (+v) + '%';
+  return `<section class="panel card ins"><div class="ins-top"><span class="label"><i class="ldot"></i>Active agents</span><button class="linkish" data-action="view" data-view="agents">All agents</button></div>
+    <div class="ins-agent"><div class="ins-row"><b>Sentiment</b>${mood ? `<span class="ins-badge t-${mood[1]}">${mood[0].toUpperCase()}</span>` : '<span class="ins-badge t-muted">NOT SET</span>'}</div>
+      ${S.sentEdit ? `<form class="sent-form" data-form="sentiment"><label>VIX % <input id="sVix" type="number" step="0.1" value="${fresh ? esc(sn.vix ?? '') : ''}" placeholder="+14"></label><label>SPY % <input id="sSpy" type="number" step="0.1" value="${fresh ? esc(sn.spy ?? '') : ''}" placeholder="-1.2"></label><button class="primary sm" type="submit">Save</button><button class="ghost sm" type="button" data-action="sentEdit">Cancel</button></form>`
+        : `<div class="hint">${mood ? `VIX ${sg(sn.vix) || '–'} · SPY ${sg(sn.spy) || '–'}` : "Enter today's VIX and SPY moves"} · <button class="linkish" data-action="sentEdit">${mood ? 'Update' : 'Set'}</button></div>`}</div>
+    <div class="ins-agent"><div class="ins-row"><b>Auto-Tagger</b>${A.tagger.on ? `<span class="ins-badge t-gain">${tagged} tagged</span>` : `<button class="ins-badge t-muted" data-action="agentToggle" data-v="tagger">TURN ON</button>`}</div>
+      <div class="hint">${top ? `${esc(tt_)} · ${esc(catName(tc_).toLowerCase())}${ld ? ' · ' + shortDate(ld) : ''}` : A.tagger.on ? 'No rule matched your last session' : 'Tags trades automatically from your rules'}</div></div>
+    ${['brief', 'review'].filter(k => A[k].on).map(k => `<div class="ins-agent"><div class="ins-row"><b>${k === 'brief' ? 'Pre-market briefing' : 'Session review'}</b><span class="ins-badge t-gain">ON</span></div><div class="hint">${k === 'brief' ? 'Runs when you start your day' : 'Writes a recap of your last session'}</div></div>`).join('')}
+  </section>`;
+}
+function insightsRow() { return `<div class="ins-grid">${patternCard()}<div class="stack">${behaviorCard()}${agentsCard()}</div></div>`; }
 
 /* ---------- replay ---------- */
 const hmsToMin = s => { const p = String(s || '').split(':').map(Number); return (p[0] || 0) * 60 + (p[1] || 0) + (p[2] || 0) / 60; };
@@ -2386,7 +2533,7 @@ function todayEventsCard() {
 }
 
 /* ---------- agents ---------- */
-const DEFAULT_AGENTS = () => ({ brief: { on: false, watchlist: '', notes: '', econ: true }, tagger: { on: false, manual: true, rules: [{ id: 'r1', field: 'hold', op: '<', value: '3', cat: 'setups', tag: 'scalp' }, { id: 'r2', field: 'hour', op: '<', value: '10:00', cat: 'setups', tag: 'opening hour' }, { id: 'r3', field: 'r', op: '<=', value: '-1.2', cat: 'mistakes', tag: 'loss over 1R' }] }, review: { on: false, focus: '' } });
+const DEFAULT_AGENTS = () => ({ brief: { on: false, watchlist: '', notes: '', econ: true }, tagger: { on: false, manual: true, rules: [{ id: 'r1', field: 'hold', op: '<', value: '3', cat: 'setups', tag: 'scalp' }, { id: 'r2', field: 'hour', op: '<', value: '10:00', cat: 'setups', tag: 'opening hour' }, { id: 'r3', field: 'r', op: '<=', value: '-1.2', cat: 'mistakes', tag: 'loss over 1R' }] }, review: { on: false, focus: '' }, sentiment: { date: '', vix: null, spy: null } });
 S.agents = DEFAULT_AGENTS();
 const TAG_FIELDS = [['hold', 'Hold time (min)'], ['hour', 'Entry time (HH:MM)'], ['pnl', 'Net P&L ($)'], ['r', 'Realized R'], ['qty', 'Quantity'], ['side', 'Side'], ['symbol', 'Symbol'], ['weekday', 'Weekday (Mon…)']];
 const TAG_OPS = ['<', '<=', '>', '>=', '=', '≠', 'contains'];
@@ -3347,6 +3494,9 @@ document.addEventListener('click', async e => {
     case 'archivePb': { const p = S.playbooks.find(x => x.id === b.dataset.pb); if (!p || !needDb()) return; p.archived = !p.archived; S.db.collection('playbooks').doc(p.id).update({ archived: p.archived }).catch(writeErr); toast(p.archived ? 'Playbook archived' : 'Playbook restored'); break; }
     case 'pbView': S.pbView = b.dataset.v; break;
     case 'pbArch': S.pbArch = b.dataset.v === '1'; break;
+    case 'patQ': S.patternQ = b.dataset.v; break;
+    case 'patClaude': { const R = patternFind(S.patternQ || defaultPatternQ()); askClaude(`${R.q}\nWhat my journal computed (${R.span}): ${R.sl.label} net P&L ${money(R.net)} over ${R.n} trades. ${R.F.map(f => f.big + ' ' + f.txt).join('; ')}.\nExplain what is likely going on, using my actual trades, and give two concrete fixes.`); window.scrollTo(0, 0); return; }
+    case 'sentEdit': S.sentEdit = !S.sentEdit; break;
     case 'askChip': S.view = 'home'; closeModal(); askClaude(b.dataset.v); return;
     case 'clearChat': S.chat = []; break;
     case 'reviewQueue': S.filters.reviewed = 'no'; S.filters.status = 'all'; S.page = 0; S.view = 'log'; break;
@@ -3596,6 +3746,8 @@ document.addEventListener('submit', async e => {
     const x = { date: $('xDate').value, kind: $('xKind').value, amount: Math.round(amt * 100) / 100, propId: pid, firm: pr.firm || $('xFirm').value.trim().slice(0, 40), note: $('xNote').value.trim().slice(0, 120) };
     try { await S.db.collection('propTx').doc('x-' + uid()).set(x); closeModal(); render(); toast(x.kind === 'payout' ? 'Payout logged' : 'Expense logged'); } catch (err) { writeErr(err); } return;
   }
+  if (f.dataset.form === 'pattern') { const q = ($('patIn').value || '').trim(); if (q) { S.patternQ = q; rerender(); } return; }
+  if (f.dataset.form === 'sentiment') { if (!needDb()) return; const v = $('sVix').value, sp = $('sSpy').value; S.agents.sentiment = { date: todayIso(), vix: v === '' ? null : +v, spy: sp === '' ? null : +sp }; S.sentEdit = false; saveAgents(); rerender(); return; }
   if (f.dataset.form === 'ask') { const q = ($('askIn').value || '').trim(); S.askDraft = ''; askClaude(q); return; }
   if (f.dataset.form === 'acct') {
     if (!needDb()) return; const id = f.dataset.id || 'acc-' + uid(), name = $('acName').value.trim().slice(0, 60); if (!name) return;
@@ -3644,7 +3796,7 @@ render();
   db.collection('econ').onSnapshot(snap => { S.econ = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(e => e.date && e.event); safeRender(); }, () => {});
   db.collection('props').onSnapshot(snap => { S.props = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(x => x.firm); safeRender(); }, () => {});
   db.collection('propTx').onSnapshot(snap => { S.propTx = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(x => x.date && x.kind); safeRender(); }, () => {});
-  db.doc('settings/agents').onSnapshot(sn => { const D = DEFAULT_AGENTS(); if (sn.exists) { const x = sn.data(); S.agents = { brief: { ...D.brief, ...(x.brief || {}) }, tagger: { ...D.tagger, ...(x.tagger || {}) }, review: { ...D.review, ...(x.review || {}) } }; } safeRender(); }, () => {});
+  db.doc('settings/agents').onSnapshot(sn => { const D = DEFAULT_AGENTS(); if (sn.exists) { const x = sn.data(); S.agents = { brief: { ...D.brief, ...(x.brief || {}) }, tagger: { ...D.tagger, ...(x.tagger || {}) }, review: { ...D.review, ...(x.review || {}) }, sentiment: { ...D.sentiment, ...(x.sentiment || {}) } }; } safeRender(); }, () => {});
   db.collection('imports').onSnapshot(snap => { S.imports = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
   db.collection('templates').onSnapshot(snap => { S.templates = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(t => t.name); safeRender(); }, () => {});
   db.doc('settings/fees').onSnapshot(s => { S.fees = s.exists ? (s.data().rows || []) : []; safeRender(); }, () => {});
