@@ -553,6 +553,14 @@ a.focus-item{text-decoration:none;color:inherit}
 .sw{width:24px;height:24px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);padding:0;cursor:pointer}
 .sw:hover{transform:scale(1.12)}
 .sw[aria-checked="true"]{box-shadow:0 0 0 2px var(--ink)}
+
+.collist{display:flex;flex-direction:column;max-height:420px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:4px}
+.colrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 8px;border-radius:7px}
+.colrow:hover{background:var(--surface-2)}
+.colrow label{display:flex;gap:10px;align-items:center;font-size:13.5px;cursor:pointer;flex:1}
+.colrow.colall{border-bottom:1px solid var(--line);border-radius:0;margin-bottom:2px;font-weight:600}
+.colrow .icon-btn{width:24px;height:24px;font-size:12px}
+.has-tip{position:relative}
 @media (max-width:1180px){.home-grid,.rp,.settings{grid-template-columns:minmax(0,1fr)}.ymonths{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:820px){.ymonths{grid-template-columns:repeat(2,minmax(0,1fr))}.fgrid{grid-template-columns:minmax(0,1fr)}.ftabs{flex-direction:row;flex-wrap:wrap}.rp-cards,.explore{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:1180px){.dash3,.dash-main{grid-template-columns:minmax(0,1fr)}.dash-main>.stack:last-child{order:-1}}
@@ -1389,7 +1397,7 @@ function journalView() {
       ${col ? '' : dayBody(d, ts) + (txt ? `<div class="jnote">${esc(txt.slice(0, 280))}${txt.length > 280 ? '…' : ''}</div>` : '') + (ts.length ? dayTable(ts) : '')}
     </section>`;
   }).join('');
-  return `<div class="toolbar"><div class="left"><div class="seg" role="group" aria-label="Group by"><button data-action="jMode" data-v="day" aria-pressed="${S.jMode !== 'week'}">Day</button><button data-action="jMode" data-v="week" aria-pressed="${S.jMode === 'week'}">Week</button></div><button class="ghost" data-action="jAll" data-v="0">Collapse all</button><button class="ghost" data-action="jAll" data-v="1">Expand all</button></div><div class="left">${startBtn()}<button class="secondary" data-action="dlog" data-d="${todayIso()}">Today's note</button></div></div>
+  return `<div class="toolbar"><div class="left"><div class="seg" role="group" aria-label="Group by"><button data-action="jMode" data-v="day" aria-pressed="${S.jMode !== 'week'}">Day</button><button data-action="jMode" data-v="week" aria-pressed="${S.jMode === 'week'}">Week</button></div><button class="ghost" data-action="jAll" data-v="0">Collapse all</button><button class="ghost" data-action="jAll" data-v="1">Expand all</button></div><div class="left">${colBtn('day')}${startBtn()}<button class="secondary" data-action="dlog" data-d="${todayIso()}">Today's note</button></div></div>
     <div class="grid jgrid"><div class="stack">${S.jMode === 'week' ? (weekView(byD) || `<div class="panel empty"><h3>No trades in ${MONTHS[S.jMonth.getMonth()]}</h3></div>`) : (cards || `<div class="panel empty"><h3>Nothing logged in ${MONTHS[S.jMonth.getMonth()]}</h3><p>Days with trades or notes show up here. Pick a day on the calendar to write a note.</p></div>`)}</div>
     <aside class="stack">${miniCal(byD)}</aside></div>`;
 }
@@ -1832,12 +1840,6 @@ function previewSheet() {
 }
 
 /* ---------- day view pieces ---------- */
-function dayTable(ts) {
-  const setups = catById('setups'), mistakes = catById('mistakes');
-  return `<div class="table-scroll"><table class="dtable"><thead><tr><th>Open time</th><th>Symbol</th><th>Side</th><th class="r">Net P&amp;L</th><th class="r">Net ROI</th><th class="r">Realized R</th><th>Playbook</th><th>Tags</th><th class="r">Replay</th></tr></thead><tbody>
-    ${ts.slice().sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || ''))).map(t => { const r = roi(t), pb = S.playbooks.find(p => p.id === t.playbookId); return `<tr class="row" data-action="preview" data-id="${t.id}"><td class="num">${t.time || '–'}</td><td><span class="chip">${esc(t.symbol)}</span></td><td class="${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side.toUpperCase())}</td><td class="r num ${cls(t.pnl)}">${priv(money(t.pnl))}</td><td class="r num">${r == null ? '–' : r.toFixed(2) + '%'}</td><td class="r num">${riskOf(t) ? rOf(t).toFixed(2) + 'R' : '–'}</td><td>${pb ? esc(pb.name) : '–'}</td><td><div class="tags-cell">${[...tagsOf(t, 'setups').map(x => `<span class="tagchip" style="${tc(setups)}">${esc(x)}</span>`), ...tagsOf(t, 'mistakes').map(x => `<span class="tagchip" style="${tc(mistakes)}">${esc(x)}</span>`)].join('') || '–'}</div></td><td class="r"><button class="icon-btn" data-action="replayTrade" data-id="${t.id}" aria-label="Replay ${esc(t.symbol)} trade">▶</button></td></tr>`; }).join('')}
-  </tbody></table></div>`;
-}
 function weekView(byD) {
   const y = S.jMonth.getFullYear(), m = S.jMonth.getMonth(), pre = `${y}-${pad(m + 1)}`, weeks = {};
   Object.keys(byD).filter(d => d.startsWith(pre)).forEach(d => (weeks[weekKey(d)] = weeks[weekKey(d)] || []).push(...byD[d]));
@@ -2736,29 +2738,68 @@ const LOG_COLS = {
 };
 const DEFAULT_COLS = ['reviewed', 'date', 'symbol', 'status', 'side', 'net', 'roi', 'qty', 'points', 'duration', 'r', 'playbook', 'mistakes'];
 try { const c = JSON.parse(localStorage.getItem('ll-cols') || 'null'); S.cols = Array.isArray(c) && c.length ? c.filter(k => LOG_COLS[k]) : DEFAULT_COLS.slice(); } catch (e) { S.cols = DEFAULT_COLS.slice(); }
+/* ---------- column picker (trade log and day view) ---------- */
+const COL_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.8 2.5v11M10.2 2.5v11" stroke="currentColor" stroke-width="1.4"/></svg>';
+const bestPnl = t => { const e = num(t.entry), m = num(t.mfe), q = num(t.qty); return (e != null && m != null && q) ? (m - e) * dirOf(t) * q * (num(t.mult) || 1) : null; };
+Object.assign(LOG_COLS, {
+  instrument: ['Instrument', t => `<td>${esc(rootOf(t.symbol))}</td>`],
+  gross: ['Gross P&L', t => { const g = t.pnl + (num(t.fees) || 0); return `<td class="r num ${cls(g)}">${priv(money(g))}</td>`; }, 1],
+  ticks: ['Ticks', t => { const p = points(t), tk = tickOf(t); return `<td class="r num">${p != null && tk ? Math.round(p / tk * (num(t.qty) || 1)) : '–'}</td>`; }, 1],
+  stop: ['Stop loss', t => `<td class="r num">${t.stop ?? '–'}</td>`, 1],
+  target: ['Profit target', t => `<td class="r num">${t.target ?? '–'}</td>`, 1],
+  planned: ['Planned R', t => { const g = targetOf(t), r = riskOf(t); return `<td class="r num">${g != null && r ? (g / r).toFixed(2) + 'R' : '–'}</td>`; }, 1],
+  mae: ['Worst price (MAE)', t => `<td class="r num">${t.mae ?? '–'}</td>`, 1],
+  mfe: ['Best exit price (MFE)', t => `<td class="r num">${t.mfe ?? '–'}</td>`, 1],
+  bestpnl: ['Best exit P&L', t => { const b = bestPnl(t); return `<td class="r num ${b == null ? '' : cls(b)}">${b == null ? '–' : priv(money(b))}</td>`; }, 1],
+  bestpct: ['Best exit (%)', t => { const b = bestPnl(t); return `<td class="r num">${b ? Math.round(t.pnl / b * 100) + '%' : '–'}</td>`; }, 1],
+  tags: ['Tags', t => `<td><div class="tags-cell">${S.cats.flatMap(c => tagsOf(t, c.id).map(x => `<span class="tagchip" style="${tc(c)}">${esc(x)}</span>`)).join('') || '<span class="muted">–</span>'}</div></td>`],
+  replay: ['Replay', t => `<td class="r"><button class="icon-btn" data-action="replayTrade" data-id="${t.id}" aria-label="Replay ${esc(t.symbol)} trade">▶</button></td>`, 1]
+});
+function colDefs() {
+  const d = { ...LOG_COLS };
+  S.cats.forEach(c => { if (c.id === 'setups' || c.id === 'mistakes') return; d['cat:' + c.id] = [c.name, t => `<td><div class="tags-cell">${tagsOf(t, c.id).map(x => `<span class="tagchip" style="${tc(c)}">${esc(x)}</span>`).join('') || '<span class="muted">–</span>'}</div></td>`]; });
+  return d;
+}
+const DEFAULT_DAY_COLS = ['time', 'symbol', 'side', 'net', 'roi', 'r', 'playbook', 'tags', 'replay'];
+try { const c = JSON.parse(localStorage.getItem('ll-cols') || 'null'); if (Array.isArray(c) && c.length) S.cols = c.filter(k => LOG_COLS[k] || k.startsWith('cat:')); } catch (e) {}
+try { const c = JSON.parse(localStorage.getItem('ll-daycols') || 'null'); S.dayCols = Array.isArray(c) && c.length ? c.filter(k => LOG_COLS[k] || k.startsWith('cat:')) : DEFAULT_DAY_COLS.slice(); } catch (e) { S.dayCols = DEFAULT_DAY_COLS.slice(); }
+const colTarget = () => S.modal && S.modal.arg === 'day' ? 'day' : 'log';
+function liveCols(which) { const d = colDefs(); return (which === 'day' ? S.dayCols : S.cols).filter(k => d[k]); }
+function dayTable(ts) {
+  const d = colDefs(), cols = liveCols('day');
+  return `<div class="table-scroll"><table class="dtable" style="min-width:${Math.max(640, cols.length * 100)}px"><thead><tr>${cols.map(k => `<th${d[k][2] ? ' class="r"' : ''}>${esc(d[k][0])}</th>`).join('')}</tr></thead><tbody>
+    ${ts.slice().sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || ''))).map(t => `<tr class="row" data-action="preview" data-id="${t.id}">${cols.map(k => d[k][1](t)).join('')}</tr>`).join('')}
+  </tbody></table></div>`;
+}
+const colBtn = which => `<button class="icon-btn has-tip" data-action="colsOpen" data-v="${which}" aria-label="Select columns" data-tip="Select columns">${COL_ICON}</button>`;
+function colsModal() {
+  const d = colDefs(), draft = S.colDraft, q = (S.colQ || '').trim().toLowerCase(), allKeys = Object.keys(d);
+  const byName = (a, b) => d[a][0].localeCompare(d[b][0]);
+  const list = q ? allKeys.filter(k => d[k][0].toLowerCase().includes(q)).sort(byName) : [...draft.filter(k => d[k]), ...allKeys.filter(k => !draft.includes(k)).sort(byName)];
+  const allOn = allKeys.every(k => draft.includes(k)), someOn = allKeys.some(k => draft.includes(k));
+  const row = k => { const on = draft.includes(k), i = draft.indexOf(k); return `<div class="colrow"><label><input type="checkbox" data-action="colDraft" data-v="${esc(k)}" ${on ? 'checked' : ''}>${esc(d[k][0])}</label>${on && !q ? `<span class="mv"><button class="icon-btn" data-action="colDraftMove" data-v="${esc(k)}" data-d="-1" ${i ? '' : 'disabled'} aria-label="Move ${esc(d[k][0])} earlier">↑</button><button class="icon-btn" data-action="colDraftMove" data-v="${esc(k)}" data-d="1" ${i < draft.length - 1 ? '' : 'disabled'} aria-label="Move ${esc(d[k][0])} later">↓</button></span>` : ''}</div>`; };
+  return `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><div><h3 id="mTitle">Select columns</h3><div class="hint">Choose the columns you want to display in the ${colTarget() === 'day' ? "daily journal's trade tables" : 'trade log'}.</div></div><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
+    <div class="pb-row"><input class="search" id="colSearch" type="search" placeholder="Search columns" value="${esc(S.colQ || '')}" aria-label="Search columns" style="flex:1;width:auto"><button class="ghost" data-action="colDraftDefault">Select default</button></div>
+    <div class="collist">${q ? '' : `<div class="colrow colall"><label><input type="checkbox" data-action="colDraftAll" ${allOn ? 'checked' : ''} ${!allOn && someOn ? 'data-mixed="1"' : ''}>Select all</label><span class="hint">${draft.length} shown</span></div>`}${list.map(row).join('') || '<div class="hint" style="padding:8px">No columns match.</div>'}</div>
+    <div class="actions"><button class="secondary" data-action="close">Cancel</button><button class="primary" data-action="colDraftSave" ${draft.length ? '' : 'disabled'}>Update</button></div></div>`;
+}
 function logView() {
   if (!S.trades.length) return S.loaded ? `<div class="panel empty"><h3>No trades yet</h3><p>Use <b>Add trade</b> to record your first one.</p></div>` : '';
   const all = filteredTrades(), st = stats(all), pages = Math.max(1, Math.ceil(all.length / PER));
   if (S.page >= pages) S.page = pages - 1;
-  const rows = all.slice(S.page * PER, S.page * PER + PER), allSel = rows.length && rows.every(t => S.sel.has(t.id)), f = S.filters, cols = S.cols.filter(k => LOG_COLS[k]);
+  const rows = all.slice(S.page * PER, S.page * PER + PER), allSel = rows.length && rows.every(t => S.sel.has(t.id)), f = S.filters, D = colDefs(), cols = liveCols('log');
   return kpis(st, true) + `<section class="panel log">
     <div class="toolbar"><div class="left">
       <input class="search" id="logSearch" type="search" placeholder="Search symbol, tag, playbook" value="${esc(f.q)}" aria-label="Search trades">
       <div class="seg" role="group" aria-label="Result"><button data-action="filter" data-k="status" data-v="all" aria-pressed="${f.status === 'all'}">All</button><button data-action="filter" data-k="status" data-v="win" aria-pressed="${f.status === 'win'}">Wins</button><button data-action="filter" data-k="status" data-v="loss" aria-pressed="${f.status === 'loss'}">Losses</button></div>
       <div class="seg" role="group" aria-label="Review state"><button data-action="filter" data-k="reviewed" data-v="all" aria-pressed="${f.reviewed === 'all'}">Any</button><button data-action="filter" data-k="reviewed" data-v="yes" aria-pressed="${f.reviewed === 'yes'}">Reviewed</button><button data-action="filter" data-k="reviewed" data-v="no" aria-pressed="${f.reviewed === 'no'}">To review</button></div>
     </div>
-    <div class="left">${S.sel.size ? `<div class="bulk"><span>${S.sel.size} selected</span><button class="ghost" data-action="bulkReview" data-v="1">Mark reviewed</button><button class="ghost" data-action="bulkReview" data-v="0">Mark not reviewed</button><button class="del${S.armed === 'bulk' ? ' armed' : ''}" data-action="bulkDelete">${S.armed === 'bulk' ? 'Confirm delete' : 'Delete'}</button><button class="linkish" data-action="clearSel">Clear</button></div>` : ''}<button class="ghost" data-action="colsOpen" aria-label="Choose columns">⚙ Columns</button></div></div>
-    <div class="table-scroll"><table class="trades" style="min-width:${Math.max(700, cols.length * 92)}px"><thead><tr><th><input type="checkbox" data-action="selAll" ${allSel ? 'checked' : ''} aria-label="Select all on this page"></th>${cols.map(k => `<th${LOG_COLS[k][2] ? ' class="r"' : ''}>${esc(LOG_COLS[k][0]).replace('&amp;amp;', '&amp;')}</th>`).join('')}</tr></thead>
-    <tbody>${rows.map(t => `<tr class="row" data-action="preview" data-id="${t.id}"><td><input type="checkbox" data-action="sel" data-id="${t.id}" ${S.sel.has(t.id) ? 'checked' : ''} aria-label="Select trade"></td>${cols.map(k => LOG_COLS[k][1](t)).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length + 1}" class="empty">No trades match these filters.</td></tr>`}</tbody></table></div>
+    <div class="left">${S.sel.size ? `<div class="bulk"><span>${S.sel.size} selected</span><button class="ghost" data-action="bulkReview" data-v="1">Mark reviewed</button><button class="ghost" data-action="bulkReview" data-v="0">Mark not reviewed</button><button class="del${S.armed === 'bulk' ? ' armed' : ''}" data-action="bulkDelete">${S.armed === 'bulk' ? 'Confirm delete' : 'Delete'}</button><button class="linkish" data-action="clearSel">Clear</button></div>` : ''}${colBtn('log')}</div></div>
+    <div class="table-scroll"><table class="trades" style="min-width:${Math.max(700, cols.length * 92)}px"><thead><tr><th><input type="checkbox" data-action="selAll" ${allSel ? 'checked' : ''} aria-label="Select all on this page"></th>${cols.map(k => `<th${D[k][2] ? ' class="r"' : ''}>${esc(D[k][0])}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(t => `<tr class="row" data-action="preview" data-id="${t.id}"><td><input type="checkbox" data-action="sel" data-id="${t.id}" ${S.sel.has(t.id) ? 'checked' : ''} aria-label="Select trade"></td>${cols.map(k => D[k][1](t)).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length + 1}" class="empty">No trades match these filters.</td></tr>`}</tbody></table></div>
     <div class="pager"><span>${all.length ? `${S.page * PER + 1}–${Math.min(all.length, S.page * PER + PER)} of ${all.length} trades` : '0 trades'}</span>
       <span style="display:flex;gap:6px;align-items:center"><button class="icon-btn" data-action="page" data-v="-1" ${S.page ? '' : 'disabled'} aria-label="Previous page">‹</button>Page ${S.page + 1} of ${pages}<button class="icon-btn" data-action="page" data-v="1" ${S.page < pages - 1 ? '' : 'disabled'} aria-label="Next page">›</button></span></div>
   </section>`;
-}
-function colsModal() {
-  return `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">Columns</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
-    <p class="hint">Pick the columns for the trade log. Use the arrows to change their order.</p>
-    <div class="lib">${[...S.cols, ...Object.keys(LOG_COLS).filter(k => !S.cols.includes(k))].map(k => { const on = S.cols.includes(k), i = S.cols.indexOf(k); return `<div class="lib-row" style="padding:6px 10px"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-action="colToggle" data-v="${k}" ${on ? 'checked' : ''}>${esc(LOG_COLS[k][0])}</label>${on ? `<span><button class="icon-btn" data-action="colMove" data-v="${k}" data-d="-1" ${i ? '' : 'disabled'} aria-label="Move ${esc(LOG_COLS[k][0])} left">↑</button> <button class="icon-btn" data-action="colMove" data-v="${k}" data-d="1" ${i < S.cols.length - 1 ? '' : 'disabled'} aria-label="Move ${esc(LOG_COLS[k][0])} right">↓</button></span>` : ''}</div>`; }).join('')}</div>
-    <div class="actions" style="justify-content:space-between"><button class="linkish" data-action="colReset">Reset to default</button><button class="primary" data-action="close">Done</button></div></div>`;
 }
 
 const MANUAL_SCHED = { everyday: ['Every day', [0, 1, 2, 3, 4, 5, 6]], weekdays: ['Mon–Fri', [1, 2, 3, 4, 5]], weekends: ['Weekends', [0, 6]] };
@@ -3280,10 +3321,12 @@ document.addEventListener('click', async e => {
     case 'cmpDel': { const g = S.rep['grp' + b.dataset.g]; g[b.dataset.k] = g[b.dataset.k].filter(x => x !== b.dataset.v); break; }
     case 'cmpReset': S.rep.grpA = EMPTY_GRP(); S.rep.grpB = EMPTY_GRP(); S.rep.cmpRun = false; break;
     case 'cmpRun': S.rep.cmpRun = true; break;
-    case 'colsOpen': return openModal('cols');
-    case 'colToggle': { e.preventDefault(); const k = b.dataset.v; S.cols = S.cols.includes(k) ? S.cols.filter(x => x !== k) : [...S.cols, k]; if (!S.cols.length) S.cols = ['date', 'symbol', 'net']; try { localStorage.setItem('ll-cols', JSON.stringify(S.cols)); } catch (_) {} render(); renderModal(); return; }
-    case 'colMove': { const k = b.dataset.v, i = S.cols.indexOf(k), j = i + +b.dataset.d; if (j < 0 || j >= S.cols.length) return; [S.cols[i], S.cols[j]] = [S.cols[j], S.cols[i]]; try { localStorage.setItem('ll-cols', JSON.stringify(S.cols)); } catch (_) {} render(); renderModal(); return; }
-    case 'colReset': S.cols = DEFAULT_COLS.slice(); try { localStorage.setItem('ll-cols', JSON.stringify(S.cols)); } catch (_) {} render(); renderModal(); return;
+    case 'colsOpen': { const w = b.dataset.v === 'day' ? 'day' : 'log'; S.colDraft = liveCols(w); S.colQ = ''; return openModal('cols', w); }
+    case 'colDraft': { e.preventDefault(); const k = b.dataset.v; S.colDraft = S.colDraft.includes(k) ? S.colDraft.filter(x => x !== k) : [...S.colDraft, k]; renderModal(); return; }
+    case 'colDraftAll': { e.preventDefault(); const all = Object.keys(colDefs()); S.colDraft = all.every(k => S.colDraft.includes(k)) ? [] : [...S.colDraft, ...all.filter(k => !S.colDraft.includes(k))]; renderModal(); return; }
+    case 'colDraftMove': { const k = b.dataset.v, i = S.colDraft.indexOf(k), j = i + +b.dataset.d; if (i < 0 || j < 0 || j >= S.colDraft.length) return; [S.colDraft[i], S.colDraft[j]] = [S.colDraft[j], S.colDraft[i]]; renderModal(); return; }
+    case 'colDraftDefault': S.colDraft = (colTarget() === 'day' ? DEFAULT_DAY_COLS : DEFAULT_COLS).slice(); S.colQ = ''; renderModal(); return;
+    case 'colDraftSave': { if (!S.colDraft.length) return; const w = colTarget(); if (w === 'day') { S.dayCols = S.colDraft.slice(); try { localStorage.setItem('ll-daycols', JSON.stringify(S.dayCols)); } catch (_) {} } else { S.cols = S.colDraft.slice(); try { localStorage.setItem('ll-cols', JSON.stringify(S.cols)); } catch (_) {} } closeModal(); toast('Columns updated'); break; }
     case 'llBackup': window.__llLocal && window.__llLocal.backup(); return;
     case 'llSignOut': window.__llLocal && window.__llLocal.signOut(); return;
     case 'llCopyOld': { const n = await window.__llLocal.copyOld().catch(e => { writeErr(e); return -1; }); if (n >= 0) toast(`${n} records copied to the database`); break; }
@@ -3339,6 +3382,7 @@ document.addEventListener('input', e => {
   if (el.id === 'pickSearch') { S.pickQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('pickSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'askIn') { S.askDraft = el.value; return; }
   if (el.id === 'dashName' && S.dashEdit) { S.dashEdit.name = el.value; return; }
+  if (el.id === 'colSearch') { S.colQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('colSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'libSearch') { S.libQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('libSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.dataset.ag && S.agentEdit) { S.agentEdit[el.dataset.ag] = el.value; return; }
   if (el.dataset.agr && S.agentEdit) { S.agentEdit.rules[+el.dataset.i][el.dataset.agr] = el.value; return; }
