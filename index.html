@@ -537,6 +537,30 @@ a.focus-item{text-decoration:none;color:inherit}
 .rrow2 .fin{width:96px}
 .mv{display:flex;gap:2px}
 @media (max-width:640px){.rrow2{grid-template-columns:auto minmax(0,1fr)}.rrow2 .rin{grid-column:1/-1}}
+
+/* profile button */
+.rail .nav{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin}
+#railProfile{margin-top:auto;position:relative;border-top:1px solid color-mix(in srgb,var(--rail-ink) 14%,transparent);padding-top:12px}
+.prof-btn{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--rail-ink);padding:8px;border-radius:10px;text-align:left}
+.prof-btn:hover,.prof-btn[aria-expanded="true"],.prof-btn[aria-current="page"]{background:var(--rail-hover)}
+.prof-btn .pn{display:flex;flex-direction:column;min-width:0;flex:1}
+.prof-btn .pn b{color:#fff;font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prof-btn .pn small{color:var(--rail-muted);font-size:11.5px}
+.prof-btn .chev{color:var(--rail-muted);font-size:12px}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex:none;letter-spacing:.02em;box-shadow:inset 0 0 0 2px rgba(255,255,255,.18)}
+.avatar.lg{width:44px;height:44px;font-size:16px}
+.prof-menu{position:absolute;left:0;bottom:calc(100% + 8px);width:250px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.25);padding:6px;z-index:45;display:flex;flex-direction:column;gap:1px}
+.prof-head{display:flex;gap:10px;align-items:center;padding:8px 8px 10px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.prof-head b{display:block}
+.prof-menu button{display:flex;align-items:center;gap:10px;border:0;background:none;padding:8px 10px;border-radius:7px;text-align:left;font-size:13.5px;color:var(--ink)}
+.prof-menu button:hover{background:var(--surface-2)}
+.prof-menu button[aria-current="page"]{background:var(--surface-2);font-weight:600}
+.prof-menu .sep{height:1px;background:var(--line);margin:4px 0}
+.prof-menu .danger{color:var(--loss)}
+.prof-colors{display:flex;gap:8px;flex-wrap:wrap}
+.prof-colors button{width:30px;height:30px;border-radius:50%;border:2px solid transparent;padding:0}
+.prof-colors button[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--surface) inset}
+@media (max-width:820px){.rail .nav{flex:none;overflow-y:visible}#railProfile{margin-top:0;border-top:0;padding-top:0;order:2}.prof-btn{padding:4px}.prof-btn .pn,.prof-btn .chev{display:none}.prof-menu{left:auto;right:0;bottom:auto;top:calc(100% + 8px)}}
 @media (max-width:1180px){.home-grid,.rp,.settings{grid-template-columns:minmax(0,1fr)}.ymonths{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:820px){.ymonths{grid-template-columns:repeat(2,minmax(0,1fr))}.fgrid{grid-template-columns:minmax(0,1fr)}.ftabs{flex-direction:row;flex-wrap:wrap}.rp-cards,.explore{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:1180px){.dash3,.dash-main{grid-template-columns:minmax(0,1fr)}.dash-main>.stack:last-child{order:-1}}
@@ -576,9 +600,8 @@ a.focus-item{text-decoration:none;color:inherit}
       <button data-action="view" data-view="resources" id="nav-resources"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Resources</button>
       <button data-action="view" data-view="agents" id="nav-agents"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="4.5" width="11" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.5v3M5.5 9h.01M10.5 9h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Agents</button>
       <button data-action="view" data-view="props" id="nav-props"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 13.5h12M3.5 13.5V7M8 13.5V7M12.5 13.5V7M1.5 6L8 2l6.5 4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Prop firms</button>
-      <button data-action="view" data-view="settings" id="nav-settings"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Settings</button>
     </nav>
-    <div class="rail-foot">Everything you enter saves to this journal.</div>
+    <div id="railProfile"></div>
   </aside>
   <main class="main"><div class="wrap" id="root"></div></main>
 </div>
@@ -873,7 +896,7 @@ const TEMPLATES = {
 
 /* ---------- render ---------- */
 function render() {
-  ['home', 'dashboard', 'journal', 'log', 'notebook', 'reports', 'playbooks', 'replay', 'progress', 'resources', 'agents', 'props', 'settings'].forEach(v => $('nav-' + v).setAttribute('aria-current', (S.view === v || (v === 'log' && S.view === 'trade')) ? 'page' : 'false'));
+  ['home', 'dashboard', 'journal', 'log', 'notebook', 'reports', 'playbooks', 'replay', 'progress', 'resources', 'agents', 'props'].forEach(v => $('nav-' + v).setAttribute('aria-current', (S.view === v || (v === 'log' && S.view === 'trade')) ? 'page' : 'false'));
   let html = '';
   if (S.view === 'dashboard') html = topbar(hour(), 'Stats for ' + (S.scope === 'all' ? 'all time' : `${MONTHS[S.month.getMonth()]} ${S.month.getFullYear()}`), true, (S.db && !S.dashEdit ? startBtn() : '') + (S.dashEdit ? '' : dashTplMenu())) + banner() + (S.dashEdit ? '' : importLine()) + dashboard();
   else if (S.view === 'log') html = topbar('Trade log', S.trades.length + ' trades recorded') + banner() + logView();
@@ -890,6 +913,7 @@ function render() {
   else if (S.view === 'settings') html = topbar('Settings', 'Accounts, tags, fees and your data') + settingsView();
   else if (S.view === 'progress') html = topbar('Progress tracker', 'Your daily rules and how consistently you keep them') + progressView();
   $('root').innerHTML = html;
+  renderProfile();
   if (S.scrollTo) { const el = $(S.scrollTo); S.scrollTo = null; if (el) setTimeout(() => el.scrollIntoView({ block: 'start', behavior: 'smooth' }), 30); }
   if (S.tagMenu) { const i = $('tagSearch'); if (i) { i.focus(); i.value = S.tagQuery; filterTagMenu(); } }
 }
@@ -2169,9 +2193,10 @@ function yearTab(ts) {
 
 /* ---------- settings ---------- */
 function settingsView() {
-  const tab = S.setTab || 'accounts', tabs = [['accounts', 'Accounts'], ['tags', 'Tags management'], ['fees', 'Commissions & fees'], ['imports', 'Import history'], ['data', 'Data']];
+  const tab = S.setTab || 'accounts', tabs = [['profile', 'Profile'], ['accounts', 'Accounts'], ['tags', 'Tags management'], ['fees', 'Commissions & fees'], ['imports', 'Import history'], ['data', 'Data & backup']];
   let body = '';
-  if (tab === 'accounts') {
+  if (tab === 'profile') body = profileSettings();
+  else if (tab === 'accounts') {
     const accs = allAccounts();
     body = `<div class="toolbar"><div><h3 class="h3">Accounts</h3><div class="hint">Each account has its own starting balance. Use the account menu at the top of each page to switch between them.</div></div><button class="primary" data-action="acctEdit" data-v="">Add account</button></div>
       <div class="table-scroll"><table class="rtable"><thead><tr><th>Account</th><th>Broker</th><th class="r">Starting balance</th><th class="r">Balance</th><th class="r">Trades</th><th>Last trade</th><th></th></tr></thead><tbody>
@@ -2835,6 +2860,38 @@ function rulesEditor() {
     <div class="actions"><button class="secondary" data-action="close">Cancel</button><button class="primary" data-action="saveRules">Save changes</button></div></div>`;
 }
 
+
+/* ---------- profile ---------- */
+const profName = () => (S.settings.displayName || '').trim() || 'Trader';
+const initials = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('') || 'T';
+const avatar = (cls = '') => `<span class="avatar ${cls}" style="background:var(--c-${COLORS.includes(S.settings.avatarColor) ? S.settings.avatarColor : 'amber'})" aria-hidden="true">${esc(initials(profName()))}</span>`;
+function storageLine() {
+  const L = window.__llLocal;
+  return L ? (L.mode === 'server' ? 'Saved in your database' : 'Saved in this browser') : 'Saved with this journal';
+}
+const PROF_ITEMS = [['profile', 'Profile', '<circle cx="8" cy="5.5" r="2.8"/><path d="M2.5 14c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/>'], ['accounts', 'Accounts', '<rect x="1.5" y="3.5" width="13" height="9" rx="1.5"/><path d="M1.5 6.5h13"/>'], ['tags', 'Tags management', '<path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5z"/><circle cx="5" cy="5" r="1"/>'], ['fees', 'Commissions & fees', '<circle cx="8" cy="8" r="6.3"/><path d="M10 5.8c-.5-.6-1.2-.9-2-.9-1.2 0-2 .6-2 1.5 0 2 4 1 4 3.1 0 .9-.9 1.6-2.1 1.6-.9 0-1.7-.4-2.1-1M8 3.5v9"/>'], ['imports', 'Import history', '<path d="M8 2v8M4.5 6.5L8 10l3.5-3.5M2.5 13.5h11"/>'], ['data', 'Data & backup', '<ellipse cx="8" cy="3.8" rx="5.5" ry="2"/><path d="M2.5 3.8v8.4c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V3.8M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/>']];
+function renderProfile() {
+  const el = $('railProfile'); if (!el) return;
+  const open = !!S.profMenu, inSet = S.view === 'settings';
+  el.innerHTML = `<button class="prof-btn" data-action="profMenu" aria-haspopup="menu" aria-expanded="${open}" ${inSet ? 'aria-current="page"' : ''} title="Profile and settings">${avatar()}<span class="pn"><b>${esc(profName())}</b><small>Profile &amp; settings</small></span><span class="chev" aria-hidden="true">${open ? '▾' : '▴'}</span></button>
+    ${open ? `<div class="prof-menu" role="menu"><div class="prof-head">${avatar('lg')}<div><b>${esc(profName())}</b><span class="hint">${storageLine()}</span></div></div>
+      ${PROF_ITEMS.map(([k, l, ic]) => `<button role="menuitem" data-action="settings" data-v="${k}" ${inSet && S.setTab === k ? 'aria-current="page"' : ''}><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ic}</svg>${l}</button>`).join('')}
+      ${window.__llLocal && window.__llLocal.mode === 'server' ? `<div class="sep"></div><button role="menuitem" class="danger" data-action="llSignOut"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5H3.5v11H6M10 5l3 3-3 3M13 8H6"/></svg>Sign out on this device</button>` : ''}</div>` : ''}`;
+}
+function profileSettings() {
+  const cur = COLORS.includes(S.settings.avatarColor) ? S.settings.avatarColor : 'amber';
+  return `<h3 class="h3">Profile</h3><div class="hint">How you appear in the sidebar.</div>
+    <div class="pb-row" style="gap:14px;align-items:center">${avatar('lg')}<div><b>${esc(profName())}</b><div class="hint">${storageLine()}</div></div></div>
+    <div class="form"><label class="full">Display name<input id="profName" data-keep value="${esc(S.settings.displayName || '')}" placeholder="Trader" maxlength="40"></label></div>
+    <div><div class="label" style="margin-bottom:6px">Avatar color</div><div class="prof-colors">${COLORS.map(c => `<button data-action="profColor" data-v="${c}" aria-pressed="${cur === c}" aria-label="${c}" style="background:var(--c-${c})"></button>`).join('')}</div></div>
+    <div class="actions" style="justify-content:flex-start"><button class="primary" data-action="profSave">Save profile</button></div>`;
+}
+async function saveProfile(patch) {
+  if (!needDb()) return;
+  S.settings = { ...S.settings, ...patch }; renderProfile();
+  try { await S.db.doc('settings/account').set({ ...S.settings }); } catch (err) { writeErr(err); }
+}
+
 /* ---------- modals ---------- */
 function openModal(kind, arg) { S.modal = { kind, arg }; renderModal(); }
 function closeModal() { if (S.prevModal) { S.modal = S.prevModal; S.prevModal = null; renderModal(); return; } S.modal = null; S.pbEdit = null; const b = $('modal'); b.hidden = true; b.innerHTML = ''; b.className = 'scrim'; }
@@ -2979,6 +3036,7 @@ document.addEventListener('click', async e => {
   const ed = e.target.closest('.editor');
   if (ed) { const li = e.target.closest('li.todo'); if (li) { const rect = li.getBoundingClientRect(); if (e.clientX < rect.left + 4) { li.classList.toggle('done'); saveNote(); } } return; }
   const b = e.target.closest('[data-action]');
+  if (S.profMenu && !e.target.closest('#railProfile')) { S.profMenu = false; renderProfile(); }
   if (!b) { if ((S.accMenu || S.dashMenu || S.repMenu) && !e.target.closest('.ddwrap')) { S.accMenu = false; S.dashMenu = false; S.repMenu = false; rerender(); } if (e.target === $('modal')) { saveNote(true); S.prevModal = null; closeModal(); } if (S.tagMenu && !e.target.closest('.menu')) { S.tagMenu = null; render(); } return; }
   const a = b.dataset.action, id = b.dataset.id;
   if (a !== 'fmt' && a !== 'tpl' && $('editor')) saveNote(true);
@@ -3133,7 +3191,7 @@ document.addEventListener('click', async e => {
     case 'fltApply': S.flt = S.fltEdit; applyFilters(); saveFilterPrefs(); closeModal(); toast(fltCount() ? `${S.trades.length} trades match your filters` : 'Filters cleared'); break;
     case 'fltReset': S.fltEdit = EMPTY_FLT(); renderModal(); return;
     case 'clearFilters': S.flt = EMPTY_FLT(); applyFilters(); saveFilterPrefs(); break;
-    case 'settings': S.view = 'settings'; S.setTab = b.dataset.v; S.accMenu = false; closeModal(); rpStop(); break;
+    case 'settings': S.view = 'settings'; S.setTab = b.dataset.v; S.accMenu = false; S.profMenu = false; window.scrollTo(0, 0); closeModal(); rpStop(); break;
     case 'acctEdit': if (!needDb()) return; return openModal('acct', b.dataset.v);
     case 'acctDel': { const k = b.dataset.v; if (S.armed !== 'acc-' + k) { S.armed = 'acc-' + k; break; } S.armed = null; if (S.accSel) S.accSel = S.accSel.filter(x => x !== k); if (S.accSel && !S.accSel.length) S.accSel = null; saveFilterPrefs(); S.db.collection('accounts').doc(k).delete().catch(writeErr); S.accounts = S.accounts.filter(a => a.id !== k); toast('Account deleted'); break; }
     case 'feeAdd': if (!needDb()) return; S.fees = [...(S.fees || []), { root: '', fee: 0 }]; S.db.doc('settings/fees').set({ rows: S.fees }).catch(writeErr); break;
@@ -3238,6 +3296,9 @@ document.addEventListener('click', async e => {
     case 'llDropOld': await window.__llLocal.dropOld(); toast('Old browser data discarded'); break;
     case 'localHint': S.localHintClosed = true; break;
     case 'netErrClose': S.netErr = ''; break;
+    case 'profMenu': S.profMenu = !S.profMenu; S.accMenu = false; S.dashMenu = false; S.repMenu = false; renderProfile(); return;
+    case 'profColor': saveProfile({ avatarColor: b.dataset.v }); break;
+    case 'profSave': { const v = ($('profName') ? $('profName').value : '').trim().slice(0, 40); await saveProfile({ displayName: v }); toast('Profile saved'); break; }
     case 'repTab': S.rep.tab = b.dataset.v; S.repMenu = false; break;
     case 'recentTab': S.recentTab = b.dataset.v; break;
     case 'cash': return openModal('cash');
@@ -3268,6 +3329,7 @@ document.addEventListener('click', async e => {
   rerender();
 });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && S.profMenu) { S.profMenu = false; renderProfile(); const pb = document.querySelector('.prof-btn'); if (pb) pb.focus(); return; }
   if (e.key === 'Escape' && (S.accMenu || S.dashMenu || S.repMenu)) { S.accMenu = false; S.dashMenu = false; S.repMenu = false; rerender(); return; }
   if (e.key === 'Enter' && e.target.dataset && e.target.dataset.tagadd) { e.preventDefault(); const v = e.target.value.trim().slice(0, 40); if (v) { ensureTagInCat(e.target.dataset.tagadd, v); render(); const n = document.querySelector(`[data-tagadd="${e.target.dataset.tagadd}"]`); if (n) n.focus(); } return; }
   if (e.key === 'Escape') { if (S.modal) { saveNote(true); S.prevModal = null; closeModal(); } else if (S.tagMenu) { S.tagMenu = null; render(); } }
