@@ -18,23 +18,23 @@
   --f-num:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e1115; --surface:#161a20; --surface-2:#1c2129; --ink:#e7eaf0; --muted:#97a0af; --line:#29303a;
-  --accent:#e2a548; --accent-ink:#1b1305; --accent-soft:#3a2c15;
-  --gain:#4fc38c; --gain-bg:#12281d; --gain-line:#1f553b;
-  --loss:#f2766c; --loss-bg:#2d1615; --loss-line:#6a2b27;
+  --bg:#0f1017; --surface:#181922; --surface-2:#20212c; --ink:#ededf4; --muted:#9b9db3; --line:#2b2c3a;
+  --accent:#8b6cf6; --accent-ink:#ffffff; --accent-soft:#2b2450;
+  --gain:#2fd18b; --gain-bg:#10291f; --gain-line:#1d5a41;
+  --loss:#ff5d6e; --loss-bg:#2e151a; --loss-line:#6b2731;
   --flat:#78818f; --star:#f0b54a;
   --c-amber:#e0a548; --c-blue:#7aa2f0; --c-green:#5cc48c; --c-pink:#ea7fb5; --c-violet:#a88bea; --c-slate:#97a0af; --c-red:#f07a72; --c-orange:#f29a5c; --c-yellow:#e3c450; --c-lime:#a4d465; --c-teal:#4fc7bd; --c-cyan:#5cc3e3; --c-indigo:#8f95ef; --c-purple:#c08ae6; --c-rose:#ef8aa7; --c-brown:#c8997a;
-  --rail:#0a0c0f; --rail-ink:#d3d8e1; --rail-muted:#727a88; --rail-hover:#171b21;
+  --rail:#13141c; --rail-ink:#dcdcea; --rail-muted:#7d7f96; --rail-hover:#22233a;
   --shadow:0 1px 2px rgba(0,0,0,.4);
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1115; --surface:#161a20; --surface-2:#1c2129; --ink:#e7eaf0; --muted:#97a0af; --line:#29303a;
-  --accent:#e2a548; --accent-ink:#1b1305; --accent-soft:#3a2c15;
-  --gain:#4fc38c; --gain-bg:#12281d; --gain-line:#1f553b;
-  --loss:#f2766c; --loss-bg:#2d1615; --loss-line:#6a2b27;
+  --bg:#0f1017; --surface:#181922; --surface-2:#20212c; --ink:#ededf4; --muted:#9b9db3; --line:#2b2c3a;
+  --accent:#8b6cf6; --accent-ink:#ffffff; --accent-soft:#2b2450;
+  --gain:#2fd18b; --gain-bg:#10291f; --gain-line:#1d5a41;
+  --loss:#ff5d6e; --loss-bg:#2e151a; --loss-line:#6b2731;
   --flat:#78818f; --star:#f0b54a;
   --c-amber:#e0a548; --c-blue:#7aa2f0; --c-green:#5cc48c; --c-pink:#ea7fb5; --c-violet:#a88bea; --c-slate:#97a0af; --c-red:#f07a72; --c-orange:#f29a5c; --c-yellow:#e3c450; --c-lime:#a4d465; --c-teal:#4fc7bd; --c-cyan:#5cc3e3; --c-indigo:#8f95ef; --c-purple:#c08ae6; --c-rose:#ef8aa7; --c-brown:#c8997a;
-  --rail:#0a0c0f; --rail-ink:#d3d8e1; --rail-muted:#727a88; --rail-hover:#171b21;
+  --rail:#13141c; --rail-ink:#dcdcea; --rail-muted:#7d7f96; --rail-hover:#22233a;
   --shadow:0 1px 2px rgba(0,0,0,.4);
   color-scheme:dark}
 
@@ -49,7 +49,7 @@ button{cursor:pointer}
 .muted{color:var(--muted)}
 
 .app{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100vh}
-.rail{background:var(--rail);color:var(--rail-ink);display:flex;flex-direction:column;gap:22px;padding:22px 14px;position:sticky;top:0;height:100vh}
+.rail{background:var(--rail);color:var(--rail-ink);display:flex;flex-direction:column;gap:22px;padding:22px 14px;position:sticky;top:0;height:100vh;z-index:30}
 .brand{display:flex;align-items:center;gap:10px;padding:0 8px;font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.01em;color:#fff}
 .add-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:10px 12px;font-weight:600}
 .add-btn:hover{filter:brightness(1.06)}
@@ -501,6 +501,17 @@ button.ins-alert{cursor:pointer}button.ins-alert:hover{border-color:var(--accent
 .adh{display:flex;flex-direction:column;gap:3px;font-size:12.5px}
 .adh div{display:flex;justify-content:space-between;gap:8px}
 @media (max-width:760px){.wf{grid-template-columns:1fr}}
+
+/* v17: appearance */
+.theme-seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:3px;margin:4px 0;min-width:0}
+.theme-seg button{overflow:hidden;white-space:nowrap}
+.theme-seg button{border:0;background:none;border-radius:6px;padding:6px 4px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:5px;color:var(--muted)}
+.prof-menu .theme-seg button{gap:4px;padding:6px 2px;font-size:12px;justify-content:center;min-width:0;color:var(--muted)}
+.prof-menu .theme-seg button[aria-pressed="true"],.theme-seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.theme-cards{display:grid;grid-template-columns:repeat(3,minmax(0,150px));gap:10px}
+.theme-card{border:2px solid var(--line);border-radius:10px;padding:8px;background:var(--surface);display:flex;flex-direction:column;gap:6px;text-align:left}
+.theme-card[aria-pressed="true"]{border-color:var(--accent)}
+.theme-card i{display:block;height:54px;border-radius:6px}
 .home-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:start}
 .focus{display:flex;flex-direction:column;gap:6px}
 .explore{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -3192,11 +3203,24 @@ function storageLine() {
   return L ? (L.mode === 'server' ? 'Saved in your database' : 'Saved in this browser') : 'Saved with this journal';
 }
 const PROF_ITEMS = [['profile', 'Profile', '<circle cx="8" cy="5.5" r="2.8"/><path d="M2.5 14c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/>'], ['accounts', 'Accounts', '<rect x="1.5" y="3.5" width="13" height="9" rx="1.5"/><path d="M1.5 6.5h13"/>'], ['tags', 'Tags management', '<path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5z"/><circle cx="5" cy="5" r="1"/>'], ['fees', 'Commissions & fees', '<circle cx="8" cy="8" r="6.3"/><path d="M10 5.8c-.5-.6-1.2-.9-2-.9-1.2 0-2 .6-2 1.5 0 2 4 1 4 3.1 0 .9-.9 1.6-2.1 1.6-.9 0-1.7-.4-2.1-1M8 3.5v9"/>'], ['imports', 'Import history', '<path d="M8 2v8M4.5 6.5L8 10l3.5-3.5M2.5 13.5h11"/>'], ['data', 'Data & backup', '<ellipse cx="8" cy="3.8" rx="5.5" ry="2"/><path d="M2.5 3.8v8.4c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V3.8M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/>']];
+
+/* appearance */
+const THEMES = [['light', 'Light', '☀'], ['dark', 'Dark', '☾'], ['system', 'System', '◐']];
+function getTheme() { try { return localStorage.getItem('ll-theme') || 'system'; } catch (e) { return 'system'; } }
+function applyTheme(v) { const r = document.documentElement; if (v === 'light' || v === 'dark') r.setAttribute('data-theme', v); else r.removeAttribute('data-theme'); }
+applyTheme(getTheme());
+function setTheme(v, sync = true) { try { localStorage.setItem('ll-theme', v); } catch (e) {} applyTheme(v); if (sync && S.db) { S.settings = { ...S.settings, theme: v }; S.db.doc('settings/account').set({ ...S.settings }).catch(() => {}); } rerender(); renderProfile(); }
+const themeSeg = () => `<div class="theme-seg" role="group" aria-label="Appearance">${THEMES.map(([k, l, ic]) => `<button data-action="setTheme" data-v="${k}" aria-pressed="${getTheme() === k}"><span aria-hidden="true">${ic}</span>${l}</button>`).join('')}</div>`;
+function themeCards() {
+  const pv = { light: 'linear-gradient(90deg,#161a21 0 22%,#eceef2 22%)', dark: 'linear-gradient(90deg,#13141c 0 22%,#0f1017 22% 100%)', system: 'linear-gradient(135deg,#eceef2 0 50%,#0f1017 50%)' };
+  return `<div><div class="label" style="margin-bottom:6px">Appearance</div><div class="theme-cards">${THEMES.map(([k, l]) => `<button class="theme-card" data-action="setTheme" data-v="${k}" aria-pressed="${getTheme() === k}"><i style="background:${pv[k]};border:1px solid var(--line)"></i><b>${l}</b></button>`).join('')}</div><div class="hint" style="margin-top:6px">System follows your device. Dark uses a deep navy with purple accents.</div></div>`;
+}
 function renderProfile() {
   const el = $('railProfile'); if (!el) return;
   const open = !!S.profMenu, inSet = S.view === 'settings';
   el.innerHTML = `<button class="prof-btn" data-action="profMenu" aria-haspopup="menu" aria-expanded="${open}" ${inSet ? 'aria-current="page"' : ''} title="Profile and settings">${avatar()}<span class="pn"><b>${esc(profName())}</b><small>Profile &amp; settings</small></span><span class="chev" aria-hidden="true">${open ? '▾' : '▴'}</span></button>
     ${open ? `<div class="prof-menu" role="menu"><div class="prof-head">${avatar('lg')}<div><b>${esc(profName())}</b><span class="hint">${storageLine()}</span></div></div>
+      ${themeSeg()}
       ${PROF_ITEMS.map(([k, l, ic]) => `<button role="menuitem" data-action="settings" data-v="${k}" ${inSet && S.setTab === k ? 'aria-current="page"' : ''}><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ic}</svg>${l}</button>`).join('')}
       ${window.__llLocal && window.__llLocal.mode === 'server' ? `<div class="sep"></div><button role="menuitem" class="danger" data-action="llSignOut"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5H3.5v11H6M10 5l3 3-3 3M13 8H6"/></svg>Sign out on this device</button>` : ''}</div>` : ''}`;
 }
@@ -3206,6 +3230,7 @@ function profileSettings() {
     <div class="pb-row" style="gap:14px;align-items:center">${avatar('lg')}<div><b>${esc(profName())}</b><div class="hint">${storageLine()}</div></div></div>
     <div class="form"><label class="full">Display name<input id="profName" data-keep value="${esc(S.settings.displayName || '')}" placeholder="Trader" maxlength="40"></label></div>
     <div><div class="label" style="margin-bottom:6px">Avatar color</div><div class="prof-colors">${COLORS.map(c => `<button data-action="profColor" data-v="${c}" aria-pressed="${cur === c}" aria-label="${c}" style="background:var(--c-${c})"></button>`).join('')}</div></div>
+    ${themeCards()}
     <div class="actions" style="justify-content:flex-start"><button class="primary" data-action="profSave">Save profile</button></div>`;
 }
 async function saveProfile(patch) {
@@ -3790,6 +3815,7 @@ document.addEventListener('click', async e => {
     case 'archivePb': { const p = S.playbooks.find(x => x.id === b.dataset.pb); if (!p || !needDb()) return; p.archived = !p.archived; S.db.collection('playbooks').doc(p.id).update({ archived: p.archived }).catch(writeErr); toast(p.archived ? 'Playbook archived' : 'Playbook restored'); break; }
     case 'pbView': S.pbView = b.dataset.v; break;
     case 'pbArch': S.pbArch = b.dataset.v === '1'; break;
+    case 'setTheme': setTheme(b.dataset.v); return;
     case 'patQ': S.patternQ = b.dataset.v; break;
     case 'agTab': S.agTab = b.dataset.v; S.view = 'agents'; window.scrollTo(0, 0); break;
     case 'actApply': { const a = (S.chat[+b.dataset.m] || {}).acts?.[+b.dataset.a]; if (a) await applyAction(a); return; }
@@ -4135,7 +4161,7 @@ render();
   db.collection('cash').onSnapshot(snap => { S.cash = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(c => c.date && typeof c.amount === 'number'); safeRender(); }, () => {});
   db.collection('notes').onSnapshot(snap => { S.notes = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
   db.doc('settings/notebook').onSnapshot(s => { S.folders = s.exists ? (s.data().folders || []) : []; safeRender(); }, () => {});
-  db.doc('settings/account').onSnapshot(s => { if (s.exists) { S.settings = { ...S.settings, ...s.data() }; safeRender(); } }, () => {});
+  db.doc('settings/account').onSnapshot(s => { if (s.exists) { const d = s.data(); S.settings = { ...S.settings, ...d }; if (d.theme && THEMES.some(x => x[0] === d.theme) && d.theme !== getTheme()) { try { localStorage.setItem('ll-theme', d.theme); } catch (e) {} applyTheme(d.theme); } safeRender(); renderProfile(); } }, () => {});
 })();
 })();
 </script>
