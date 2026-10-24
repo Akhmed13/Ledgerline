@@ -485,6 +485,35 @@ button.ins-badge{cursor:pointer}
 .sent-form{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--muted)}
 .sent-form input{width:64px;border:1px solid var(--line);background:var(--surface-2);border-radius:6px;padding:4px 6px}
 @media (max-width:900px){.ins-grid{grid-template-columns:1fr}}
+
+/* v16: AI coach */
+.act-card{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--accent);border-radius:10px;padding:10px 12px;margin-top:8px;background:var(--surface)}
+.ins-alert{display:flex;flex-direction:column;gap:2px;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12.5px;text-align:left;background:none;width:100%}
+.ins-alert span{color:var(--muted)}
+.ins-alert.warn b{color:var(--c-amber,#c98a12)}.ins-alert.ok b{color:var(--gain)}
+button.ins-alert{cursor:pointer}button.ins-alert:hover{border-color:var(--accent)}
+.wf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.wf-step{display:flex;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.wf-step.now{border-color:var(--accent)}.wf-step.next{opacity:.65}
+.wf-dot{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--surface-2);border:1px solid var(--line)}
+.wf-step.done .wf-dot{background:var(--gain);border-color:var(--gain);color:#fff}.wf-step.now .wf-dot{background:var(--accent);border-color:var(--accent);color:#fff}
+.wf-body{display:flex;flex-direction:column;gap:4px;min-width:0}.wf-body .sm{align-self:flex-start}
+.wf-name{font-weight:600;display:flex;justify-content:space-between;gap:6px}
+.ag-code{font-family:var(--f-num);font-size:11px;letter-spacing:.1em;color:var(--muted)}
+.ag-soon{opacity:.85}
+.lastrun{display:flex;flex-direction:column;gap:4px}
+.lastrun div{display:grid;grid-template-columns:minmax(0,1.2fr) auto minmax(0,1fr);gap:12px;font-size:12.5px;border-top:1px solid var(--line);padding-top:4px}
+.bt-form{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.bt-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.bt-kpis b{font-size:18px}
+.ask textarea{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:10px 12px;font:inherit;font-size:14px;resize:vertical}
+.ca-name{border:0;background:none;padding:0;font:inherit;font-family:var(--f-display);font-size:18px;width:100%}
+.ca-conds{display:flex;flex-direction:column;gap:6px}
+.ca-cond{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.ca-cond .fin{width:auto;min-width:90px;max-width:240px}
+.lastrun .hint{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adh{display:flex;flex-direction:column;gap:3px;font-size:12.5px}
+.adh div{display:flex;justify-content:space-between;gap:8px}
+@media (max-width:760px){.wf{grid-template-columns:1fr}}
 .home-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:start}
 .focus{display:flex;flex-direction:column;gap:6px}
 .explore{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -1367,6 +1396,7 @@ function chartCard(t) {
 function notesCard(t) {
   const isTrade = S.noteTab === 'trade', html = isTrade ? (t.note || '') : ((S.journal[t.date] || {}).html || '');
   return `<section class="panel card"><div class="note-tabs"><div class="seg" role="tablist"><button data-action="noteTab" data-v="trade" aria-pressed="${isTrade}">Trade note</button><button data-action="noteTab" data-v="day" aria-pressed="${!isTrade}">Daily journal · ${shortDate(t.date)}</button></div><span class="saved" id="savedMark"></span></div>
+    ${isTrade ? `<div class="actions" style="justify-content:flex-start;margin:0 0 6px"><button class="ghost sm" data-action="aiNote" data-id="${t.id}" ${S.noteBusy ? 'disabled' : ''}>${S.noteBusy ? 'Writing…' : '✦ Write notes with AI'}</button></div>` : ''}
     ${editor(isTrade ? 'trade' : 'journal', isTrade ? t.id : t.date, html)}</section>`;
 }
 function editor(kind, key, html) {
@@ -2032,12 +2062,12 @@ async function askClaude(q) {
   if (!sample) { S.chat.push({ role: 'assistant', content: "The assistant isn't available in this view. Open the journal from your Claude account to use it." }); rerender(); return; }
   const msg = { role: 'assistant', content: '', pending: true }; S.chat.push(msg); S.aiBusy = true; rerender();
   const hist = S.chat.filter(m => !m.pending && m.content).slice(-10);
-  const input = hist.map((m, i) => ({ role: m.role, content: i === 0 && m.role === 'user' ? `${AI_INSTR}\n\n<journal>\n${journalContext()}\n</journal>\n\nQuestion: ${m.content}` : m.content }));
+  const input = hist.map((m, i) => ({ role: m.role, content: i === 0 && m.role === 'user' ? `${AI_INSTR}\n${actionInstr()}\n\n<journal>\n${journalContext()}\n</journal>\n\nQuestion: ${m.content}` : m.content }));
   if (input[0].role !== 'user') input.shift();
-  if (input[0] && !input[0].content.includes('<journal>')) input[0].content = `${AI_INSTR}\n\n<journal>\n${journalContext()}\n</journal>\n\n${input[0].content}`;
+  if (input[0] && !input[0].content.includes('<journal>')) input[0].content = `${AI_INSTR}\n${actionInstr()}\n\n<journal>\n${journalContext()}\n</journal>\n\n${input[0].content}`;
   try {
-    const r = await sample(input, { cache: false, onText: ({ text }) => { msg.content = text; const el = $('aiStream'); if (el) el.innerHTML = md(text); } });
-    msg.content = r.text;
+    const r = await sample(input, { cache: false, onText: ({ text }) => { msg.content = text.replace(/```ll-action[\s\S]*?(```|$)/g, ''); const el = $('aiStream'); if (el) el.innerHTML = md(msg.content); } });
+    const pa = parseActions(r.text); msg.content = pa.clean || (pa.acts.length ? 'Here is the change. Check the preview, then apply it.' : r.text); msg.acts = pa.acts;
   } catch (e) { msg.content = aiErr(e); }
   msg.pending = false; S.aiBusy = false; rerender();
 }
@@ -2075,7 +2105,7 @@ function homeView() {
   focus.push(['Review your week with Claude', 'Get a short write-up of what worked and what to fix.', 'askChip', 'Review my last 5 trading days: what worked, what didn\'t, and one thing to change.']);
   const wk = S.trades.filter(t => t.date >= iso(new Date(Date.now() - 6 * 864e5))), ws = stats(wk);
   const explore = [['dashboard', 'Dashboard', 'Your numbers, calendar and charts'], ['journal', 'Daily journal', 'Each day with charts, trades and notes'], ['reports', 'Reports', 'Performance by setup, time and more'], ['replay', 'Replay', 'Step back through a trade or a day'], ['playbooks', 'Playbooks', 'Your setups and their rules'], ['progress', 'Progress tracker', 'Daily rules and streaks']];
-  const chat = S.chat.slice(-12).map(m => m.role === 'user' ? `<div class="msg me">${esc(m.content)}</div>` : `<div class="msg ai"${m.pending ? ' id="aiStream"' : ''}>${m.content ? md(m.content) : '<p class="hint">Claude is reading your journal…</p>'}</div>`).join('');
+  const off = Math.max(0, S.chat.length - 12), chat = S.chat.slice(-12).map((m, k) => m.role === 'user' ? `<div class="msg me">${esc(m.content)}</div>` : `<div class="msg ai"${m.pending ? ' id="aiStream"' : ''}>${m.content ? md(m.content) : '<p class="hint">Claude is reading your journal…</p>'}${(m.acts || []).map((a, ai) => actionCard(a, off + k, ai)).join('')}</div>`).join('');
   return `<div class="home">
     <h1 class="home-h">${hour()}</h1>
     <section class="panel ai-box"><div class="label">Ask Claude about your trading</div>
@@ -2533,7 +2563,7 @@ function todayEventsCard() {
 }
 
 /* ---------- agents ---------- */
-const DEFAULT_AGENTS = () => ({ brief: { on: false, watchlist: '', notes: '', econ: true }, tagger: { on: false, manual: true, rules: [{ id: 'r1', field: 'hold', op: '<', value: '3', cat: 'setups', tag: 'scalp' }, { id: 'r2', field: 'hour', op: '<', value: '10:00', cat: 'setups', tag: 'opening hour' }, { id: 'r3', field: 'r', op: '<=', value: '-1.2', cat: 'mistakes', tag: 'loss over 1R' }] }, review: { on: false, focus: '' }, sentiment: { date: '', vix: null, spy: null } });
+const DEFAULT_AGENTS = () => ({ brief: { on: false, watchlist: '', notes: '', econ: true }, tagger: { on: false, manual: true, rules: [{ id: 'r1', field: 'hold', op: '<', value: '3', cat: 'setups', tag: 'scalp' }, { id: 'r2', field: 'hour', op: '<', value: '10:00', cat: 'setups', tag: 'opening hour' }, { id: 'r3', field: 'r', op: '<=', value: '-1.2', cat: 'mistakes', tag: 'loss over 1R' }] }, review: { on: false, focus: '' }, sentiment: { date: '', vix: null, spy: null }, custom: [], limits: { maxTrades: 3 } });
 S.agents = DEFAULT_AGENTS();
 const TAG_FIELDS = [['hold', 'Hold time (min)'], ['hour', 'Entry time (HH:MM)'], ['pnl', 'Net P&L ($)'], ['r', 'Realized R'], ['qty', 'Quantity'], ['side', 'Side'], ['symbol', 'Symbol'], ['weekday', 'Weekday (Mon…)']];
 const TAG_OPS = ['<', '<=', '>', '>=', '=', '≠', 'contains'];
@@ -2572,10 +2602,10 @@ async function runBrief() {
 }
 async function runReview(d) {
   if (S.agentBusy.review) return; d = d || [...new Set(S.trades.map(t => t.date))].filter(x => x < todayIso()).sort().pop();
-  if (!d) { toast('No past session to review yet.'); return; }
+  if (!d || !S.trades.some(t => t.date === d)) { toast('No session to review yet.'); return; }
   S.agentBusy.review = true; rerender();
   const ts = S.trades.filter(t => t.date === d), j = S.journal[d] || {};
-  const text = await agentRun(`Write a session review for ${dateLabel(d)}.\nTrades:\n${tradeLines(ts)}\n${hasText(j.html) ? 'My notes: ' + strip(j.html).slice(0, 1500) : ''}\n${S.agents.review.focus ? 'Focus especially on: ' + S.agents.review.focus : ''}\nWrite it as a short narrative with headings: Summary, Wins, Mistakes, Themes, Next session. Name specific trades.`);
+  const text = await agentRun(`Write a session review for ${dateLabel(d)}.\nTrades:\n${tradeLines(ts)}\nPlan adherence: ${(() => { const A = adherence(d); return A.rows.length ? A.score + '% — ' + A.rows.map(r => `${r.name}: ${r.pass ? 'kept' : 'broken'} (${r.label})`).join('; ') : 'no rules applied'; })()}\n${hasText(j.html) ? 'My notes: ' + strip(j.html).slice(0, 1500) : ''}\n${S.agents.review.focus ? 'Focus especially on: ' + S.agents.review.focus : ''}\nWrite it as a short narrative with headings: Summary, Wins, Mistakes, Themes, Next session. Name specific trades.`);
   S.agentBusy.review = false;
   if (text) { await saveJournal(d, { html: ((S.journal[d] || {}).html || '') + '<h4>Session review</h4>' + sanitize(md(text)), updatedAt: new Date().toISOString() }).catch(writeErr); toast(`Session review for ${shortDate(d)} saved to the journal`); }
   rerender();
@@ -2588,14 +2618,33 @@ async function runTaggerAll() {
   toast(`Tagged ${list.length} trade${list.length === 1 ? '' : 's'}`); rerender();
 }
 function agentsView() {
-  const A = S.agents, n = ['brief', 'tagger', 'review'].filter(k => A[k].on).length;
-  const card = (k, chips, title, desc, extra) => `<section class="panel card agent"><div class="cat-head"><div class="fchips">${chips.map(c => `<span class="chip">${c}</span>`).join('')}</div>
-      <button class="switch" role="switch" aria-checked="${A[k].on}" data-action="agentToggle" data-v="${k}" aria-label="Turn ${title} ${A[k].on ? 'off' : 'on'}"><i></i></button></div>
-    <h3 class="h3">${title}</h3><p class="hint" style="margin:0">${desc}</p><div class="actions">${extra}<button class="primary" data-action="agentCfg" data-v="${k}">Configure</button></div></section>`;
-  return `<div class="agents"><p class="hint">${n} of 3 active. Agents that write text use Claude and run as you; the auto-tagger runs on your own rules.</p>
-    ${card('brief', ['Start my day', 'When on: runs automatically'], 'Pre-market briefing', "Combines your watchlist, your levels, today's economic events and your own history into a short plan, saved into today's journal. It has no live market data, so it won't comment on prices or news.", `<button class="ghost" data-action="agentRun" data-v="brief" ${S.agentBusy.brief ? 'disabled' : ''}>${S.agentBusy.brief ? 'Writing…' : 'Run now'}</button>`)}
-    ${card('tagger', ['Every imported trade', A.tagger.manual ? 'Trades added by hand' : 'Imports only', 'Automatic'], 'Trade auto-tagger', 'Tags trades the moment they come in, using rules you set, such as hold time under 3 minutes → scalp, so reports stay structured without manual tagging.', `<button class="ghost" data-action="agentRun" data-v="tagger">Run on existing trades</button>`)}
-    ${card('review', ['Journal · day view', 'When on: runs on Start my day'], 'Session review', "Writes a narrative review of a trading session (wins, mistakes and themes) into that day's journal. When on, it reviews your last session each time you press Start my day.", `<button class="ghost" data-action="agentRun" data-v="review" ${S.agentBusy.review ? 'disabled' : ''}>${S.agentBusy.review ? 'Writing…' : 'Review last session'}</button>`)}</div>`;
+  const tab = S.agTab || 'agents', tabs = [['agents', 'Agents'], ['backtest', 'Backtesting'], ['custom', 'Custom agents']];
+  const head = `<div class="seg" role="tablist" style="align-self:flex-start">${tabs.map(([k, l]) => `<button role="tab" data-action="agTab" data-v="${k}" aria-pressed="${tab === k}">${l}</button>`).join('')}</div>`;
+  if (tab === 'backtest') return `<div class="agents">${head}${backtestView()}</div>`;
+  if (tab === 'custom') return `<div class="agents">${head}${customView()}</div>`;
+  const A = S.agents, n = ['brief', 'tagger', 'review'].filter(k => A[k].on).length + (A.custom || []).filter(c => c.on).length;
+  const sw = (k, title) => `<button class="switch" role="switch" aria-checked="${A[k].on}" data-action="agentToggle" data-v="${k}" aria-label="Turn ${title} ${A[k].on ? 'off' : 'on'}"><i></i></button>`;
+  const card = (code, k, chips, title, desc, extra, more = '') => `<section class="panel card agent"><div class="cat-head"><span class="ag-code">${code}</span>${k ? sw(k, title) : ''}</div>
+    <h3 class="h3">${title}</h3><div class="fchips">${chips.map(c => `<span class="chip">${c}</span>`).join('')}</div><p class="hint" style="margin:0">${desc}</p>${more}<div class="actions">${extra}</div></section>`;
+  const sn = A.sentiment || {}, mood = sn.date === todayIso() ? sentimentOf(sn) : null;
+  const lr = taggerLastRun(), ld = [...new Set(S.trades.map(t => t.date))].filter(x => x <= todayIso()).sort().pop(), adh = ld ? adherence(ld) : null;
+  const bt = S.btRes, ca = A.custom || [];
+  return `<div class="agents">${head}<p class="hint">${n} active. Agents that write text use Claude and run as you; the tagger, custom agents and backtests run on your own rules and data.</p>
+    ${card('SA-01', 'brief', ['Start my day', 'Pre-market'], 'Sentiment & pre-market briefing', "Builds a short plan from your watchlist, levels, today's economic events, your market read and your own history, then saves it to today's journal. It has no live market feed, so add today's VIX and SPY moves for the sentiment read.",
+      `<button class="ghost" data-action="agentRun" data-v="brief" ${S.agentBusy.brief ? 'disabled' : ''}>${S.agentBusy.brief ? 'Writing…' : 'Generate'}</button><button class="primary" data-action="agentCfg" data-v="brief">Configure</button>`,
+      `<div class="ins-row"><span>Today's sentiment</span>${mood ? `<span class="ins-badge t-${mood[1]}">${mood[0].toUpperCase()}</span>` : `<button class="linkish" data-action="view" data-view="home">Set on Home</button>`}</div>`)}
+    ${card('AT-02', 'tagger', ['Every imported trade', A.tagger.manual ? 'Trades added by hand' : 'Imports only', 'Retroactive'], 'Auto-tagging agent', 'Tags setup, timing and execution on every trade from your rules. Write the rules in plain English and Claude turns them into conditions.',
+      `<button class="ghost" data-action="agentRun" data-v="tagger">Run on existing trades</button><button class="primary" data-action="agentCfg" data-v="tagger">Edit rules</button>`,
+      `<form class="ask" data-form="tgParse"><input id="tgText" data-keep placeholder="Tag losses held over 20 minutes as held loser" autocomplete="off" aria-label="Tagging instruction"><button class="secondary" type="submit" ${S.tgBusy ? 'disabled' : ''}>${S.tgBusy ? 'Adding…' : 'Add rule'}</button></form>
+      ${lr.length ? `<div class="label">Last run</div><div class="lastrun">${lr.map(({ t, hits }) => `<div><span><b>${esc(t.symbol)}</b> ${esc(t.side.toLowerCase())} · ${shortDate(t.date)}</span><span class="${cls(t.pnl)} num">${priv(money(t.pnl, 0))}</span><span class="hint">${hits.map(h => esc(h.tag)).join(', ')}</span></div>`).join('')}</div>` : ''}`)}
+    ${card('SR-03', 'review', ['Journal · day view', 'Runs on Start my day'], 'Session review agent', "Scores plan adherence against your daily rules and playbooks, then writes a review of wins, mistakes and their cost into that day's journal. Tomorrow's briefing reads it.",
+      `<button class="ghost" data-action="agentRun" data-v="review" ${S.agentBusy.review ? 'disabled' : ''}>${S.agentBusy.review ? 'Writing…' : 'Review last session'}</button><button class="primary" data-action="agentCfg" data-v="review">Configure</button>`,
+      adh && adh.rows.length ? `<div class="ins-row"><span>Plan adherence · ${shortDate(ld)}</span><b class="${adh.score >= 80 ? 't-gain' : 't-amber'}">${adh.score}%</b></div><div class="adh">${adh.rows.slice(0, 5).map(r => `<div><span>${r.pass ? '✓' : '✗'} ${esc(r.name)}</span><span class="hint">${esc(r.label)}</span></div>`).join('')}</div>` : '')}
+    ${card('BT-04', '', ['Plain English', '1-minute bars'], 'Backtesting agent', 'Describe a strategy in plain English. Claude reads the rules, the journal simulates them on your historical bars, and Claude analyzes the result.',
+      `<button class="primary" data-action="agTab" data-v="backtest">${bt ? 'Open backtest' : 'New backtest'}</button>`, bt ? `<div class="ins-row"><span>Last run · ${bt.n} trades</span><b class="${cls(bt.net)}">${priv(money(bt.net, 0))}</b></div>` : '')}
+    ${card('CA-05', '', ['Triggers', 'Conditions', 'Actions'], 'Custom agents', 'Describe an agent and Claude builds it: when a trade is logged, check your conditions, then alert you and tag the trade.',
+      `<button class="primary" data-action="agTab" data-v="custom">${ca.length ? 'Manage agents' : 'Build an agent'}</button>`, ca.length ? `<div class="hint">${ca.filter(c => c.on).length} of ${ca.length} on · ${alertFeed(7).length} alert${alertFeed(7).length === 1 ? '' : 's'} this week</div>` : '')}
+  </div>`;
 }
 function agentCfgModal() {
   const k = S.modal.arg, C = S.agentEdit, head = t => `<div class="sheet-head"><h3 id="mTitle">${t}</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>`;
@@ -3178,6 +3227,266 @@ async function saveProfile(patch) {
   try { await S.db.doc('settings/account').set({ ...S.settings }); } catch (err) { writeErr(err); }
 }
 
+/* ---------- v16: AI coach — actions, custom agents, backtesting, behavior, workflow ---------- */
+const ACTION_INSTR = `
+You can also change the journal when the user asks you to (tag trades, set stops, mark trades reviewed, attach a playbook). To do that, add one fenced block per change, exactly like:
+\`\`\`ll-action
+{"type":"tag","cat":"mistakes","tag":"late entry","filter":{"result":"loss","from":"2026-10-01"},"label":"Tag October losses as late entry"}
+\`\`\`
+Types: "tag" (needs cat id and tag), "untag" (cat, tag), "stop" (needs "r": distance in R, uses each trade's risk), "review" ("value": true/false), "playbook" ("playbook": playbook name).
+Filter keys (all optional, combined with AND): from, to (YYYY-MM-DD), symbol, side ("Long"/"Short"), result ("win"/"loss"/"be"), weekday (0=Sun..6=Sat), timeFrom, timeTo (HH:MM entry time), minPnl, maxPnl, minR, maxR, minHold, maxHold (minutes), hasTag ("cat:tag"), noPlaybook (true).
+Category ids: ${'${CATS}'}. Only add a block when the user asked for a change; the app shows a preview with the number of matching trades and the user confirms. Say in one line what the block will do.`;
+const actionInstr = () => ACTION_INSTR.replace('${CATS}', S.cats.map(c => `${c.id} (${c.name})`).join(', ') || 'setups, mistakes');
+function actFilter(f = {}) {
+  return t => {
+    if (f.from && t.date < f.from) return false; if (f.to && t.date > f.to) return false;
+    if (f.symbol && rootOf(t.symbol) !== rootOf(String(f.symbol).toUpperCase()) && t.symbol !== String(f.symbol).toUpperCase()) return false;
+    if (f.side && t.side !== f.side) return false;
+    if (f.result === 'win' && !(t.pnl > 0)) return false; if (f.result === 'loss' && !(t.pnl < 0)) return false; if (f.result === 'be' && t.pnl !== 0) return false;
+    if (f.weekday != null && f.weekday !== '' && ![].concat(f.weekday).map(Number).includes(dowOf(t.date))) return false;
+    if (f.timeFrom && !(t.time && t.time >= f.timeFrom)) return false; if (f.timeTo && !(t.time && t.time < f.timeTo)) return false;
+    if (f.minPnl != null && !(t.pnl >= +f.minPnl)) return false; if (f.maxPnl != null && !(t.pnl <= +f.maxPnl)) return false;
+    const r = riskOf(t) ? rOf(t) : null;
+    if (f.minR != null && !(r != null && r >= +f.minR)) return false; if (f.maxR != null && !(r != null && r <= +f.maxR)) return false;
+    const h = holdOf(t); if (f.minHold != null && !(h != null && h >= +f.minHold)) return false; if (f.maxHold != null && !(h != null && h <= +f.maxHold)) return false;
+    if (f.hasTag) { const [c, g] = String(f.hasTag).split(':'); if (!tagsOf(t, c).includes(g)) return false; }
+    if (f.noPlaybook && t.playbookId) return false;
+    return true;
+  };
+}
+function parseActions(text) {
+  const acts = [], clean = String(text || '').replace(/```ll-action\s*([\s\S]*?)```/g, (_, j) => { try { const a = JSON.parse(j.trim()); if (a && a.type) acts.push(a); } catch (e) {} return ''; });
+  return { clean: clean.trim(), acts };
+}
+function actionPlan(a) {
+  const ts = S.trades.filter(actFilter(a.filter)); let ok = ts, why = '';
+  if (a.type === 'stop') { ok = ts.filter(t => riskOf(t) && num(t.entry) != null && num(t.qty)); if (ok.length < ts.length) why = `${ts.length - ok.length} skipped: no entry, size or risk`; }
+  if (a.type === 'tag' || a.type === 'untag') { if (!catById(a.cat)) return { ts: [], why: `There's no tag category “${esc(a.cat)}”.` }; ok = ts.filter(t => a.type === 'tag' ? !tagsOf(t, a.cat).includes(a.tag) : tagsOf(t, a.cat).includes(a.tag)); }
+  if (a.type === 'playbook' && !S.playbooks.find(p => p.name.toLowerCase() === String(a.playbook || '').toLowerCase())) return { ts: [], why: `There's no playbook named “${esc(a.playbook)}”.` };
+  return { ts: ok, why };
+}
+function actionCard(a, mi, ai) {
+  const P = actionPlan(a), done = a.done;
+  const what = a.label || (a.type === 'tag' ? `Tag as “${a.tag}”` : a.type === 'untag' ? `Remove tag “${a.tag}”` : a.type === 'stop' ? `Set stops at ${a.r}R` : a.type === 'review' ? (a.value === false ? 'Mark as not reviewed' : 'Mark as reviewed') : `Attach playbook “${a.playbook}”`);
+  return `<div class="act-card"><div><b>${esc(what)}</b><div class="hint">${done ? `Applied to ${done} trade${done === 1 ? '' : 's'}` : `${P.ts.length} matching trade${P.ts.length === 1 ? '' : 's'}${P.why ? ' · ' + P.why : ''}`}</div></div>
+    ${done ? '<span class="chip" style="color:var(--gain)">✓ Done</span>' : P.ts.length ? `<span class="fchips"><button class="ghost sm" data-action="actPreview" data-m="${mi}" data-a="${ai}">Show</button><button class="primary sm" data-action="actApply" data-m="${mi}" data-a="${ai}">Apply</button></span>` : ''}</div>`;
+}
+async function applyAction(a) {
+  if (!needDb()) return; const P = actionPlan(a); let n = 0;
+  for (const t of P.ts) {
+    let patch = null;
+    if (a.type === 'tag') { ensureTagInCat(a.cat, a.tag); patch = { tags: { ...(t.tags || {}), [a.cat]: [...tagsOf(t, a.cat), a.tag] } }; }
+    else if (a.type === 'untag') patch = { tags: { ...(t.tags || {}), [a.cat]: tagsOf(t, a.cat).filter(x => x !== a.tag) } };
+    else if (a.type === 'stop') { const dist = riskOf(t) * (+a.r || 1) / (num(t.qty) * (num(t.mult) || 1)); patch = { stop: Math.round((num(t.entry) - dirOf(t) * dist) * 10000) / 10000 }; }
+    else if (a.type === 'review') patch = { reviewed: a.value !== false };
+    else if (a.type === 'playbook') { const pb = S.playbooks.find(p => p.name.toLowerCase() === String(a.playbook).toLowerCase()); patch = { playbookId: pb.id, rulesChecked: [] }; }
+    if (patch) { await patchTrade(t.id, patch, true); n++; }
+  }
+  a.done = n; toast(`Updated ${n} trade${n === 1 ? '' : 's'}`); rerender();
+}
+async function aiJson(prompt) {
+  const sample = await getSample(); if (!sample) { toast("This needs the assistant, which isn't available in this view."); return null; }
+  try { const r = await sample(prompt + '\n\nReply with only the JSON, no prose and no code fence.'); const m = r.text.match(/[\[{][\s\S]*[\]}]/); return m ? JSON.parse(m[0]) : null; }
+  catch (e) { toast(e instanceof SyntaxError ? "Claude's answer couldn't be read. Try rephrasing." : aiErr(e)); return null; }
+}
+
+/* behavior: context fields for custom agents and alerts */
+function dayBefore(t) {
+  return S.trades.filter(x => x.id !== t.id && x.date === t.date && acctOf(x) === acctOf(t) && x.time && t.time && x.time <= t.time && (x.time < t.time || x.id < t.id)).sort((a, b) => a.time.localeCompare(b.time));
+}
+function medQty(sym) { const q = S.trades.filter(x => rootOf(x.symbol) === rootOf(sym) && num(x.qty)).map(x => num(x.qty)).sort((a, b) => a - b); return q.length ? q[Math.floor(q.length / 2)] : null; }
+const CTX_FIELDS = [['sinceLoss', 'Minutes since last loss (same day)'], ['tradeNo', 'Trade number of the day'], ['sizeVsUsual', 'Size vs usual (%)'], ['dayPnlBefore', 'Day P&L before this trade ($)'], ['lossStreak', 'Losses in a row before it']];
+function ctxVal(t, f) {
+  const prev = dayBefore(t);
+  switch (f) {
+    case 'sinceLoss': { const l = prev.filter(x => x.pnl < 0).pop(); if (!l || !t.time) return null; const g = toMin(t.time) - toMin(l.exitTime && l.exitTime >= l.time ? l.exitTime : l.time); return g >= 0 ? g : null; }
+    case 'tradeNo': return prev.length + 1;
+    case 'sizeVsUsual': { const m = medQty(t.symbol), q = num(t.qty); return m && q ? Math.round(q / m * 100) : null; }
+    case 'dayPnlBefore': return prev.reduce((a, x) => a + x.pnl, 0);
+    case 'lossStreak': { let n = 0; for (let i = prev.length - 1; i >= 0 && prev[i].pnl < 0; i--) n++; return n; }
+  }
+  return fieldVal(t, f);
+}
+function condHit(t, c) { return ruleHit({ ...t, __v: ctxVal(t, c.field) }, { ...c, field: '__ctx' }); }
+const _fieldVal0 = fieldVal;
+fieldVal = function (t, f) { return f === '__ctx' ? t.__v : _fieldVal0(t, f); };
+function agentHits(ag, ts) { return (ag.conds || []).length ? ts.filter(t => ag.conds.every(c => condHit(t, c))) : []; }
+function runCustomOnTrade(t) {
+  const out = []; (S.agents.custom || []).filter(a => a.on).forEach(a => { if (agentHits(a, [t]).length) out.push(a); });
+  return out;
+}
+function alertFeed(days = 30) {
+  const from = iso(new Date(Date.now() - days * 864e5)), ts = S.trades.filter(t => t.date >= from), out = [];
+  (S.agents.custom || []).filter(a => a.on).forEach(a => agentHits(a, ts).forEach(t => out.push({ a, t })));
+  return out.sort((x, y) => (y.t.date + (y.t.time || '')).localeCompare(x.t.date + (x.t.time || '')));
+}
+function behaviorStats() {
+  const P = insightPool(), L = S.agents.limits || {}, maxT = +L.maxTrades || 3, out = [];
+  const big = P.ts.filter(t => { const v = ctxVal(t, 'sizeVsUsual'); return v != null && v >= 140; });
+  if (big.length) { const wr = big.filter(t => t.pnl > 0).length / big.length, net = big.reduce((a, t) => a + t.pnl, 0); out.push({ tone: net < 0 ? 'warn' : 'ok', title: net < 0 ? 'Oversizing' : 'Larger size holds up', txt: `${big.length} trade${big.length === 1 ? '' : 's'} at 40%+ above your usual size · ${Math.round(wr * 100)}% win rate · ${money(net, 0)}` }); }
+  const byD = {}; P.ts.forEach(t => (byD[t.date] = byD[t.date] || []).push(t));
+  let early = [], late = []; Object.values(byD).forEach(d => { d.sort((a, b) => (a.time || '').localeCompare(b.time || '')); early.push(...d.slice(0, maxT)); late.push(...d.slice(maxT)); });
+  if (late.length >= 3) { const we = early.filter(t => t.pnl > 0).length / early.length, wl = late.filter(t => t.pnl > 0).length / late.length, drop = Math.round((we - wl) * 100); out.push({ tone: drop >= 10 ? 'warn' : 'ok', title: drop >= 10 ? 'Overtrading' : 'Late trades hold up', txt: `Win rate ${Math.round(wl * 100)}% after trade #${maxT} vs ${Math.round(we * 100)}% before (${drop > 0 ? '−' + drop : '+' + -drop} pts)` }); }
+  const days = Object.keys(byD).sort(); let streak = 0; for (let i = days.length - 1; i >= 0 && byD[days[i]].length <= maxT; i--) streak++;
+  if (days.length) out.push({ tone: streak >= 3 ? 'ok' : 'info', title: 'Session limit', txt: streak ? `Kept to ${maxT} trades or fewer ${streak} day${streak === 1 ? '' : 's'} in a row` : `Your last session went over ${maxT} trades` });
+  return { list: out, maxT };
+}
+const _behaviorCard0 = behaviorCard;
+behaviorCard = function () {
+  const B = behaviorStats(), feed = alertFeed(7).slice(0, 3);
+  const extra = B.list.map(x => `<div class="ins-alert ${x.tone}"><b>${x.tone === 'warn' ? '⚠ ' : x.tone === 'ok' ? '✓ ' : ''}${esc(x.title)}</b><span>${esc(x.txt)}</span></div>`).join('')
+    + feed.map(({ a, t }) => `<button class="ins-alert warn" data-action="preview" data-id="${t.id}"><b>⚑ ${esc(a.name)}</b><span>${esc(t.symbol)} · ${shortDate(t.date)} ${esc(t.time || '')} · ${priv(money(t.pnl))}</span></button>`).join('');
+  return _behaviorCard0().replace(/<\/section>$/, `${extra}</section>`);
+};
+
+/* daily workflow: plan → trade → analyze */
+function workflowCard() {
+  const td = todayIso(), j = S.journal[td] || {}, html = j.html || '', ts = S.trades.filter(t => t.date === td).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  const maxT = +(S.agents.limits || {}).maxTrades || 3, planned = !!j.startedAt || /Pre-market briefing/.test(html), reviewed = /Session review/.test(html) || (ts.length && ts.every(t => t.reviewed));
+  const evs = S.econ.filter(e => e.date === td && e.impact === 'high').length, net = ts.reduce((a, t) => a + t.pnl, 0);
+  const late = behaviorStats().list.find(x => x.title === 'Overtrading');
+  const step = (n, name, state, time, body, act) => `<div class="wf-step ${state}"><div class="wf-dot">${state === 'done' ? '✓' : n}</div><div class="wf-body"><div class="wf-name">${name}<span class="hint">${time}</span></div><div class="hint">${body}</div>${act || ''}</div></div>`;
+  const stPlan = planned ? 'done' : 'now', stTrade = !planned ? 'next' : ts.length ? (reviewed ? 'done' : 'now') : 'now', stAn = reviewed ? 'done' : ts.length ? 'now' : 'next';
+  return `<section class="panel card ins"><div class="ins-top"><span class="label"><i class="ldot"></i>Today · plan, trade, analyze</span></div><div class="wf">
+    ${step(1, 'Plan', stPlan, j.startedAt ? 'started ' + esc(j.startedAt) : 'pre-market', `${evs ? `${evs} high-impact event${evs === 1 ? '' : 's'} today · ` : ''}${/Pre-market briefing/.test(html) ? 'Briefing in your journal' : 'Briefing and sentiment before the open'}`, planned ? '' : `<button class="secondary sm" data-action="startDay">Start my day</button>`)}
+    ${step(2, 'Trade', stTrade, ts.length ? `${ts.length} trade${ts.length === 1 ? '' : 's'}` : 'in session', ts.length ? `<span class="${cls(net)}">${priv(money(net))}</span> · ${ts.length > maxT ? `<b class="t-amber">over your ${maxT}-trade limit</b>` : `${maxT - ts.length} of ${maxT} trades left`}${ts.length >= maxT && late ? ` · ${esc(late.txt)}` : ''}` : 'Each trade is checked against your agents and limits as you log it', `<button class="ghost sm" data-action="addFlow">Add trade</button>`)}
+    ${step(3, 'Analyze', stAn, 'post-session', reviewed ? 'Session reviewed. It feeds tomorrow\'s briefing.' : 'Review the session to score plan adherence', ts.length && !reviewed ? `<button class="secondary sm" data-action="agentRun" data-v="reviewToday">Review today</button>` : '')}
+  </div></section>`;
+}
+const _insightsRow0 = insightsRow;
+insightsRow = function () { return workflowCard() + _insightsRow0(); };
+
+/* plan adherence for a session */
+function adherence(d) {
+  const ts = S.trades.filter(t => t.date === d), rows = [];
+  (rulesList(d) || []).forEach(r => { const e = evalRule(r, d, ts); if (e.applies) rows.push({ name: r.name, pass: e.pass, label: e.label || '' }); });
+  ts.forEach(t => { const pb = S.playbooks.find(p => p.id === t.playbookId); if (!pb) return; const n = pb.groups.reduce((a, g) => a + g.rules.length, 0), c = (t.rulesChecked || []).length; if (n) rows.push({ name: `${t.symbol} ${t.time || ''} · ${pb.name}`, pass: c === n, label: `${c} / ${n} rules` }); });
+  return { rows, score: rows.length ? Math.round(rows.filter(r => r.pass).length / rows.length * 100) : null };
+}
+
+/* backtesting */
+const BT_DEFAULT = () => ({ text: '', symbol: '', type: 'orb', session: '09:30', orMin: 15, entryAfter: '09:45', entryBy: '11:30', exitBy: '15:55', dir: 'both', stop: 3, target: 9, qty: 1, mult: 50, fees: 0, skip: [], from: '', to: '' });
+S.bt = BT_DEFAULT(); S.btData = {};
+function btDays() {
+  const sym = rootOf((S.bt.symbol || '').toUpperCase()).replace(/[^A-Z0-9]/g, ''), out = {};
+  Object.entries(S.candles || {}).forEach(([k, v]) => { if (v && v.m && (!sym || k.endsWith('_' + sym))) out[k] = v; });
+  Object.entries(S.btData).forEach(([k, v]) => { if (!sym || k.endsWith('_' + sym)) out[k] = v; });
+  return Object.keys(out).sort().map(k => ({ date: k.split('_')[0], sym: k.split('_').slice(1).join('_'), c: out[k] }));
+}
+function runBacktest() {
+  const B = S.bt, days = btDays().filter(d => (!B.from || d.date >= B.from) && (!B.to || d.date <= B.to) && !(B.skip || []).includes(dowOf(d.date)));
+  const s0 = toMin(B.session), eA = toMin(B.entryAfter || B.session), eB = toMin(B.entryBy || B.exitBy), xB = toMin(B.exitBy), trades = [];
+  days.forEach(({ date, sym, c }) => {
+    const idx = c.m.map((m, i) => i).filter(i => c.m[i] >= s0 && c.m[i] <= xB); if (!idx.length) return;
+    let side = null, entry = null, ei = -1;
+    if (B.type === 'orb') {
+      const orI = idx.filter(i => c.m[i] < s0 + (+B.orMin || 15)); if (!orI.length) return;
+      const hi = Math.max(...orI.map(i => c.h[i])), lo = Math.min(...orI.map(i => c.l[i]));
+      for (const i of idx) { if (c.m[i] < Math.max(eA, s0 + (+B.orMin || 15)) || c.m[i] > eB) continue;
+        const up = c.h[i] > hi && B.dir !== 'short', dn = c.l[i] < lo && B.dir !== 'long';
+        if (up && dn) { side = c.c[i] >= c.o[i] ? 'Long' : 'Short'; } else if (up) side = 'Long'; else if (dn) side = 'Short'; else continue;
+        entry = side === 'Long' ? Math.max(hi, c.o[i]) : Math.min(lo, c.o[i]); ei = i; break; }
+    } else {
+      const i = idx.find(i => c.m[i] >= eA); if (i == null) return; side = B.dir === 'short' ? 'Short' : 'Long'; entry = c.o[i]; ei = i;
+    }
+    if (ei < 0) return;
+    const d = side === 'Long' ? 1 : -1, stopPx = entry - d * (+B.stop), tgtPx = entry + d * (+B.target); let exit = null, why = 'time', xi = ei;
+    for (const i of idx.filter(i => i >= ei)) {
+      const hitS = d > 0 ? c.l[i] <= stopPx : c.h[i] >= stopPx, hitT = d > 0 ? c.h[i] >= tgtPx : c.l[i] <= tgtPx;
+      if (hitS && +B.stop) { exit = stopPx; why = 'stop'; xi = i; break; }
+      if (hitT && +B.target && i > ei) { exit = tgtPx; why = 'target'; xi = i; break; }
+      xi = i;
+    }
+    if (exit == null) { exit = c.c[xi]; }
+    const pts = (exit - entry) * d, pnl = pts * (+B.mult || 1) * (+B.qty || 1) - (+B.fees || 0);
+    trades.push({ date, sym, side, entry, exit, pts, pnl, why, t0: minToHM(c.m[ei]), t1: minToHM(c.m[xi]) });
+  });
+  const st = { n: trades.length, w: trades.filter(t => t.pnl > 0).length, net: trades.reduce((a, t) => a + t.pnl, 0), gw: trades.filter(t => t.pnl > 0).reduce((a, t) => a + t.pnl, 0), gl: -trades.filter(t => t.pnl < 0).reduce((a, t) => a + t.pnl, 0) };
+  let eq = 0, peak = 0, dd = 0; const pts = [['', 0], ...trades.map(t => { eq += t.pnl; peak = Math.max(peak, eq); dd = Math.max(dd, peak - eq); return [t.date, eq]; })];
+  S.btRes = { trades, ...st, wr: st.n ? st.w / st.n : 0, pf: st.gl ? st.gw / st.gl : (st.gw ? Infinity : 0), dd, pts, days: days.length, at: Date.now(), cfg: { ...B } };
+}
+function btDesc(B) { return `${B.symbol || 'any symbol'} · ${B.type === 'orb' ? `${B.orMin}-min opening range breakout from ${B.session}, entries ${B.entryAfter}–${B.entryBy}` : `${B.dir} entry at ${B.entryAfter}`} · stop ${B.stop} pts · target ${B.target} pts · flat by ${B.exitBy}${(B.skip || []).length ? ' · skip ' + B.skip.map(d => DOW[d]).join(', ') : ''}`; }
+function backtestView() {
+  const B = S.bt, R = S.btRes, days = btDays(), f = (k, l, type = 'number', step = 'any') => `<label>${l}<input data-bt="${k}" type="${type}" ${type === 'number' ? `step="${step}"` : ''} value="${esc(B[k] ?? '')}"></label>`;
+  const syms = [...new Set(days.map(d => d.sym))];
+  return `<section class="panel card"><div class="cat-head"><h3 class="h3">Describe a strategy</h3><span class="chip">BT-04</span></div>
+    <form class="ask" data-form="btParse"><textarea id="btText" data-keep rows="2" placeholder="ES opening range breakout: 15-min range, enter after 9:45, 3-point stop, 9-point target, skip Fridays">${esc(B.text)}</textarea><button class="primary" type="submit" ${S.btBusy ? 'disabled' : ''}>${S.btBusy ? 'Reading…' : 'Build rules'}</button></form>
+    <div class="hint">Claude turns your description into the rules below. You can also edit them directly. Simulations run on 1-minute bars you upload here or in Replay.</div>
+    <div class="form bt-form">
+      <label>Symbol<input data-bt="symbol" value="${esc(B.symbol)}" placeholder="${esc(syms[0] || 'ES')}" list="btSyms"></label><datalist id="btSyms">${syms.map(s => `<option value="${esc(s)}">`).join('')}</datalist>
+      <label>Type<select data-bt="type"><option value="orb" ${B.type === 'orb' ? 'selected' : ''}>Opening range breakout</option><option value="time" ${B.type === 'time' ? 'selected' : ''}>Enter at a set time</option></select></label>
+      <label>Direction<select data-bt="dir">${['both', 'long', 'short'].map(d => `<option ${B.dir === d ? 'selected' : ''}>${d}</option>`).join('')}</select></label>
+      ${f('session', 'Session open', 'time')}${B.type === 'orb' ? f('orMin', 'Range minutes', 'number', '1') : ''}${f('entryAfter', B.type === 'orb' ? 'Entries from' : 'Entry time', 'time')}${B.type === 'orb' ? f('entryBy', 'Entries until', 'time') : ''}${f('exitBy', 'Flat by', 'time')}
+      ${f('stop', 'Stop (points)')}${f('target', 'Target (points)')}${f('qty', 'Contracts', 'number', '1')}${f('mult', 'Point value ($)')}${f('fees', 'Fees per trade ($)')}
+      ${f('from', 'From', 'date')}${f('to', 'To', 'date')}
+      <div class="full"><span class="label">Skip days</span><div class="fchips">${[1, 2, 3, 4, 5].map(d => `<button type="button" class="fchip" data-action="btSkip" data-v="${d}" aria-pressed="${(B.skip || []).includes(d)}">${DOW[d]}</button>`).join('')}</div></div>
+    </div>
+    <div class="actions" style="justify-content:space-between"><span class="hint">${days.length} day${days.length === 1 ? '' : 's'} of bars${B.symbol ? ' for ' + esc(B.symbol.toUpperCase()) : ''} · <label class="linkish" style="cursor:pointer">Upload 1-min CSV<input type="file" id="btFile" accept=".csv,text/csv" hidden></label>${S.btLoad ? '' : ' · <button class="linkish" data-action="btLoadSaved">Load saved bars</button>'}</span>
+      <button class="primary" data-action="btRun" ${days.length ? '' : 'disabled'}>Run backtest</button></div>
+  </section>
+  ${R ? `<section class="panel card"><div class="cat-head"><h3 class="h3">Results</h3><span class="hint">${esc(btDesc(R.cfg))}</span></div>
+    <div class="bt-kpis">${[['Trades', R.n], ['Win rate', (R.wr * 100).toFixed(1) + '%'], ['Profit factor', ratioTxt(R.pf)], ['Net P&L', `<span class="${cls(R.net)}">${priv(money(R.net, 0))}</span>`], ['Max drawdown', `<span class="loss">${priv(money(-R.dd, 0))}</span>`], ['Days tested', R.days]].map(([k, v]) => `<div><div class="label">${k}</div><b class="num">${v}</b></div>`).join('')}</div>
+    ${R.n > 1 ? `<div class="eq">${lineChart(R.pts, { w: 900, h: 200, axis: true, tip: true, label: x => x || 'Start', aria: 'Backtest equity curve' })}</div>` : ''}
+    <div class="actions" style="justify-content:flex-start"><button class="secondary" data-action="btAi" ${R.n ? '' : 'disabled'}>Analyze with Claude</button></div>
+    ${R.ai ? `<div class="ai-answer msg ai" ${R.ai.pending ? 'id="btStream"' : ''}>${md(R.ai.text || 'Claude is reading the results…')}</div>` : ''}
+    ${R.n ? `<div class="table-scroll"><table class="exec-table"><thead><tr><th>Date</th><th>Side</th><th>In</th><th>Out</th><th class="r">Entry</th><th class="r">Exit</th><th>Exit by</th><th class="r">Points</th><th class="r">P&amp;L</th></tr></thead><tbody>
+      ${R.trades.slice().reverse().slice(0, 200).map(t => `<tr><td>${shortDate(t.date)}</td><td class="${t.side === 'Long' ? 'gain' : 'loss'}">${t.side}</td><td class="num">${t.t0}</td><td class="num">${t.t1}</td><td class="r num">${t.entry.toFixed(2)}</td><td class="r num">${t.exit.toFixed(2)}</td><td>${t.why}</td><td class="r num">${t.pts.toFixed(2)}</td><td class="r num ${cls(t.pnl)}">${priv(money(t.pnl))}</td></tr>`).join('')}</tbody></table></div>` : '<p class="hint">No trades triggered with these rules.</p>'}
+  </section>` : ''}`;
+}
+async function btUpload(file) {
+  const text = await file.text(), rows = parseCSV(text); if (rows.length < 2) return toast('That file has no rows.');
+  const h = rows[0].map(x => x.toLowerCase()), ci = re => h.findIndex(x => re.test(x));
+  const c = { t: ci(/^time|date|timestamp/), d2: ci(/^time$/), o: ci(/^open$|^o$/), hi: ci(/^high$|^h$/), l: ci(/^low$|^l$/), cl: ci(/^close$|^c$/), v: ci(/vol/), s: ci(/^symbol$|^ticker$/) };
+  if ([c.t, c.o, c.hi, c.l, c.cl].some(v => v < 0)) return toast('The file needs time, open, high, low and close columns.');
+  const fmtD = /^\d{4}-/.test(rows[1][c.t]) ? 'YMD' : 'MDY', sym = (S.bt.symbol || (c.s >= 0 ? rows[1][c.s] : '') || 'SYM').toUpperCase(), by = {};
+  rows.slice(1).forEach(r => { const raw = c.d2 >= 0 && c.d2 !== c.t ? r[c.t] + ' ' + r[c.d2] : r[c.t]; const dt = parseDT(raw, fmtD); if (!dt) return; const k = candleKey(dt.date, sym), o = by[k] = by[k] || { m: [], o: [], h: [], l: [], c: [], v: [] };
+    o.m.push(Math.round(hmsToMin(dt.time))); o.o.push(+r[c.o]); o.h.push(+r[c.hi]); o.l.push(+r[c.l]); o.c.push(+r[c.cl]); o.v.push(c.v >= 0 ? +r[c.v] || 0 : 0); });
+  const keys = Object.keys(by); if (!keys.length) return toast('No bars could be read from that file. Check the date column.');
+  Object.assign(S.btData, by); if (!S.bt.symbol) S.bt.symbol = sym; rerender(); toast(`${keys.length} day${keys.length === 1 ? '' : 's'} of ${sym} bars loaded`);
+  if (S.db) for (const k of keys) { if (S.candles[k]) continue; try { await S.db.doc('candles/' + k).set({ ...by[k], symbol: sym, date: k.split('_')[0] }); S.candles[k] = by[k]; } catch (e) { break; } }
+}
+
+/* custom agents */
+function customView() {
+  const C = S.agents.custom || [], fields = [...CTX_FIELDS, ...TAG_FIELDS], feed = alertFeed(30);
+  const L = S.agents.limits || {};
+  return `<section class="panel card"><div class="cat-head"><h3 class="h3">Describe an agent</h3><span class="chip">CA-05</span></div>
+    <form class="ask" data-form="caParse"><textarea id="caText" data-keep rows="2" placeholder="Flag any trade placed within 5 minutes of a loss and tag it as revenge trade"></textarea><button class="primary" type="submit" ${S.caBusy ? 'disabled' : ''}>${S.caBusy ? 'Building…' : 'Build agent'}</button></form>
+    <div class="hint">Claude turns your description into a trigger, conditions and actions. Agents check every trade you log or import, alert you, and can add a tag.</div>
+    <div class="fchips">${['Flag any trade within 5 minutes of a loss as revenge trade', 'Alert me when my size is 40% above normal', 'Warn me on my 4th trade of the day', 'Tag trades taken after the day is down $300'].map(x => `<button class="fchip" data-action="caChip" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>
+  </section>
+  ${C.map((a, i) => `<section class="panel card agent"><div class="cat-head"><div class="fchips"><span class="chip">When a trade is logged</span>${a.tag && a.tag.tag ? `<span class="chip">Tags “${esc(a.tag.tag)}”</span>` : ''}<span class="chip">Alert</span></div>
+      <button class="switch" role="switch" aria-checked="${!!a.on}" data-action="caToggle" data-i="${i}" aria-label="Turn ${esc(a.name)} ${a.on ? 'off' : 'on'}"><i></i></button></div>
+    <input class="h3 ca-name" data-ca="name" data-i="${i}" value="${esc(a.name)}" aria-label="Agent name">${a.prompt ? `<p class="hint" style="margin:0">“${esc(a.prompt)}”</p>` : ''}
+    <div class="ca-conds">${(a.conds || []).map((c, j) => `<div class="ca-cond"><span class="hint">${j ? 'and' : 'If'}</span><select class="fin" data-cac="field" data-i="${i}" data-j="${j}">${fields.map(([k, l]) => `<option value="${k}" ${c.field === k ? 'selected' : ''}>${l}</option>`).join('')}</select><select class="fin" data-cac="op" data-i="${i}" data-j="${j}">${TAG_OPS.map(o => `<option ${c.op === o ? 'selected' : ''}>${o}</option>`).join('')}</select><input class="fin" data-cac="value" data-i="${i}" data-j="${j}" value="${esc(c.value)}" aria-label="Value"><button class="linkish" data-action="caCondDel" data-i="${i}" data-j="${j}" style="color:var(--muted)">×</button></div>`).join('')}
+      <button class="linkish" data-action="caCondAdd" data-i="${i}" style="align-self:flex-start">+ Condition</button></div>
+    <div class="ca-cond"><span class="hint">Then tag</span><select class="fin" data-cat2="cat" data-i="${i}"><option value="">No tag</option>${S.cats.map(c => `<option value="${c.id}" ${a.tag && a.tag.cat === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select><input class="fin" data-cat2="tag" data-i="${i}" value="${esc((a.tag || {}).tag || '')}" placeholder="tag" aria-label="Tag"></div>
+    <div class="actions"><span class="hint" style="margin-right:auto">${agentHits(a, S.trades).length} past trade${agentHits(a, S.trades).length === 1 ? '' : 's'} match</span><button class="del${S.armed === 'ca' + i ? ' armed' : ''}" data-action="caDel" data-i="${i}">${S.armed === 'ca' + i ? 'Confirm delete' : 'Delete'}</button><button class="ghost" data-action="caRunPast" data-i="${i}">Apply to past trades</button><button class="primary" data-action="caSave">Save</button></div>
+  </section>`).join('')}
+  <section class="panel card"><div class="cat-head"><h3 class="h3">Limits</h3></div><label class="hint" style="display:flex;gap:8px;align-items:center">Max trades per session <input class="fin" style="width:70px" type="number" min="1" step="1" data-lim="maxTrades" value="${+L.maxTrades || 3}"></label><p class="hint" style="margin:0">Used by the behavior alerts, the session-limit streak and today's workflow.</p></section>
+  <section class="panel card"><div class="cat-head"><h3 class="h3">Alerts · last 30 days</h3><span class="hint">${feed.length}</span></div>
+    ${feed.length ? `<div class="daylist">${feed.slice(0, 40).map(({ a, t }) => `<button class="dtrade" style="grid-template-columns:auto 1fr auto" data-action="preview" data-id="${t.id}"><span class="chip">⚑ ${esc(a.name)}</span><span>${esc(t.symbol)} · ${shortDate(t.date)} ${esc(t.time || '')}</span><span class="num ${cls(t.pnl)}">${priv(money(t.pnl))}</span></button>`).join('')}</div>` : '<p class="hint">No alerts. Turn on an agent above to start watching your trades.</p>'}</section>`;
+}
+function caFromJson(j, prompt) {
+  const fields = [...CTX_FIELDS, ...TAG_FIELDS].map(x => x[0]);
+  const conds = (j.conds || j.conditions || []).filter(c => fields.includes(c.field) && TAG_OPS.includes(c.op)).map(c => ({ field: c.field, op: c.op, value: String(c.value ?? '') }));
+  const cat = j.tag && catById(j.tag.cat) ? j.tag.cat : (j.tag && j.tag.tag ? (catById('mistakes') ? 'mistakes' : (S.cats[0] || {}).id) : '');
+  return { id: 'ca' + uid(), name: String(j.name || 'Custom agent').slice(0, 60), prompt, on: true, conds: conds.length ? conds : [{ field: 'sinceLoss', op: '<', value: '5' }], tag: j.tag && j.tag.tag ? { cat, tag: String(j.tag.tag).slice(0, 40) } : null };
+}
+const caPrompt = text => `Turn this trading-journal agent description into JSON: {"name": short name, "conds": [{"field", "op", "value"}], "tag": {"cat": category id, "tag": text} or null}.
+Fields: ${[...CTX_FIELDS, ...TAG_FIELDS].map(([k, l]) => `${k} (${l})`).join(', ')}. Ops: ${TAG_OPS.join(' ')}. Times are HH:MM, weekdays Mon..Sun.
+Categories: ${S.cats.map(c => `${c.id} (${c.name})`).join(', ')}. Use a tag only if the description asks to tag or label trades.
+Description: ${text}`;
+const btPrompt = text => `Turn this backtest strategy description into JSON with keys: symbol (root like ES, NQ, AAPL or ""), type ("orb" for opening-range breakout or "time" for entering at a fixed time), session (HH:MM session open, default 09:30), orMin (range minutes), entryAfter (HH:MM), entryBy (HH:MM last entry), exitBy (HH:MM flat time), dir ("both","long","short"), stop (points), target (points), qty, mult (dollar point value, ES 50, NQ 20, MES 5, MNQ 2, stocks 1), skip (array of weekday numbers 1=Mon..5=Fri to skip).
+Description: ${text}`;
+
+/* tagger: plain English instructions + last run */
+function taggerLastRun() {
+  const R = S.agents.tagger.rules || [], out = [];
+  S.trades.slice().sort(byNewest).some(t => { const hits = R.filter(r => r.cat && r.tag && ruleHit(t, r)); if (hits.length) out.push({ t, hits }); return out.length >= 5; });
+  return out;
+}
+
 /* ---------- modals ---------- */
 function openModal(kind, arg) { S.modal = { kind, arg }; renderModal(); }
 function closeModal() { if (S.prevModal) { S.modal = S.prevModal; S.prevModal = null; renderModal(); return; } S.modal = null; S.pbEdit = null; const b = $('modal'); b.hidden = true; b.innerHTML = ''; b.className = 'scrim'; }
@@ -3326,7 +3635,7 @@ document.addEventListener('click', async e => {
   if (!b) { if ((S.accMenu || S.dashMenu || S.repMenu) && !e.target.closest('.ddwrap')) { S.accMenu = false; S.dashMenu = false; S.repMenu = false; rerender(); } if (e.target === $('modal')) { saveNote(true); S.prevModal = null; closeModal(); } if (S.tagMenu && !e.target.closest('.menu')) { S.tagMenu = null; render(); } return; }
   const a = b.dataset.action, id = b.dataset.id;
   if (a !== 'fmt' && a !== 'tpl' && $('editor')) saveNote(true);
-  if (!['del', 'delTrade', 'clearSamples', 'bulkDelete', 'delPb', 'delCat', 'delNote', 'delFolder', 'acctDel', 'undoImport', 'tplDel', 'econDel', 'propDel', 'propTxDel', 'dashDelete', 'resetTracker'].includes(a)) S.armed = null;
+  if (!['del', 'delTrade', 'clearSamples', 'bulkDelete', 'delPb', 'delCat', 'delNote', 'delFolder', 'acctDel', 'undoImport', 'tplDel', 'econDel', 'propDel', 'propTxDel', 'dashDelete', 'resetTracker', 'caDel'].includes(a)) S.armed = null;
   if (a === 'sel' || a === 'selAll' || a === 'toggleRev') e.stopPropagation();
   switch (a) {
     case 'add': if (!needDb()) return; return openModal('add', b.dataset.d);
@@ -3495,6 +3804,25 @@ document.addEventListener('click', async e => {
     case 'pbView': S.pbView = b.dataset.v; break;
     case 'pbArch': S.pbArch = b.dataset.v === '1'; break;
     case 'patQ': S.patternQ = b.dataset.v; break;
+    case 'agTab': S.agTab = b.dataset.v; S.view = 'agents'; window.scrollTo(0, 0); break;
+    case 'actApply': { const a = (S.chat[+b.dataset.m] || {}).acts?.[+b.dataset.a]; if (a) await applyAction(a); return; }
+    case 'actPreview': { const a = (S.chat[+b.dataset.m] || {}).acts?.[+b.dataset.a]; if (!a) return; const ts = actionPlan(a).ts; S.picked = ts.map(t => t.id); S.ai = { title: `${ts.length} matching trades`, text: ts.slice(0, 60).map(t => `- ${t.date} ${t.time || ''} **${t.symbol}** ${t.side} · ${money(t.pnl)}`).join('\n') + (ts.length > 60 ? `\n\n…and ${ts.length - 60} more` : ''), pending: false }; openModal('ai'); return; }
+    case 'aiNote': { const t = byId(id); if (!t || S.noteBusy || !needDb()) return; S.noteBusy = true; rerender();
+      const text = await agentRun(`Write a concise post-trade note for this trade in first person, as my journal entry: what happened, execution quality, what I did well, what to fix. Add one line starting "Coach:" with your own observation. Keep it under 150 words.\nTrade:\n${tradeLines([t])}\nRunning P&L points: ${JSON.stringify(pathPts(t).pts)}\nWorst price ${t.mae ?? '?'}, best price ${t.mfe ?? '?'}${t.mfeTime ? ' at ' + t.mfeTime : ''}.${hasText(t.note) ? '\nMy existing note: ' + strip(t.note).slice(0, 800) : ''}`);
+      S.noteBusy = false; if (text) { await patchTrade(t.id, { note: (t.note || '') + sanitize(md(text)) }, true); toast('Note added'); } rerender(); return; }
+    case 'btSkip': { const v = +b.dataset.v, k = S.bt.skip || []; S.bt.skip = k.includes(v) ? k.filter(x => x !== v) : [...k, v]; break; }
+    case 'btRun': runBacktest(); toast(`Backtest ran on ${S.btRes.days} day${S.btRes.days === 1 ? '' : 's'}: ${S.btRes.n} trades`); break;
+    case 'btLoadSaved': { if (!S.db) return; S.btLoad = true; S.db.collection('candles').onSnapshot(snap => { snap.docs.forEach(d => { const v = d.data(); if (v && v.m) S.candles[d.id] = v; }); safeRender(); }, () => toast("Saved bars couldn't be loaded.")); break; }
+    case 'btAi': { const R = S.btRes; if (!R) return; R.ai = { text: '', pending: true }; rerender(); const sample = await getSample(); if (!sample) { R.ai = { text: "The assistant isn't available in this view." }; rerender(); return; }
+      const wins = R.trades.filter(t => t.pnl > 0), loss = R.trades.filter(t => t.pnl < 0), byWhy = ['stop', 'target', 'time'].map(w => `${w}: ${R.trades.filter(t => t.why === w).length}`).join(', '), byDow = [1, 2, 3, 4, 5].map(d => { const x = R.trades.filter(t => dowOf(t.date) === d); return `${DOW[d]} ${x.length} trades $${x.reduce((a, t) => a + t.pnl, 0).toFixed(0)}`; }).join('; ');
+      try { const r = await sample(`You are a trading coach analyzing a backtest. Don't give buy or sell signals; focus on the rules.\nStrategy: ${btDesc(R.cfg)}\nResults: ${R.n} trades over ${R.days} days, win rate ${(R.wr * 100).toFixed(1)}%, profit factor ${ratioTxt(R.pf)}, net $${R.net.toFixed(0)}, max drawdown $${R.dd.toFixed(0)}, avg win $${(wins.reduce((a, t) => a + t.pnl, 0) / (wins.length || 1)).toFixed(0)}, avg loss $${(loss.reduce((a, t) => a + t.pnl, 0) / (loss.length || 1)).toFixed(0)}.\nExits: ${byWhy}. By weekday: ${byDow}.\nExplain what the numbers say in under 200 words with headings, and suggest two specific rule changes to test next.`, { onText: ({ text }) => { R.ai.text = text; const el = $('btStream'); if (el) el.innerHTML = md(text); } }); R.ai = { text: r.text }; } catch (e) { R.ai = { text: aiErr(e) }; } rerender(); return; }
+    case 'caChip': { const el = $('caText'); if (el) { el.value = b.dataset.v; el.focus(); } return; }
+    case 'caToggle': { if (!needDb()) return; const a = S.agents.custom[+b.dataset.i]; a.on = !a.on; saveAgents(); break; }
+    case 'caCondAdd': S.agents.custom[+b.dataset.i].conds.push({ field: 'tradeNo', op: '>', value: '3' }); break;
+    case 'caCondDel': S.agents.custom[+b.dataset.i].conds.splice(+b.dataset.j, 1); break;
+    case 'caDel': { const i = +b.dataset.i; if (S.armed !== 'ca' + i) { S.armed = 'ca' + i; break; } S.armed = null; S.agents.custom.splice(i, 1); saveAgents(); toast('Agent deleted'); break; }
+    case 'caSave': if (!needDb()) return; saveAgents(); toast('Agents saved'); break;
+    case 'caRunPast': { if (!needDb()) return; const a = S.agents.custom[+b.dataset.i]; if (!a.tag || !a.tag.cat || !a.tag.tag) { toast('Set a tag for this agent first. Past matches already show under Alerts.'); return; } const hits = agentHits(a, S.trades).filter(t => !tagsOf(t, a.tag.cat).includes(a.tag.tag)); ensureTagInCat(a.tag.cat, a.tag.tag); for (const t of hits) await patchTrade(t.id, { tags: { ...(t.tags || {}), [a.tag.cat]: [...tagsOf(t, a.tag.cat), a.tag.tag] } }, true); toast(`Tagged ${hits.length} past trade${hits.length === 1 ? '' : 's'}`); break; }
     case 'patClaude': { const R = patternFind(S.patternQ || defaultPatternQ()); askClaude(`${R.q}\nWhat my journal computed (${R.span}): ${R.sl.label} net P&L ${money(R.net)} over ${R.n} trades. ${R.F.map(f => f.big + ' ' + f.txt).join('; ')}.\nExplain what is likely going on, using my actual trades, and give two concrete fixes.`); window.scrollTo(0, 0); return; }
     case 'sentEdit': S.sentEdit = !S.sentEdit; break;
     case 'askChip': S.view = 'home'; closeModal(); askClaude(b.dataset.v); return;
@@ -3542,7 +3870,7 @@ document.addEventListener('click', async e => {
       if (k === 'tagger') { C.rules = C.rules.map(r => ({ ...r, tag: String(r.tag || '').trim().slice(0, 40), value: String(r.value ?? '').trim() })).filter(r => r.tag && r.cat && r.value !== ''); C.rules.forEach(r => ensureTagInCat(r.cat, r.tag)); }
       S.agents[k] = { ...C, on: S.agents[k].on }; saveAgents(); closeModal(); toast('Agent settings saved'); break;
     }
-    case 'agentRun': { const k = b.dataset.v; if (!needDb()) return; if (k === 'brief') runBrief(); else if (k === 'review') runReview(); else runTaggerAll(); return; }
+    case 'agentRun': { const k = b.dataset.v; if (!needDb()) return; if (k === 'brief') runBrief(); else if (k === 'review') runReview(); else if (k === 'reviewToday') runReview(todayIso()); else runTaggerAll(); return; }
     case 'propTab': S.propTab = b.dataset.v; break;
     case 'propFb': S.propFb = b.dataset.v; break;
     case 'propPi': S.propPi = b.dataset.v; break;
@@ -3640,6 +3968,10 @@ document.addEventListener('input', e => {
   if (el.id === 'dashName' && S.dashEdit) { S.dashEdit.name = el.value; return; }
   if (el.id === 'colSearch') { S.colQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('colSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'libSearch') { S.libQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('libSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
+  if (el.dataset.bt) { const k = el.dataset.bt; S.bt[k] = el.type === 'number' ? +el.value : el.value; return; }
+  if (el.dataset.ca && S.agents.custom) { S.agents.custom[+el.dataset.i].name = el.value; return; }
+  if (el.dataset.cac && S.agents.custom) { S.agents.custom[+el.dataset.i].conds[+el.dataset.j][el.dataset.cac] = el.value; return; }
+  if (el.dataset.cat2 && S.agents.custom) { const a = S.agents.custom[+el.dataset.i]; a.tag = { ...(a.tag || { cat: '', tag: '' }), [el.dataset.cat2]: el.value }; return; }
   if (el.dataset.ag && S.agentEdit) { S.agentEdit[el.dataset.ag] = el.value; return; }
   if (el.dataset.agr && S.agentEdit) { S.agentEdit.rules[+el.dataset.i][el.dataset.agr] = el.value; return; }
   if (el.id === 'rpScrub') { rpStop(); S.rp.t = +el.value; rpPaint(); return; }
@@ -3654,6 +3986,10 @@ document.addEventListener('focusout', e => { if (e.target.id === 'editor') saveN
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'fileIn') { uploadFiles(el.files, S.uploadFor); el.value = ''; return; }
+  if (el.id === 'btFile') { if (el.files[0]) btUpload(el.files[0]); el.value = ''; return; }
+  if (el.dataset.bt && el.tagName === 'SELECT') { S.bt[el.dataset.bt] = el.value; rerender(); return; }
+  if (el.dataset.lim) { if (!needDb()) return; S.agents.limits = { ...(S.agents.limits || {}), [el.dataset.lim]: Math.max(1, Math.round(+el.value || 3)) }; saveAgents(); rerender(); return; }
+  if ((el.dataset.cac || el.dataset.cat2) && S.agents.custom) { rerender(); return; }
   if (el.dataset.agc && S.agentEdit) { S.agentEdit[el.dataset.agc] = el.checked; return; }
   if (el.dataset.agr && S.agentEdit) { S.agentEdit.rules[+el.dataset.i][el.dataset.agr] = el.value; return; }
   if (el.dataset.eco) { S.ecoCountry = el.value; render(); return; }
@@ -3715,7 +4051,8 @@ document.addEventListener('submit', async e => {
     t.pnl = calc != null ? calc : manual;
     if (S.agents.tagger.on && S.agents.tagger.manual && t.pnl != null) { const at = autoTags(t); if (at) { t.tags = at; (S.agents.tagger.rules || []).forEach(r => r.cat && r.tag && ensureTagInCat(r.cat, r.tag)); } }
     if (!sym || t.pnl == null) return toast('Add a symbol, plus either entry, exit and quantity or a net P&L.');
-    try { const ref = await S.db.collection('trades').add(t); closeModal(); toast('Trade saved'); S.view = 'trade'; S.tradeId = ref.id; S.tab = 'stats'; const [y, m] = t.date.split('-'); S.month = new Date(+y, +m - 1, 1); render(); } catch (err) { writeErr(err); }
+    const fired = runCustomOnTrade(t); fired.forEach(a => { if (a.tag && a.tag.cat && a.tag.tag) { ensureTagInCat(a.tag.cat, a.tag.tag); t.tags = { ...t.tags, [a.tag.cat]: [...new Set([...(t.tags[a.tag.cat] || []), a.tag.tag])] }; } });
+    try { const ref = await S.db.collection('trades').add(t); closeModal(); toast(fired.length ? `Trade saved · ⚑ ${fired.map(a => a.name).join(', ')}` : 'Trade saved'); S.view = 'trade'; S.tradeId = ref.id; S.tab = 'stats'; const [y, m] = t.date.split('-'); S.month = new Date(+y, +m - 1, 1); render(); } catch (err) { writeErr(err); }
   }
   if (f.dataset.form === 'bal') {
     const v = parseFloat($('balInput').value); if (isNaN(v) || v < 0) return toast('Enter a starting balance of 0 or more.');
@@ -3746,6 +4083,14 @@ document.addEventListener('submit', async e => {
     const x = { date: $('xDate').value, kind: $('xKind').value, amount: Math.round(amt * 100) / 100, propId: pid, firm: pr.firm || $('xFirm').value.trim().slice(0, 40), note: $('xNote').value.trim().slice(0, 120) };
     try { await S.db.collection('propTx').doc('x-' + uid()).set(x); closeModal(); render(); toast(x.kind === 'payout' ? 'Payout logged' : 'Expense logged'); } catch (err) { writeErr(err); } return;
   }
+  if (f.dataset.form === 'btParse') { const text = $('btText').value.trim(); if (!text) return; S.bt.text = text; S.btBusy = true; rerender(); const j = await aiJson(btPrompt(text)); S.btBusy = false;
+    if (j) { const B = BT_DEFAULT(); Object.keys(B).forEach(k => { if (j[k] != null && j[k] !== '' && k !== 'text') B[k] = Array.isArray(B[k]) ? [].concat(j[k]).map(Number).filter(n => n >= 1 && n <= 5) : typeof B[k] === 'number' ? (+j[k] || B[k]) : String(j[k]); }); B.text = text; B.symbol = String(B.symbol || '').toUpperCase(); S.bt = B; toast('Rules built. Check them, then run the backtest.'); } rerender(); return; }
+  if (f.dataset.form === 'caParse') { if (!needDb()) return; const text = $('caText').value.trim(); if (!text) return; S.caBusy = true; rerender(); const j = await aiJson(caPrompt(text)); S.caBusy = false;
+    if (j) { const a = caFromJson(j, text); S.agents.custom = [a, ...(S.agents.custom || [])]; saveAgents(); toast(`“${a.name}” is on. ${agentHits(a, S.trades).length} past trades match.`); } rerender(); return; }
+  if (f.dataset.form === 'tgParse') { if (!needDb()) return; const text = $('tgText').value.trim(); if (!text) return; S.tgBusy = true; rerender();
+    const j = await aiJson(`Turn this auto-tagging instruction into a JSON array of rules [{"field","op","value","cat","tag"}]. Each rule is one condition that adds one tag. Fields: ${TAG_FIELDS.map(([k, l]) => `${k} (${l})`).join(', ')}. Ops: ${TAG_OPS.join(' ')}. Categories: ${S.cats.map(c => `${c.id} (${c.name})`).join(', ')}.\nInstruction: ${text}`); S.tgBusy = false;
+    const rules = [].concat(j || []).filter(r => r && TAG_FIELDS.some(x => x[0] === r.field) && TAG_OPS.includes(r.op) && catById(r.cat) && r.tag).map(r => ({ id: 'r' + uid(), field: r.field, op: r.op, value: String(r.value), cat: r.cat, tag: String(r.tag).slice(0, 40) }));
+    if (rules.length) { S.agents.tagger.rules = [...(S.agents.tagger.rules || []), ...rules]; rules.forEach(r => ensureTagInCat(r.cat, r.tag)); saveAgents(); toast(`Added ${rules.length} rule${rules.length === 1 ? '' : 's'}. Use “Run on existing trades” to tag past trades.`); } else if (j) toast("Claude couldn't turn that into a rule. Try naming a field, like hold time or entry time."); rerender(); return; }
   if (f.dataset.form === 'pattern') { const q = ($('patIn').value || '').trim(); if (q) { S.patternQ = q; rerender(); } return; }
   if (f.dataset.form === 'sentiment') { if (!needDb()) return; const v = $('sVix').value, sp = $('sSpy').value; S.agents.sentiment = { date: todayIso(), vix: v === '' ? null : +v, spy: sp === '' ? null : +sp }; S.sentEdit = false; saveAgents(); rerender(); return; }
   if (f.dataset.form === 'ask') { const q = ($('askIn').value || '').trim(); S.askDraft = ''; askClaude(q); return; }
@@ -3796,7 +4141,7 @@ render();
   db.collection('econ').onSnapshot(snap => { S.econ = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(e => e.date && e.event); safeRender(); }, () => {});
   db.collection('props').onSnapshot(snap => { S.props = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(x => x.firm); safeRender(); }, () => {});
   db.collection('propTx').onSnapshot(snap => { S.propTx = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(x => x.date && x.kind); safeRender(); }, () => {});
-  db.doc('settings/agents').onSnapshot(sn => { const D = DEFAULT_AGENTS(); if (sn.exists) { const x = sn.data(); S.agents = { brief: { ...D.brief, ...(x.brief || {}) }, tagger: { ...D.tagger, ...(x.tagger || {}) }, review: { ...D.review, ...(x.review || {}) }, sentiment: { ...D.sentiment, ...(x.sentiment || {}) } }; } safeRender(); }, () => {});
+  db.doc('settings/agents').onSnapshot(sn => { const D = DEFAULT_AGENTS(); if (sn.exists) { const x = sn.data(); S.agents = { brief: { ...D.brief, ...(x.brief || {}) }, tagger: { ...D.tagger, ...(x.tagger || {}) }, review: { ...D.review, ...(x.review || {}) }, sentiment: { ...D.sentiment, ...(x.sentiment || {}) }, custom: Array.isArray(x.custom) ? x.custom : [], limits: { ...D.limits, ...(x.limits || {}) } }; } safeRender(); }, () => {});
   db.collection('imports').onSnapshot(snap => { S.imports = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
   db.collection('templates').onSnapshot(snap => { S.templates = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(t => t.name); safeRender(); }, () => {});
   db.doc('settings/fees').onSnapshot(s => { S.fees = s.exists ? (s.data().rows || []) : []; safeRender(); }, () => {});
