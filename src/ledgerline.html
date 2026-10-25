@@ -243,7 +243,14 @@ select.fin{font-family:var(--f-body)}
 .mm{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
 .mm .chip.l{color:var(--loss);border-color:var(--loss-line)}.mm .chip.g{color:var(--gain);border-color:var(--gain-line)}
 .spark{margin-top:4px}
-.tick{display:inline-block;padding:1px 7px;border-radius:6px;background:var(--surface-2);border:1px solid var(--line);font-weight:600;font-size:12px}
+.tick{display:inline-block;padding:1px 8px;border-radius:6px;font-weight:700;font-size:12px;letter-spacing:.02em;color:var(--c,var(--ink));background:color-mix(in srgb,var(--c,var(--muted)) 15%,var(--surface));border:1px solid color-mix(in srgb,var(--c,var(--muted)) 38%,var(--line))}
+.dr-head .tick,.tv-title h1 .tick{font-size:17px;padding:2px 10px;border-radius:8px}
+.sym-pick{border:1px solid var(--line);border-radius:12px;background:var(--surface-2);padding:10px 12px;display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto}
+.sym-g .label{margin-bottom:4px}.sym-row{display:flex;flex-wrap:wrap;gap:6px}
+.sym-opt{background:none;border:0;padding:0;border-radius:6px}.sym-opt:hover .tick,.sym-opt:focus-visible .tick{filter:brightness(1.15);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 40%,transparent)}
+.sym-foot{border-top:1px solid var(--line);padding-top:6px}
+.sym-sw{display:flex;flex-wrap:wrap;gap:4px;max-width:330px}.sym-sw .sw{width:18px;height:18px}
+.sym-sec{display:flex;flex-direction:column;gap:6px;margin-top:10px}.sym-table td{vertical-align:middle}
 .tagbox .tsel{margin-left:auto;color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:4px;background:none;border:0;padding:2px 4px;cursor:pointer}
 .rtabs{display:flex;gap:4px;padding:8px 12px 0;border-bottom:1px solid var(--line)}
 .rtabs button{border:0;background:none;padding:8px 10px;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font:inherit;font-size:13px}
@@ -841,6 +848,7 @@ a.focus-item{text-decoration:none;color:inherit}
         <button data-action="addFlow"  data-nav="__add"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V3M5 6l3-3 3 3M2.5 11v2.5h11V11"/></svg>Add trades / sync</button>
         <button data-action="settings" data-v="imports" data-nav="settings:imports"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8M5 7l3 3 3-3M2.5 13.5h11"/></svg>Import history</button>
         <button data-action="settings" data-v="fees" data-nav="settings:fees"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M10 6H7.2a1.2 1.2 0 000 2.4h1.6a1.2 1.2 0 010 2.4H6M8 4.5v7"/></svg>Commissions &amp; fees</button>
+        <button data-action="settings" data-v="symbols" data-nav="settings:symbols"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="4" width="13" height="8" rx="2"/><path d="M4.5 8h2M9 8h2.5"/></svg>Symbols &amp; colors</button>
         <button data-action="settings" data-v="tags" data-nav="settings:tags"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5z"/><circle cx="5" cy="5" r="1"/></svg>Tags management</button>
         <button data-action="settings" data-v="profile" data-nav="settings:profile"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.5 14c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/></svg>Profile</button>
         <button data-action="settings" data-v="data" data-nav="settings:data"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="8" cy="3.5" rx="5.5" ry="2"/><path d="M2.5 3.5v9c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-9M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg>Data &amp; backup</button>
@@ -1447,7 +1455,7 @@ function tradeView() {
   const tabs = [['stats', 'Stats'], ['playbook', 'Strategy'], ['executions', 'Executions'], ['attachments', 'Attachments']];
   return `<div class="tv-head"><div class="tv-title">
       <button class="icon-btn" data-action="view" data-view="log" aria-label="Back to trade log"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M7.5 2L3.5 6l4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
-      <h1>${esc(t.symbol)}</h1><span class="when">${dateLabel(t.date)}${t.time ? ' · ' + esc(t.time) : ''}</span>${t.sample ? '<span class="chip">sample</span>' : ''}</div>
+      <h1>${symChip(t.symbol)}</h1><span class="when">${dateLabel(t.date)}${t.time ? ' · ' + esc(t.time) : ''}</span>${t.sample ? '<span class="chip">sample</span>' : ''}</div>
     <div class="controls">
       <button class="ghost" data-action="toggleRev" data-id="${t.id}" aria-pressed="${!!t.reviewed}" style="${t.reviewed ? 'color:var(--gain);border-color:var(--gain-line)' : ''}">${t.reviewed ? '✓ Reviewed' : 'Mark reviewed'}</button>
       <button class="icon-btn" data-action="open" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button>
@@ -2184,7 +2192,7 @@ function previewSheet() {
   else if (tab === 'notes') { const isTrade = S.noteTab !== 'day'; body = `<div class="note-tabs"><div class="seg"><button data-action="noteTab" data-v="trade" aria-pressed="${isTrade}">Trade note</button><button data-action="noteTab" data-v="day" aria-pressed="${!isTrade}">Daily journal</button></div><span class="saved" id="savedMark"></span></div>${editor(isTrade ? 'trade' : 'journal', isTrade ? t.id : t.date, isTrade ? (t.note || '') : ((S.journal[t.date] || {}).html || ''))}`; }
   else body = attachTab(t);
   return `<div class="drawer" role="dialog" aria-modal="true" aria-labelledby="pvTitle">
-    <div class="dr-head"><div class="tv-title"><button class="icon-btn" data-action="preview" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button><h3 id="pvTitle">${esc(t.symbol)}</h3><button class="icon-btn" data-action="preview" data-id="${next ? next.id : ''}" ${next ? '' : 'disabled'} aria-label="Older trade">›</button>
+    <div class="dr-head"><div class="tv-title"><button class="icon-btn" data-action="preview" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button><h3 id="pvTitle">${symChip(t.symbol)}</h3><button class="icon-btn" data-action="preview" data-id="${next ? next.id : ''}" ${next ? '' : 'disabled'} aria-label="Older trade">›</button>
       <span class="tchip ${t.side === 'Long' ? 'blue' : 'violet'}">${esc(t.side.toUpperCase())}</span><span class="tchip ${isOpen(t) ? 'blue' : 'orange'}">${isOpen(t) ? 'Open' : 'Closed'}</span><span class="tchip ${t.pnl > 0 ? 'green' : t.pnl < 0 ? 'red' : 'slate'}">${t.pnl > 0 ? 'Win' : t.pnl < 0 ? 'Loss' : 'Even'}</span></div>
       <span style="display:flex;gap:6px"><button class="secondary sm" data-action="replayTrade" data-id="${t.id}">▶ Replay</button><button class="icon-btn" data-action="close" aria-label="Close">✕</button></span></div>
     <div class="hint">${dateLabel(t.date)}${t.time ? ' · opened ' + esc(t.time) : ''}${t.exitTime ? ' · closed ' + esc(t.exitTime) : ''}${dur ? ' · held ' + dur : ''}${acc ? ' · ' + esc(acc.name) : ''}</div>
@@ -2662,7 +2670,7 @@ function yearTab(ts) {
 
 /* ---------- settings ---------- */
 function settingsView() {
-  const tab = S.setTab || 'accounts', tabs = [['profile', 'Profile'], ['accounts', 'Accounts'], ['tags', 'Tags management'], ['fees', 'Commissions & fees'], ['imports', 'Import history'], ['data', 'Data & backup']];
+  const tab = S.setTab || 'accounts', tabs = [['profile', 'Profile'], ['accounts', 'Accounts'], ['tags', 'Tags management'], ['fees', 'Commissions & fees'], ['imports', 'Import history'], ['symbols', 'Symbols'], ['data', 'Data & backup']];
   let body = '';
   if (tab === 'profile') body = profileSettings();
   else if (tab === 'accounts') {
@@ -2671,6 +2679,8 @@ function settingsView() {
     body = `<div class="toolbar"><div><h3 class="h3">Tag categories</h3><div class="hint">Rename categories, change their color and add or remove tags. Removing a tag here keeps it on trades that already use it.</div></div><button class="primary" data-action="addCat">Add category</button></div>
       <div class="stack">${S.cats.map(c => `<div class="panel card cat" style="${tc(c)}"><div class="pb-row"><span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--tc);flex:none"></span><input class="fin" data-catf="name" data-cat="${c.id}" value="${esc(c.name)}" aria-label="Category name" style="font-weight:600"><button class="del${S.armed === 'cat-' + c.id ? ' armed' : ''}" data-action="delCat" data-cat="${c.id}">${S.armed === 'cat-' + c.id ? 'Confirm' : 'Delete'}</button></div>
         ${swatches(COLORS.includes(c.color) ? c.color : 'slate', x => `data-action="catColor" data-cat="${c.id}" data-v="${x}"`)}<div class="tagbox">${(c.tags || []).map(x => `<span class="tagchip" style="${tc(c)}">${esc(x)}<button data-action="dropTag" data-cat="${c.id}" data-tag="${esc(x)}" aria-label="Remove ${esc(x)}">×</button></span>`).join('')}<input class="tagadd" data-tagadd="${c.id}" placeholder="Add tag and press Enter" aria-label="Add tag to ${esc(c.name)}"></div></div>`).join('') || '<div class="hint">No categories yet.</div>'}</div>`;
+  } else if (tab === 'symbols') {
+    body = symbolsSettings();
   } else if (tab === 'fees') {
     const rows = S.fees || [];
     body = `<div class="toolbar"><div><h3 class="h3">Commissions &amp; fees</h3><div class="hint">Round-trip cost per contract or share, by symbol root (MNQ, ES, AAPL). Used when you add a trade by hand or import a file that has no fee column.</div></div><button class="primary" data-action="feeAdd">Add symbol</button></div>
@@ -3203,7 +3213,7 @@ const LOG_COLS = {
   reviewed: ['Reviewed', t => `<td><button class="rev${t.reviewed ? ' on' : ''}" data-action="toggleRev" data-id="${t.id}" aria-label="${t.reviewed ? 'Reviewed' : 'Not reviewed'}" aria-pressed="${!!t.reviewed}"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 5.2l2 2 4-4.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button></td>`],
   date: ['Open date', t => `<td class="num">${t.date}</td>`],
   time: ['Open time', t => `<td class="num">${esc(t.time || '–')}</td>`],
-  symbol: ['Symbol', t => `<td><span class="tick">${esc(t.symbol)}</span>${t.sample ? ' <span class="chip">sample</span>' : ''}</td>`],
+  symbol: ['Symbol', t => `<td><span class="tick" style="--c:var(--c-${symInfo(t.symbol).color})">${esc(t.symbol)}</span>${t.sample ? ' <span class="chip">sample</span>' : ''}</td>`],
   status: ['Status', t => { const st = t.pnl > 0 ? 'win' : t.pnl < 0 ? 'loss' : 'be'; return `<td><span class="status ${st}">${st === 'be' ? 'EVEN' : st.toUpperCase()}</span></td>`; }],
   side: ['Side', t => `<td><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span></td>`],
   entry: ['Entry price', t => `<td class="r num">${t.entry ?? '–'}</td>`, 1],
@@ -4103,6 +4113,60 @@ STRATS.push(...STRAT_LIB);
 
 const saveLearn = () => S.db.doc('settings/learn').set(S.learn).catch(writeErr);
 
+/* ---------- v24: symbol list with colors ---------- */
+const SYM_DEFAULTS = [
+  ['Futures', [['NQ', 'blue'], ['MNQ', 'cyan'], ['ES', 'indigo'], ['MES', 'violet'], ['YM', 'teal'], ['MYM', 'teal'], ['RTY', 'lime'], ['M2K', 'lime'], ['CL', 'brown'], ['MCL', 'brown'], ['GC', 'yellow'], ['MGC', 'yellow'], ['SI', 'slate'], ['NG', 'orange'], ['ZB', 'slate'], ['6E', 'blue']]],
+  ['Forex', [['EURUSD', 'blue', 100000, .00001], ['GBPUSD', 'purple', 100000, .00001], ['USDJPY', 'red', 1000, .001], ['AUDUSD', 'green', 100000, .00001], ['USDCAD', 'rose', 100000, .00001], ['USDCHF', 'pink', 100000, .00001], ['NZDUSD', 'teal', 100000, .00001], ['GBPJPY', 'violet', 1000, .001], ['EURJPY', 'indigo', 1000, .001]]],
+  ['Metals & indices (CFD)', [['XAUUSD', 'yellow', 100, .01], ['XAGUSD', 'slate', 5000, .001], ['US30', 'teal', 1, .1], ['NAS100', 'blue', 1, .1], ['US500', 'indigo', 1, .1], ['GER40', 'orange', 1, .1], ['UK100', 'red', 1, .1]]],
+  ['Crypto', [['BTCUSD', 'orange', 1, .01], ['ETHUSD', 'indigo', 1, .01], ['SOLUSD', 'purple', 1, .01]]],
+  ['Stocks & ETFs', [['SPY', 'green', 1, .01], ['QQQ', 'cyan', 1, .01], ['AAPL', 'slate', 1, .01], ['TSLA', 'red', 1, .01], ['NVDA', 'lime', 1, .01], ['AMD', 'green', 1, .01], ['MSFT', 'blue', 1, .01], ['META', 'blue', 1, .01], ['AMZN', 'orange', 1, .01]]]
+];
+const SYM_DEF = {}; SYM_DEFAULTS.forEach(([cat, list]) => list.forEach(([sym, color, mult, tick]) => { const r = ROOTS[sym]; SYM_DEF[sym] = { sym, color, cat, mult: mult ?? (r ? r[0] : 1), tick: tick ?? (r ? r[1] : null) }; }));
+S.symSet = { list: [] };
+const symKey = s => { const u = String(s || '').toUpperCase().trim(); return SYM_DEF[u] || (S.symSet.list || []).some(x => x.sym === u) ? u : rootOf(u); };
+function symInfo(s) {
+  const k = symKey(s), mine = (S.symSet.list || []).find(x => x.sym === k), def = SYM_DEF[k];
+  if (!mine && !def) { let h = 0; for (const ch of k) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return { sym: k, color: COLORS[h % COLORS.length], cat: 'Other', mult: 1, tick: null, auto: true }; }
+  return { sym: k, cat: 'Other', mult: 1, tick: null, ...(def || {}), ...(mine || {}) };
+}
+const symChip = (s, extra = '') => { const i = symInfo(s); return `<span class="tick" style="--c:var(--c-${COLORS.includes(i.color) ? i.color : 'slate'})"${extra}>${esc(s)}</span>`; };
+function allSymbols() {
+  const out = new Map();
+  Object.keys(SYM_DEF).forEach(k => out.set(k, symInfo(k)));
+  (S.symSet.list || []).forEach(x => out.set(x.sym, symInfo(x.sym)));
+  S.allTrades.forEach(t => { const k = symKey(t.symbol); if (k && !out.has(k)) out.set(k, symInfo(k)); });
+  return [...out.values()].filter(x => !x.hidden);
+}
+function recentSymbols(n = 10) { const seen = []; S.allTrades.slice().sort(byNewest).forEach(t => { const k = symKey(t.symbol); if (k && !seen.includes(k)) seen.push(k); }); return seen.slice(0, n); }
+function symPickHtml(q) {
+  q = String(q || '').trim().toUpperCase();
+  const all = allSymbols(), match = x => !q || x.sym.includes(q);
+  const rec = recentSymbols().map(symInfo).filter(x => !x.hidden && match(x));
+  const cats = [...new Set(all.map(x => x.cat))];
+  const btn = x => `<button type="button" class="sym-opt" data-action="symPick" data-v="${esc(x.sym)}">${symChip(x.sym)}</button>`;
+  const groups = (rec.length ? `<div class="sym-g"><div class="label">Recent</div><div class="sym-row">${rec.map(btn).join('')}</div></div>` : '') + cats.map(c => { const xs = all.filter(x => x.cat === c && match(x)); return xs.length ? `<div class="sym-g"><div class="label">${esc(c)}</div><div class="sym-row">${xs.map(btn).join('')}</div></div>` : ''; }).join('');
+  return `${groups || `<div class="hint">No saved symbol matches “${esc(q)}”. It'll be added to your list when you save the trade.</div>`}<div class="sym-foot"><button type="button" class="linkish" data-action="settings" data-v="symbols">Manage symbols &amp; colors</button></div>`;
+}
+const saveSymSet = () => S.db.doc('settings/symbols').set(S.symSet).catch(writeErr);
+function upsertSym(sym, patch) {
+  const k = String(sym || '').toUpperCase().trim(); if (!k) return;
+  const list = S.symSet.list || [], i = list.findIndex(x => x.sym === k), base = i >= 0 ? list[i] : { sym: k };
+  const next = { ...base, ...patch }; if (i >= 0) list[i] = next; else list.push(next); S.symSet = { ...S.symSet, list };
+}
+function showSymPick() { const p = $('symPick'), el = $('fSym'); if (!p || !el) return; p.innerHTML = symPickHtml(el.value); p.hidden = false; }
+function symbolsSettings() {
+  const all = allSymbols().sort((a, b) => a.cat.localeCompare(b.cat) || a.sym.localeCompare(b.sym)), cats = [...new Set(all.map(x => x.cat))], used = {};
+  S.allTrades.forEach(t => { const k = symKey(t.symbol); used[k] = (used[k] || 0) + 1; });
+  const hidden = (S.symSet.list || []).filter(x => x.hidden);
+  return `<div class="toolbar"><div><h3 class="h3">Symbols</h3><div class="hint">The list you pick from when adding a trade. Give each symbol a color; it shows on every trade. Point value and tick size fill in automatically.</div></div></div>
+    <form class="pb-row" data-form="symAdd" style="gap:8px;flex-wrap:wrap"><input class="fin" id="symNew" data-keep placeholder="Add a symbol, e.g. XAUUSD" style="max-width:200px" required><input class="fin" id="symNewCat" data-keep list="symCats" placeholder="Group" style="max-width:180px"><datalist id="symCats">${cats.map(c => `<option value="${esc(c)}">`).join('')}</datalist><button class="primary" type="submit">Add symbol</button></form>
+    ${cats.map(c => `<div class="sym-sec"><div class="label">${esc(c)}</div><div class="table-scroll"><table class="rtable sym-table"><thead><tr><th>Symbol</th><th>Color</th><th class="r">Point value ($)</th><th class="r">Tick size</th><th class="r">Trades</th><th></th></tr></thead><tbody>
+      ${all.filter(x => x.cat === c).map(x => `<tr><td>${symChip(x.sym)}</td><td><div class="sym-sw">${COLORS.map(col => `<button class="sw" style="background:var(--c-${col})" data-action="symColor" data-v="${esc(x.sym)}" data-c="${col}" role="radio" aria-checked="${x.color === col}" aria-label="${col}"></button>`).join('')}</div></td>
+        <td class="r"><input class="fin" type="number" step="any" data-symf="mult" data-sym="${esc(x.sym)}" value="${x.mult ?? ''}" style="max-width:110px;text-align:right" aria-label="Point value"></td><td class="r"><input class="fin" type="number" step="any" data-symf="tick" data-sym="${esc(x.sym)}" value="${x.tick ?? ''}" style="max-width:100px;text-align:right" aria-label="Tick size"></td>
+        <td class="r num">${used[x.sym] || 0}</td><td class="r"><button class="linkish" style="color:var(--muted)" data-action="symHide" data-v="${esc(x.sym)}">Hide</button></td></tr>`).join('')}</tbody></table></div></div>`).join('')}
+    ${hidden.length ? `<div class="hint">Hidden: ${hidden.map(x => `<button class="linkish" data-action="symShow" data-v="${esc(x.sym)}">${esc(x.sym)}</button>`).join(', ')}</div>` : ''}`;
+}
+
 /* ---------- modals ---------- */
 function openModal(kind, arg) { S.modal = { kind, arg }; renderModal(); }
 function closeModal() { if (S.prevModal) { S.modal = S.prevModal; S.prevModal = null; renderModal(); return; } S.modal = null; S.pbEdit = null; const b = $('modal'); b.hidden = true; b.innerHTML = ''; b.className = 'scrim'; }
@@ -4115,9 +4179,10 @@ function renderModal() {
         <label>Date<input id="fDate" type="date" required value="${m.arg || todayIso()}"></label>
         <label>Entry time<input id="fTime" type="time" value="${new Date().toTimeString().slice(0, 5)}"></label>
         <label>Exit time<input id="fExitTime" type="time"></label>
-        <label>Symbol<input id="fSym" required placeholder="MES, AAPL" autocomplete="off"></label>
+        <label>Symbol<input id="fSym" required placeholder="Pick or type: NQ, XAUUSD" autocomplete="off" aria-controls="symPick"></label>
         <label>Side<select id="fSide"><option>Long</option><option>Short</option></select></label>
         <label>Quantity<input id="fQty" type="number" step="any" min="0" placeholder="1"></label>
+        <div class="full sym-pick" id="symPick" hidden></div>
         <label>Entry price<input id="fEntry" type="number" step="any"></label>
         <label>Exit price<input id="fExit" type="number" step="any"></label>
         <label>Point value<input id="fMult" type="number" step="any" placeholder="1"></label>
@@ -4132,12 +4197,12 @@ function renderModal() {
         <div class="full hint">Fill in entry, exit and quantity and P&amp;L is worked out for you (point value × points × quantity − fees). Tags, notes and screenshots go on the trade page after saving.</div>
         <div class="full actions"><button type="button" class="secondary" data-action="close">Cancel</button><button type="submit" class="primary">Save trade</button></div>
       </form></div>`;
-    setTimeout(() => $('fSym')?.focus(), 30);
+    setTimeout(() => { const el = $('fSym'); if (el) { el.focus(); showSymPick(); } }, 30);
   } else if (m.kind === 'day') {
     const ts = S.trades.filter(t => t.date === m.arg).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
     const net = ts.reduce((a, t) => a + t.pnl, 0), r = ts.reduce((a, t) => a + rOf(t), 0);
     box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><div><h3 id="mTitle">${dateLabel(m.arg)}</h3>${ts.length ? `<div class="hint">${ts.length} trade${ts.length > 1 ? 's' : ''} · <span class="num ${cls(net)}">${fmt(net, r)}</span></div>` : ''}</div><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
-      <div class="daylist">${ts.length ? ts.map(t => `<button class="dtrade" data-action="preview" data-id="${t.id}"><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span><div><span class="sym">${esc(t.symbol)}</span> <span class="hint num">${esc(t.time || '')}</span><small>${esc(tagsOf(t, 'setups').join(', '))}</small></div><span class="num ${cls(t.pnl)}">${fmt(t.pnl, rOf(t))}</span></button>`).join('') : '<div class="hint">No trades on this day.</div>'}</div>
+      <div class="daylist">${ts.length ? ts.map(t => `<button class="dtrade" data-action="preview" data-id="${t.id}"><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span><div>${symChip(t.symbol)} <span class="hint num">${esc(t.time || '')}</span><small>${esc(tagsOf(t, 'setups').join(', '))}</small></div><span class="num ${cls(t.pnl)}">${fmt(t.pnl, rOf(t))}</span></button>`).join('') : '<div class="hint">No trades on this day.</div>'}</div>
       <div class="actions"><button class="secondary" data-action="jGo" data-d="${m.arg}">Open daily journal</button><button class="primary" data-action="add" data-d="${m.arg}">Add trade on this day</button></div></div>`;
   } else if (m.kind === 'pb') box.innerHTML = pbEditor();
   else if (m.kind === 'rules') box.innerHTML = rulesEditor();
@@ -4435,6 +4500,10 @@ document.addEventListener('click', async e => {
     case 'pbView': S.pbView = b.dataset.v; break;
     case 'pbArch': S.pbArch = b.dataset.v === '1'; break;
     case 'setTheme': setTheme(b.dataset.v); return;
+    case 'symPick': { const i = symInfo(b.dataset.v), el = $('fSym'); if (!el) return; el.value = b.dataset.v; const m = $('fMult'); if (m && (!m.value || m.dataset.auto)) { m.value = i.mult ?? ''; m.dataset.auto = '1'; } const f = $('fFees'); if (f && !f.value) { const fee = feeFor(b.dataset.v, num($('fQty').value) || 1); f.placeholder = fee ? String(fee) : '0'; } $('symPick').hidden = true; $('fSide')?.focus(); return; }
+    case 'symColor': if (!needDb()) return; upsertSym(b.dataset.v, { color: b.dataset.c, cat: symInfo(b.dataset.v).cat }); saveSymSet(); break;
+    case 'symHide': if (!needDb()) return; upsertSym(b.dataset.v, { hidden: true, cat: symInfo(b.dataset.v).cat, color: symInfo(b.dataset.v).color }); saveSymSet(); toast(b.dataset.v + ' hidden from the list'); break;
+    case 'symShow': if (!needDb()) return; upsertSym(b.dataset.v, { hidden: false }); saveSymSet(); break;
     case 'themeFlip': setTheme(isDark() ? 'light' : 'dark'); return;
     case 'navSec': S.navSec = b.dataset.v; if (S.navCollapsed) { S.navCollapsed = false; try { localStorage.setItem('ll-navc', '0'); } catch (e) {} } navPaint(); return;
     case 'navCollapse': S.navCollapsed = !S.navCollapsed; try { localStorage.setItem('ll-navc', S.navCollapsed ? '1' : '0'); } catch (e) {} navPaint(); return;
@@ -4616,6 +4685,8 @@ document.addEventListener('input', e => {
   if (el.id === 'editor') return saveNote();
   if (el.id === 'pickSearch') { S.pickQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('pickSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'askIn') { S.askDraft = el.value; return; }
+  if (el.id === 'fSym') { showSymPick(); return; }
+  if (el.id === 'fMult') { delete el.dataset.auto; }
   if (el.id === 'stSearch') { S.stQ = el.value; const pos = el.selectionStart; render(); const n = $('stSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'glSearch') { S.glQ = el.value; const pos = el.selectionStart; render(); const n = $('glSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'awSearch' && S.imp) { S.imp.q = el.value; const pos = el.selectionStart; renderModal(); const n = $('awSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
@@ -4636,11 +4707,13 @@ document.addEventListener('input', e => {
   if (el.dataset.rm != null && S.rulesEdit) { S.rulesEdit.manual[+el.dataset.rm].text = el.value; return; }
   if (el.dataset.pbf && S.pbEdit) { const f = el.dataset.pbf; if (f === 'name') S.pbEdit.name = el.value; if (f === 'group') S.pbEdit.groups[+el.dataset.gi].name = el.value; if (f === 'rule') S.pbEdit.groups[+el.dataset.gi].rules[+el.dataset.ri].text = el.value; }
 });
+document.addEventListener('focusin', e => { const p = $('symPick'); if (!p || p.hidden) return; if (e.target.id === 'fSym') return; if (!p.contains(e.target)) p.hidden = true; });
 document.addEventListener('focusout', e => { if (e.target.id === 'editor') saveNote(true); });
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'fileIn') { uploadFiles(el.files, S.uploadFor); el.value = ''; return; }
   if (el.id === 'awPlat' && S.imp && S.imp.sync) { S.imp.sync.platform = el.value; return; }
+  if (el.dataset.symf) { if (!needDb()) return; const v = el.value === '' ? null : +el.value; upsertSym(el.dataset.sym, { [el.dataset.symf]: v, cat: symInfo(el.dataset.sym).cat, color: symInfo(el.dataset.sym).color }); saveSymSet(); return; }
   if (el.dataset.calc) { S.calc[el.dataset.calc] = el.value; rerender(); return; }
   if (el.dataset.vnote) { if (!needDb()) return; S.db.collection('videos').doc(el.dataset.vnote).update({ note: el.value.slice(0, 2000) }).catch(writeErr); return; }
   if (el.id === 'btFile') { if (el.files[0]) btUpload(el.files[0]); el.value = ''; return; }
@@ -4749,6 +4822,7 @@ document.addEventListener('submit', async e => {
     const rules = [].concat(j || []).filter(r => r && TAG_FIELDS.some(x => x[0] === r.field) && TAG_OPS.includes(r.op) && catById(r.cat) && r.tag).map(r => ({ id: 'r' + uid(), field: r.field, op: r.op, value: String(r.value), cat: r.cat, tag: String(r.tag).slice(0, 40) }));
     if (rules.length) { S.agents.tagger.rules = [...(S.agents.tagger.rules || []), ...rules]; rules.forEach(r => ensureTagInCat(r.cat, r.tag)); saveAgents(); toast(`Added ${rules.length} rule${rules.length === 1 ? '' : 's'}. Use “Run on existing trades” to tag past trades.`); } else if (j) toast("Claude couldn't turn that into a rule. Try naming a field, like hold time or entry time."); rerender(); return; }
   if (f.dataset.form === 'video') { if (!needDb()) return; const url = $('vUrl').value.trim(), yt = ytId(url); if (!yt) { toast("That doesn't look like a YouTube link."); return; } try { await S.db.collection('videos').doc('v-' + uid()).set({ yt, url, title: ($('vTitle').value.trim() || 'Untitled video').slice(0, 120), cat: $('vCat').value.trim().slice(0, 40), note: '', at: new Date().toISOString() }); toast('Video saved'); } catch (err) { writeErr(err); } return; }
+  if (f.dataset.form === 'symAdd') { if (!needDb()) return; const sym = $('symNew').value.trim().toUpperCase().slice(0, 20); if (!sym) return; const i = symInfo(sym); upsertSym(sym, { cat: $('symNewCat').value.trim().slice(0, 40) || (i.auto ? 'Other' : i.cat), color: i.color, mult: i.mult, tick: i.tick, hidden: false }); saveSymSet(); toast(sym + ' added'); rerender(); return; }
   if (f.dataset.form === 'pattern') { const q = ($('patIn').value || '').trim(); if (q) { S.patternQ = q; rerender(); } return; }
   if (f.dataset.form === 'sentiment') { if (!needDb()) return; const v = $('sVix').value, sp = $('sSpy').value; S.agents.sentiment = { date: todayIso(), vix: v === '' ? null : +v, spy: sp === '' ? null : +sp }; S.sentEdit = false; saveAgents(); rerender(); return; }
   if (f.dataset.form === 'ask') { const q = ($('askIn').value || '').trim(); S.askDraft = ''; askClaude(q); return; }
@@ -4804,6 +4878,7 @@ render();
   db.collection('templates').onSnapshot(snap => { S.templates = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(t => t.name); safeRender(); }, () => {});
   db.doc('settings/fees').onSnapshot(s => { S.fees = s.exists ? (s.data().rows || []) : []; safeRender(); }, () => {});
   db.collection('cash').onSnapshot(snap => { S.cash = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(c => c.date && typeof c.amount === 'number'); safeRender(); }, () => {});
+  db.doc('settings/symbols').onSnapshot(sn => { if (sn.exists) { S.symSet = { list: [], ...sn.data() }; safeRender(); } }, () => {});
   db.collection('videos').onSnapshot(snap => { S.videos = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
   db.doc('settings/learn').onSnapshot(sn => { if (sn.exists) { S.learn = sn.data(); safeRender(); } }, () => {});
   db.collection('notes').onSnapshot(snap => { S.notes = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
