@@ -623,6 +623,34 @@ button.ins-alert{cursor:pointer}button.ins-alert:hover{border-color:var(--accent
 .aip-foot select{border:0;background:none;color:var(--ink);font-weight:600;font-size:12.5px}
 @media (min-width:1200px){body.aip-open .main{padding-right:calc(430px + 16px)}body.aip-open .aip.wide~*{}}
 @media (max-width:820px){.appbar{margin-top:-12px}}
+
+/* v26: strategies page */
+.kicker{color:var(--accent);font-size:13px;font-weight:500;margin-bottom:-12px}
+.strat-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.strat-tabs button{border:0;background:none;padding:10px 14px;color:var(--muted);border-bottom:2px solid transparent;font-weight:500;white-space:nowrap}
+.strat-tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.strat-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.strat-kpi{display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer}.strat-kpi:hover{border-color:var(--accent)}.strat-kpi b{font-size:17px;font-family:var(--f-display)}
+.strat-title{display:inline-flex;align-items:center;gap:8px;color:var(--ink);font-weight:600;text-decoration:none}.strat-title:hover{color:var(--accent)}
+.strat-table td:first-child,.strat-table th:first-child{min-width:240px}.strat-title{white-space:nowrap;text-align:left}.pb-pop{position:fixed;right:auto;top:auto;z-index:35}
+.strat-ic{display:inline-grid;place-items:center;width:24px;height:24px;font-size:16px}
+.strat-sheet{max-width:1000px;width:min(1000px,100%);padding:0;overflow:hidden;max-height:min(88vh,860px)}
+.strat-sheet .sheet-head{padding:18px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:10px}
+.strat-body{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:0;flex:1;overflow:hidden}
+.strat-side{display:flex;flex-direction:column;gap:2px;padding:16px;border-right:1px solid var(--line);background:var(--surface-2);overflow-y:auto}
+.strat-side>button{text-align:left;border:0;background:none;padding:8px 10px;border-radius:8px;color:var(--ink)}.strat-side>button:hover{background:var(--surface)}.strat-side>button[aria-pressed="true"]{background:var(--surface);color:var(--accent);font-weight:600}
+.strat-own{margin-top:auto!important;display:flex!important;align-items:center;gap:10px;border:1.5px solid var(--accent)!important;padding:12px!important;border-radius:12px!important;font-weight:600}
+.strat-own span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:18px}
+.strat-main{display:flex;flex-direction:column;gap:12px;padding:16px;overflow-y:auto;min-height:0}
+.tpl-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tpl-grid.wide{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.tpl-card{display:flex;flex-direction:column;gap:8px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:14px;cursor:pointer}
+.tpl-card:hover{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+.tpl-card b{font-size:14.5px}.tpl-desc{line-height:1.45}
+.tpl-tag{font-size:11.5px;color:var(--c-blue);background:color-mix(in srgb,var(--c-blue) 12%,transparent);border:1px solid color-mix(in srgb,var(--c-blue) 35%,transparent);border-radius:6px;padding:1px 8px}
+.tpl-by{font-size:12px;color:var(--muted);margin-top:auto}
+.pb-icons{display:flex;flex-wrap:wrap;gap:4px}.pb-icons button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);font-size:17px}.pb-icons button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 25%,transparent)}
+@media (max-width:1000px){.strat-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.strat-body{grid-template-columns:1fr}.strat-side{flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line)}.strat-side .label{width:100%}.strat-own{margin-top:6px!important}.tpl-grid{grid-template-columns:1fr}.strat-kpis{grid-template-columns:1fr}}
 /* v20: education */
 .st-open{display:flex;flex-direction:column;gap:8px;text-align:left;background:none;border:0;padding:0;color:inherit}
 .st-card{cursor:default}.st-open:hover b{color:var(--accent)}
@@ -869,7 +897,7 @@ a.focus-item{text-decoration:none;color:inherit}
         <button data-action="view" data-view="log" id="nav-log" data-nav="log"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12M2 8h12M2 12.5h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Trade log</button>
         <button data-action="view" data-view="notebook" id="nav-notebook" data-nav="notebook"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="1.5" width="10.5" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 4.5h3M1.5 8h3M1.5 11.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Notebook</button>
         <button data-action="view" data-view="reports" id="nav-reports" data-nav="reports"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14V2M2 14h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M5 11V8M8 11V5M11 11V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Reports</button>
-        <button data-action="view" data-view="playbooks" id="nav-playbooks" data-nav="playbooks"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h4.5a1.5 1.5 0 011.5 1.5v9.5a1.2 1.2 0 00-1.2-1.2H2.5zM13.5 2.5H9a1.5 1.5 0 00-1.5 1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M13.5 2.5v9.8H9.7A1.2 1.2 0 008.5 13.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Playbooks</button>
+        <button data-action="view" data-view="playbooks" id="nav-playbooks" data-nav="playbooks"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h4.5a1.5 1.5 0 011.5 1.5v9.5a1.2 1.2 0 00-1.2-1.2H2.5zM13.5 2.5H9a1.5 1.5 0 00-1.5 1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M13.5 2.5v9.8H9.7A1.2 1.2 0 008.5 13.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Strategies</button>
         <div class="nav-sep"></div>
         <button data-action="view" data-view="replay" id="nav-replay" data-nav="replay"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.6 5.4l4 2.6-4 2.6z" fill="currentColor"/></svg>Replay</button>
         <button data-action="view" data-view="progress" id="nav-progress" data-nav="progress"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 8.2l2.3 2.3 4.7-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Progress tracker</button>
@@ -902,7 +930,7 @@ a.focus-item{text-decoration:none;color:inherit}
       <div class="navsec" data-sec="learn">
         <div class="nav-label">Education</div>
         <button data-action="lnNav" data-v="lessons" data-nav="learn:lessons"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5h4.5A1.5 1.5 0 018 5v8.5a1.2 1.2 0 00-1.2-1.2H2zM14 3.5H9.5A1.5 1.5 0 008 5v8.5a1.2 1.2 0 011.2-1.2H14z"/></svg>Lessons</button>
-        <button data-action="lnNav" data-v="strategies" data-nav="learn:strategies"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13l3-4 2.5 2L13 4M10 4h3v3"/></svg>Strategies</button>
+        <button data-action="lnNav" data-v="strategies" data-nav="learn:strategies"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13l3-4 2.5 2L13 4M10 4h3v3"/></svg>Strategy library</button>
         <button data-action="lnNav" data-v="videos" data-nav="learn:videos"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2"/><path d="M6.8 6.2v3.6L9.8 8z"/></svg>Videos</button>
         <button data-action="lnNav" data-v="tools" data-nav="learn:tools"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="1.5" width="10" height="13" rx="1.5"/><path d="M5.5 4.5h5M5.5 8h.01M8 8h.01M10.5 8h.01M5.5 11h.01M8 11h.01M10.5 11h.01"/></svg>Tools &amp; calculators</button>
         <button data-action="lnNav" data-v="glossary" data-nav="learn:glossary"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2.5h8l2 2v9H3zM6 6h5M6 9h5"/></svg>Glossary</button>
@@ -1078,7 +1106,7 @@ a.focus-item{text-decoration:none;color:inherit}
 (() => {
 const S = {
   trades: [], cats: [], playbooks: [], journal: {}, settings: { startingBalance: 25000 },
-  unit: '$', scope: 'month', view: 'home', allTrades: [], accounts: [], accSel: null, accMenu: false, imports: [], templates: [], fees: [], candles: {}, rp: { speed: 1 }, chat: [], ai: null, imp: null, ptab: 'stats', pbArch: false, pbView: 'grid', setTab: 'accounts', jMode: 'day', prevModal: null, dashDocs: [], dashEdit: null, dashMenu: false, libQ: '', econ: [], props: [], propTx: [], ecoImpact: 'all', ecoCountry: '', ecoWeek: null, agentBusy: {}, propTab: 'dash', tradeId: null, tab: 'stats', noteTab: 'trade',
+  unit: '$', scope: 'month', view: 'home', allTrades: [], accounts: [], accSel: null, accMenu: false, imports: [], templates: [], fees: [], candles: {}, rp: { speed: 1 }, chat: [], ai: null, imp: null, ptab: 'stats', pbArch: false, pbView: 'table', setTab: 'accounts', jMode: 'day', prevModal: null, dashDocs: [], dashEdit: null, dashMenu: false, libQ: '', econ: [], props: [], propTx: [], ecoImpact: 'all', ecoCountry: '', ecoWeek: null, agentBusy: {}, propTab: 'dash', tradeId: null, tab: 'stats', noteTab: 'trade',
   month: (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })(),
   loaded: false, dbMissing: false, db: null, assets: null, armed: null, editBal: false, modal: null,
   tagMenu: null, tagQuery: '', filters: { q: '', status: 'all', reviewed: 'all' }, page: 0, sel: new Set(), pending: false, pbEdit: null,
@@ -1209,7 +1237,10 @@ const TEMPLATES = {
 /* double sidebar */
 const secOf = v => v === 'learn' ? 'learn' : v === 'agents' ? 'ai' : v === 'props' ? 'props' : v === 'settings' ? 'accounts' : 'journal';
 try { S.navCollapsed = localStorage.getItem('ll-navc') === '1'; } catch (e) { S.navCollapsed = false; }
+function placePbMenu() { const m = document.querySelector('.pb-pop'); if (!m) return; const b = document.querySelector(`[data-action="pbMenu"][aria-expanded="true"]`); if (!b) return; const r = b.getBoundingClientRect(), w = m.offsetWidth || 180, h = m.offsetHeight || 160; m.style.left = Math.min(innerWidth - w - 12, Math.max(8, r.right - w)) + 'px'; m.style.top = (r.bottom + h + 8 > innerHeight ? Math.max(8, r.top - h - 4) : r.bottom + 4) + 'px'; }
+addEventListener('scroll', () => { if (S.pbMenu) { S.pbMenu = null; rerender(); } }, { passive: true });
 function navPaint() {
+  setTimeout(placePbMenu, 0);
   if (S._lastView !== S.view) { S.navSec = secOf(S.view); S._lastView = S.view; }
   const key = S.view === 'trade' ? 'log' : S.view === 'agents' ? (S.agTab && S.agTab !== 'agents' ? 'agents:' + S.agTab : 'agents') : S.view === 'props' ? (S.propTab && S.propTab !== 'dash' ? 'props:' + S.propTab : 'props') : S.view === 'settings' ? 'settings:' + (S.setTab || 'accounts') : S.view === 'learn' ? 'learn:' + (S.lnTab || 'lessons') : S.view;
   document.querySelectorAll('.nav [data-nav]').forEach(el => el.setAttribute('aria-current', el.dataset.nav === key && (el.dataset.nav !== 'home' || el.closest('.navsec').dataset.sec === S.navSec) ? 'page' : 'false'));
@@ -1226,7 +1257,7 @@ function render() {
   if (S.view === 'dashboard') html = topbar(hour(), 'Stats for ' + (S.scope === 'all' ? 'all time' : `${MONTHS[S.month.getMonth()]} ${S.month.getFullYear()}`), true, (S.db && !S.dashEdit ? startBtn() : '') + (S.dashEdit ? '' : dashTplMenu())) + banner() + (S.dashEdit ? '' : importLine()) + dashboard();
   else if (S.view === 'log') html = topbar('Trade log', S.trades.length + ' trades recorded') + banner() + logView();
   else if (S.view === 'trade') html = tradeView();
-  else if (S.view === 'playbooks') html = topbar('Playbooks', 'Your setups and the rules that define them') + playbooksView();
+  else if (S.view === 'playbooks') html = `<div class="kicker">Tracking</div>` + topbar('Strategies', 'Every setup you trade, its rules and how it performs') + strategiesPage();
   else if (S.view === 'journal') html = topbar('Daily journal', `${MONTHS[S.jMonth.getMonth()]} ${S.jMonth.getFullYear()}`) + journalView();
   else if (S.view === 'notebook') html = topbar('Notebook', 'Trade notes, daily journal entries and your own notes') + notebookView();
   else if (S.view === 'reports') html = topbar('Reports', 'Performance over time and by setup, symbol and time of day') + banner() + reportsView();
@@ -1671,13 +1702,14 @@ function playbooksView() {
 }
 function pbEditor() {
   const p = S.pbEdit;
-  return `<div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">${p.isNew ? 'New playbook' : 'Edit playbook'}</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
-    <div class="pb-edit"><div class="form"><label class="full">Name<input id="pbName" data-pbf="name" value="${esc(p.name)}" placeholder="Buy at new low of day"></label></div>
+  return `<div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">${p.isNew ? 'New strategy' : 'Edit strategy'}</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
+    <div class="pb-edit"><div class="form"><label class="full">Name<input id="pbName" data-pbf="name" value="${esc(p.name)}" placeholder="Session sweep"></label></div>
+    <div><div class="label" style="margin-bottom:6px">Icon</div><div class="pb-icons">${PB_ICONS.map(ic => `<button type="button" data-action="pbIcon" data-v="${ic}" aria-pressed="${pbIcon(p) === ic}" aria-label="Icon ${ic}">${ic}</button>`).join('')}</div></div>
     ${p.groups.map((g, gi) => `<div class="pb-group"><div class="pb-row"><input data-pbf="group" data-gi="${gi}" value="${esc(g.name)}" placeholder="Group, e.g. Entry criteria" aria-label="Group name" style="font-weight:600"><button class="linkish" style="color:var(--muted)" data-action="pbDelGroup" data-gi="${gi}">Remove group</button></div>
       ${g.rules.map((r, ri) => `<div class="pb-row"><span class="muted">☐</span><input data-pbf="rule" data-gi="${gi}" data-ri="${ri}" value="${esc(r.text)}" placeholder="Rule" aria-label="Rule"><button class="linkish" style="color:var(--muted)" data-action="pbDelRule" data-gi="${gi}" data-ri="${ri}" aria-label="Remove rule">✕</button></div>`).join('')}
       <button class="linkish" data-action="pbAddRule" data-gi="${gi}" style="align-self:flex-start">+ Add rule</button></div>`).join('')}
     <button class="ghost" data-action="pbAddGroup" style="align-self:flex-start">+ Add group</button></div>
-    <div class="actions"><button class="secondary" data-action="close">Cancel</button><button class="primary" data-action="savePb">Save playbook</button></div></div>`;
+    <div class="actions"><button class="secondary" data-action="close">Cancel</button><button class="primary" data-action="savePb">Save strategy</button></div></div>`;
 }
 
 /* ---------- shared helpers ---------- */
@@ -4225,7 +4257,7 @@ function symbolsSettings() {
 const AI_LENS = { short: 'Keep the answer under 120 words.', medium: 'Keep the answer under 300 words.', detailed: 'Give a thorough answer with headings; up to 600 words.' };
 try { S.aiLen = localStorage.getItem('ll-ailen') || 'medium'; } catch (e) { S.aiLen = 'medium'; }
 try { S.chatHist = JSON.parse(localStorage.getItem('ll-chats') || '[]'); } catch (e) { S.chatHist = []; }
-const VIEW_NAMES = { home: 'Home', dashboard: 'Dashboard', journal: 'Daily journal', log: 'Trade log', trade: 'Trade', notebook: 'Notebook', reports: 'Reports', playbooks: 'Playbooks', replay: 'Replay', progress: 'Progress tracker', resources: 'Resources', agents: 'Agents', props: 'Prop firms', settings: 'Settings', learn: 'Education' };
+const VIEW_NAMES = { home: 'Home', dashboard: 'Dashboard', journal: 'Daily journal', log: 'Trade log', trade: 'Trade', notebook: 'Notebook', reports: 'Reports', playbooks: 'Strategies', replay: 'Replay', progress: 'Progress tracker', resources: 'Resources', agents: 'Agents', props: 'Prop firms', settings: 'Settings', learn: 'Education' };
 function aiContext() {
   const v = S.view, t = v === 'trade' ? byId(S.tradeId) : null;
   const L = {
@@ -4285,6 +4317,66 @@ function aipSaveCurrent() {
   try { localStorage.setItem('ll-chats', JSON.stringify(S.chatHist)); } catch (e) {}
 }
 
+/* ---------- v26: Strategies page (playbooks) ---------- */
+const PB_ICONS = ['📈', '🎯', '💰', '♻️', '⚡', '🕙', '🧭', '📊', '🔥', '🧱', '🌊', '🦅'];
+const pbIcon = p => p.icon || PB_ICONS[[...String(p.name || p.id)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) % PB_ICONS.length];
+const stratStyle = st => /scalp|ticks|1 min$|^1 min|seconds/i.test(st.tf) ? 'Scalping' : /swing|daily|weekly|monthly|days|years/i.test(st.tf) ? 'Swing trading' : 'Intraday';
+const stratMarkets = st => st.mk === 'All' ? MARKETS : st.mk.split(/,\s*/).map(m => m[0].toUpperCase() + m.slice(1));
+function tplCard(st, act = 'tplUse') {
+  const have = stratPb(st);
+  return `<button class="tpl-card" data-action="${act}" data-v="${st.id}"><b>${esc(st.name)}</b><span class="fchips">${[stratStyle(st), ...stratMarkets(st)].map(t => `<span class="tpl-tag">${esc(t)}</span>`).join('')}</span><span class="hint tpl-desc">${esc(st.idea.length > 120 ? st.idea.slice(0, 118) + '…' : st.idea)}</span><span class="tpl-by">${st.by ? `by ${esc(st.by)}` : 'Ledgerline basics'}${have ? ' · <span class="gain">✓ added</span>' : ''}</span></button>`;
+}
+function tplFiltered() {
+  const ac = S.tplAsset || '', q = (S.tplQ || '').toLowerCase();
+  return STRATS.filter(st => (!ac || stratMarkets(st).includes(ac)) && (!q || (st.name + ' ' + st.mk + ' ' + (st.by || '') + ' ' + stratStyle(st)).toLowerCase().includes(q)));
+}
+function stratCreateModal() {
+  let show = true; try { show = localStorage.getItem('ll-stratpick') !== '0'; } catch (e) {}
+  const list = tplFiltered();
+  return `<div class="sheet strat-sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><div><h3 id="mTitle">Create a new strategy</h3><div class="hint">Choose a strategy template to get started quickly, or create your own from scratch.</div></div><div class="pb-row" style="gap:14px;align-items:center"><label class="hint" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="stratPickShow" ${show ? 'checked' : ''}>Show every time I create a strategy</label><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div></div>
+    <div class="strat-body"><aside class="strat-side"><div class="label">Browse templates</div><button data-action="tplAsset" data-v="" aria-pressed="${!S.tplAsset}">View all</button><div class="label" style="margin-top:12px">Asset class</div>${MARKETS.map(m => `<button data-action="tplAsset" data-v="${m}" aria-pressed="${S.tplAsset === m}">${m}</button>`).join('')}
+        <button class="strat-own" data-action="stratOwn"><span>+</span>Create your own</button></aside>
+      <div class="strat-main"><input class="fin" id="tplSearch" data-keep value="${esc(S.tplQ || '')}" placeholder="Search strategies by name or asset class" aria-label="Search templates"><div class="tpl-grid">${list.map(st => tplCard(st)).join('') || '<p class="hint">No templates match.</p>'}</div></div></div></div>`;
+}
+async function createFromTemplate(id, open) {
+  const st = STRATS.find(x => x.id === id); if (!st || !needDb()) return;
+  const ex = stratPb(st); if (ex) { toast('Already in your strategies'); if (open) { S.pbEdit = JSON.parse(JSON.stringify(ex)); openModal('pb'); } return; }
+  const pid = 'pb-' + uid(), doc = { name: st.name, stratId: st.id, icon: '', order: Date.now(), description: st.idea + (st.by ? ` (Based on ${st.by}'s strategy: ${st.url})` : ''), groups: [{ name: 'Setup', rules: st.setup.map(t => ({ id: uid(), text: t })) }, { name: 'Execution', rules: [st.entry, 'Stop: ' + st.stop, 'Target: ' + st.target, ...(st.risk ? ['Risk: ' + st.risk] : [])].map(t => ({ id: uid(), text: t })) }, { name: 'Skip the trade when', rules: st.avoid.map(t => ({ id: uid(), text: t })) }] };
+  try { await S.db.collection('playbooks').doc(pid).set(doc); toast(`${st.name} added to your strategies`); if (open) { S.pbEdit = { ...JSON.parse(JSON.stringify(doc)), id: pid }; openModal('pb'); } } catch (err) { writeErr(err); }
+}
+function stratSummary() {
+  const rows = S.playbooks.filter(p => !p.archived).map(p => ({ p, ...pbStats(p) })).filter(x => x.st.n);
+  if (!rows.length) return '';
+  const best = rows.slice().sort((a, b) => b.st.net - a.st.net)[0], worst = rows.slice().sort((a, b) => a.st.net - b.st.net)[0], active = rows.slice().sort((a, b) => b.st.n - a.st.n)[0], wr = rows.filter(x => x.st.n >= 3).sort((a, b) => b.st.wr - a.st.wr)[0] || active;
+  const card = (ic, lbl, x, sub) => `<button class="panel card strat-kpi" data-action="editPb" data-pb="${x.p.id}"><span class="hint">${ic} ${lbl}</span><b>${pbIcon(x.p)} ${esc(x.p.name)}</b><span>${sub}</span></button>`;
+  const net = x => `<span class="num">${x.st.n} trades</span> <span class="pill ${x.st.net > 0 ? 'g' : x.st.net < 0 ? 'l' : ''}">${priv(money(x.st.net))}</span>`;
+  return `<div class="strat-kpis">${card('↗', 'Best performing strategy', best, net(best))}${card('↘', 'Least performing strategy', worst, net(worst))}${card('⚡', 'Most active strategy', active, `<span class="num">${active.st.n} trades</span>`)}${card('🏆', 'Best win rate', wr, `<span class="num">${(wr.st.wr * 100).toFixed(2)}% / ${wr.st.n} trades</span>`)}</div>`;
+}
+function stratTable(list) {
+  return `<section class="panel log"><div class="table-scroll"><table class="rtable strat-table" style="min-width:1000px"><thead><tr><th>Title</th><th class="r">Missed trades</th><th class="r">Average loser</th><th class="r">Average winner</th><th class="r">Total net P&amp;L</th><th class="r">Profit factor</th><th class="r">Trades</th><th class="r">Expectancy</th><th class="r">Win rate</th><th class="r">Rules followed</th><th></th></tr></thead><tbody>
+    ${list.map(p => { const { st, adh } = pbStats(p), open = S.pbMenu === p.id; return `<tr><td><button class="linkish strat-title" data-action="editPb" data-pb="${p.id}"><span class="strat-ic">${pbIcon(p)}</span>${esc(p.name)}</button></td>
+      <td class="r"><span class="missed"><button class="icon-btn" data-action="missed" data-pb="${p.id}" data-v="-1" aria-label="One fewer missed trade" ${p.missed ? '' : 'disabled'}>−</button><span class="num">${p.missed || 0}</span><button class="icon-btn" data-action="missed" data-pb="${p.id}" data-v="1" aria-label="Log a missed trade">+</button></span></td>
+      <td class="r num ${st.l ? 'loss' : ''}">${st.l ? priv(money(-st.avgL)) : '$0'}</td><td class="r num ${st.w ? 'gain' : ''}">${st.w ? priv(money(st.avgW)) : '$0'}</td><td class="r num ${cls(st.net)}">${priv(money(st.net))}</td><td class="r num">${st.n ? ratioTxt(st.pf) : 'N/A'}</td><td class="r num">${st.n}</td><td class="r num ${cls(st.exp)}">${st.n ? priv(money(st.exp)) : '–'}</td><td class="r num">${st.n ? (st.wr * 100).toFixed(0) + '%' : '–'}</td><td class="r num">${adh == null ? '–' : Math.round(adh * 100) + '%'}</td>
+      <td class="r" style="position:relative"><button class="icon-btn" data-action="pbMenu" data-pb="${p.id}" aria-label="Actions for ${esc(p.name)}" aria-expanded="${open}">⋮</button>${open ? `<div class="acct-menu pb-pop" role="menu"><button role="menuitem" data-action="editPb" data-pb="${p.id}">Edit rules</button>${p.stratId ? `<button role="menuitem" data-action="lnNavStrat" data-v="${p.stratId}">Read the strategy</button>` : ''}<button role="menuitem" data-action="pbTrades" data-pb="${p.id}">View trades</button><button role="menuitem" data-action="archivePb" data-pb="${p.id}">${p.archived ? 'Restore' : 'Archive'}</button><button role="menuitem" class="danger" data-action="delPb" data-pb="${p.id}">${S.armed === 'pb-' + p.id ? 'Confirm delete' : 'Delete'}</button></div>` : ''}</td></tr>`; }).join('') || `<tr><td colspan="11" class="empty">${S.pbArch ? 'No archived strategies.' : 'No strategies yet. Click Create strategy to start from a template or from scratch.'}</td></tr>`}
+  </tbody></table></div><div class="hint" style="padding:8px 12px">Missed trades: setups you saw but didn't take. Tap + each time it happens.</div></section>`;
+}
+function stratCards(list) {
+  return list.length ? `<div class="pb-grid">${list.map(p => { const { st, adh } = pbStats(p); return `<div class="panel pb"><div class="cat-head"><h3><span class="strat-ic">${pbIcon(p)}</span> ${esc(p.name)}</h3><button class="icon-btn" data-action="editPb" data-pb="${p.id}" aria-label="Edit">✎</button></div>
+    <div class="pb-stats"><span><b class="${cls(st.net)}">${priv(money(st.net))}</b> net</span><span><b>${st.n}</b> trades</span><span><b>${st.n ? (st.wr * 100).toFixed(0) + '%' : '–'}</b> win</span><span><b>${st.n ? ratioTxt(st.pf) : '–'}</b> PF</span><span><b>${adh == null ? '–' : Math.round(adh * 100) + '%'}</b> rules followed</span><span><b>${p.missed || 0}</b> missed</span></div>
+    <div class="rules">${p.groups.map(g => `<div><h5 style="margin:0 0 4px">${esc(g.name)}</h5><div class="hint">${g.rules.map(r => esc(r.text)).join(' · ') || 'No rules yet'}</div></div>`).join('')}</div></div>`; }).join('')}</div>` : `<div class="panel empty"><h3>No strategies yet</h3><p>Create one from a template or from scratch.</p></div>`;
+}
+function strategiesPage() {
+  const tab = S.pbTab === 'templates' || S.pbTab === 'backtest' ? S.pbTab : 'mine', n = S.playbooks.filter(p => !p.archived).length;
+  const tabs = `<div class="strat-tabs" role="tablist">${[['mine', `My strategies (${n})`], ['templates', 'Templates'], ['backtest', 'Backtest scenarios']].map(([k, l]) => `<button role="tab" aria-selected="${tab === k}" data-action="pbTab" data-v="${k}">${l}</button>`).join('')}</div>`;
+  if (tab === 'templates') return tabs + `<div class="toolbar"><div class="seg">${['', ...MARKETS].map(m => `<button data-action="tplAsset" data-v="${m}" aria-pressed="${(S.tplAsset || '') === m}">${m || 'All'}</button>`).join('')}</div><input class="fin" id="tplSearch" data-keep value="${esc(S.tplQ || '')}" placeholder="Search templates" style="max-width:260px" aria-label="Search templates"></div><div class="tpl-grid wide">${tplFiltered().map(st => tplCard(st, 'tplUseOpen')).join('')}</div>`;
+  if (tab === 'backtest') { const R = S.btRes; return tabs + `<section class="panel card"><h3 class="h3">Backtest scenarios</h3><p class="hint" style="margin:0">Describe a strategy in plain English and simulate it on your 1-minute bars.</p>${R ? `<div class="bt-kpis">${[['Last run', esc(btDesc(R.cfg))], ['Trades', R.n], ['Win rate', (R.wr * 100).toFixed(1) + '%'], ['Net P&L', `<span class="${cls(R.net)}">${priv(money(R.net, 0))}</span>`]].map(([k, v]) => `<div><div class="label">${k}</div><b class="num" style="font-size:14px">${v}</b></div>`).join('')}</div>` : ''}<div class="actions" style="justify-content:flex-start"><button class="primary" data-action="agTab" data-v="backtest">${R ? 'Open backtester' : 'New backtest'}</button></div></section>`; }
+  const list = S.playbooks.filter(p => !!p.archived === !!S.pbArch);
+  return tabs + `<div class="toolbar" style="justify-content:flex-end"><button class="primary" data-action="stratNew">+ Create strategy</button></div>${stratSummary()}
+    <div class="toolbar"><div class="seg" role="group" aria-label="Show"><button data-action="pbArch" data-v="0" aria-pressed="${!S.pbArch}">Active</button><button data-action="pbArch" data-v="1" aria-pressed="${!!S.pbArch}">Archived</button></div>
+      <div class="seg" role="group" aria-label="Layout"><button data-action="pbView" data-v="grid" aria-pressed="${S.pbView === 'grid'}" aria-label="Cards">▦</button><button data-action="pbView" data-v="table" aria-pressed="${S.pbView !== 'grid'}" aria-label="Table">☰</button></div></div>
+    ${S.pbView === 'grid' ? stratCards(list) : stratTable(list)}`;
+}
+
 /* ---------- modals ---------- */
 function openModal(kind, arg) { S.modal = { kind, arg }; renderModal(); }
 function closeModal() { if (S.prevModal) { S.modal = S.prevModal; S.prevModal = null; renderModal(); return; } S.modal = null; S.pbEdit = null; const b = $('modal'); b.hidden = true; b.innerHTML = ''; b.className = 'scrim'; }
@@ -4322,6 +4414,7 @@ function renderModal() {
       <div class="daylist">${ts.length ? ts.map(t => `<button class="dtrade" data-action="preview" data-id="${t.id}"><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span><div>${symChip(t.symbol)} <span class="hint num">${esc(t.time || '')}</span><small>${esc(tagsOf(t, 'setups').join(', '))}</small></div><span class="num ${cls(t.pnl)}">${fmt(t.pnl, rOf(t))}</span></button>`).join('') : '<div class="hint">No trades on this day.</div>'}</div>
       <div class="actions"><button class="secondary" data-action="jGo" data-d="${m.arg}">Open daily journal</button><button class="primary" data-action="add" data-d="${m.arg}">Add trade on this day</button></div></div>`;
   } else if (m.kind === 'pb') box.innerHTML = pbEditor();
+  else if (m.kind === 'stratNew') box.innerHTML = stratCreateModal();
   else if (m.kind === 'rules') box.innerHTML = rulesEditor();
   else if (m.kind === 'cash') box.innerHTML = cashModal();
   else if (m.kind === 'preview') box.innerHTML = previewSheet();
@@ -4772,12 +4865,22 @@ document.addEventListener('click', async e => {
     case 'cash': return openModal('cash');
     case 'delCash': if (!needDb()) return; S.db.collection('cash').doc(id).delete().catch(writeErr); return;
     case 'csv': exportCsv(); return;
-    case 'pbTab': S.pbTab = b.dataset.v; break;
+    case 'pbTab': S.pbTab = b.dataset.v; S.pbMenu = null; S.tplQ = ''; S.tplAsset = ''; break;
+    case 'tplAsset': S.tplAsset = b.dataset.v; if (S.modal && S.modal.kind === 'stratNew') { renderModal(); return; } break;
+    case 'tplUse': closeModal(); await createFromTemplate(b.dataset.v, true); return;
+    case 'tplUseOpen': await createFromTemplate(b.dataset.v, true); return;
+    case 'pbMenu': S.pbMenu = S.pbMenu === b.dataset.pb ? null : b.dataset.pb; S.armed = null; break;
+    case 'pbIcon': S.pbEdit.icon = b.dataset.v; renderModal(); return;
+    case 'lnNavStrat': S.view = 'learn'; S.lnTab = 'strategies'; S.lnStrat = b.dataset.v; S.pbMenu = null; window.scrollTo(0, 0); break;
+    case 'pbTrades': { const pb = S.playbooks.find(x => x.id === b.dataset.pb); S.pbMenu = null; if (!pb) return; S.view = 'log'; S.filters.q = pb.name; S.page = 0; window.scrollTo(0, 0); break; }
     case 'addTpl': {
       if (!needDb()) return; const tp = PB_TEMPLATES[+b.dataset.i];
       try { await S.db.collection('playbooks').doc('pb-' + uid()).set({ name: tp.name, order: Date.now(), groups: tp.groups.map(g => ({ name: g.name, rules: g.rules.map(t => ({ id: uid(), text: t })) })) }); toast(`${tp.name} added to your playbooks`); } catch (err) { writeErr(err); } return;
     }
 
+    case 'stratNew': { if (!needDb()) return; let show = true; try { show = localStorage.getItem('ll-stratpick') !== '0'; } catch (e) {} if (show) { S.tplQ = ''; S.tplAsset = ''; return openModal('stratNew'); } }
+    // falls through
+    case 'stratOwn':
     case 'newPb': if (!needDb()) return; S.pbEdit = { isNew: true, id: 'pb-' + uid(), name: '', groups: [{ name: 'Market context', rules: [{ id: uid(), text: '' }] }, { name: 'Entry criteria', rules: [{ id: uid(), text: '' }] }, { name: 'Exit criteria', rules: [{ id: uid(), text: '' }] }] }; return openModal('pb');
     case 'editPb': { if (!needDb()) return; const p = S.playbooks.find(x => x.id === b.dataset.pb); S.pbEdit = JSON.parse(JSON.stringify(p)); return openModal('pb'); }
     case 'pbAddRule': S.pbEdit.groups[+b.dataset.gi].rules.push({ id: uid(), text: '' }); renderModal(); return;
@@ -4787,7 +4890,8 @@ document.addEventListener('click', async e => {
     case 'savePb': {
       const p = S.pbEdit; p.name = p.name.trim(); if (!p.name) return toast('Give the playbook a name.');
       const groups = p.groups.map(g => ({ name: g.name.trim() || 'Rules', rules: g.rules.filter(r => r.text.trim()).map(r => ({ id: r.id, text: r.text.trim() })) })).filter(g => g.rules.length);
-      try { await S.db.collection('playbooks').doc(p.id).set({ name: p.name.slice(0, 80), groups, order: p.order ?? Date.now() }); closeModal(); toast('Playbook saved'); } catch (err) { writeErr(err); } return;
+      const prev = S.playbooks.find(x => x.id === p.id) || {}, { isNew, id: _id, ...rest } = { ...prev, ...p };
+      try { await S.db.collection('playbooks').doc(p.id).set({ ...rest, name: p.name.slice(0, 80), groups, icon: p.icon || '', order: p.order ?? prev.order ?? Date.now() }); closeModal(); toast('Strategy saved'); } catch (err) { writeErr(err); } return;
     }
     case 'delPb': {
       const pid = b.dataset.pb; if (S.armed !== 'pb-' + pid) { S.armed = 'pb-' + pid; break; }
@@ -4814,6 +4918,7 @@ document.addEventListener('input', e => {
   if (el.id === 'fSym') { showSymPick(); return; }
   if (el.id === 'fMult') { delete el.dataset.auto; }
   if (el.id === 'stSearch') { S.stQ = el.value; const pos = el.selectionStart; render(); const n = $('stSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
+  if (el.id === 'tplSearch') { S.tplQ = el.value; const pos = el.selectionStart; if (S.modal && S.modal.kind === 'stratNew') renderModal(); else render(); const n = $('tplSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'glSearch') { S.glQ = el.value; const pos = el.selectionStart; render(); const n = $('glSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'awSearch' && S.imp) { S.imp.q = el.value; const pos = el.selectionStart; renderModal(); const n = $('awSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'dashName' && S.dashEdit) { S.dashEdit.name = el.value; return; }
@@ -4845,6 +4950,7 @@ document.addEventListener('change', e => {
   if (el.dataset.calc) { S.calc[el.dataset.calc] = el.value; rerender(); return; }
   if (el.dataset.vnote) { if (!needDb()) return; S.db.collection('videos').doc(el.dataset.vnote).update({ note: el.value.slice(0, 2000) }).catch(writeErr); return; }
   if (el.id === 'aipLen') { S.aiLen = el.value; try { localStorage.setItem('ll-ailen', el.value); } catch (e) {} return; }
+  if (el.id === 'stratPickShow') { try { localStorage.setItem('ll-stratpick', el.checked ? '1' : '0'); } catch (e) {} return; }
   if (el.id === 'btFile') { if (el.files[0]) btUpload(el.files[0]); el.value = ''; return; }
   if (el.dataset.bt && el.tagName === 'SELECT') { S.bt[el.dataset.bt] = el.value; rerender(); return; }
   if (el.dataset.lim) { if (!needDb()) return; S.agents.limits = { ...(S.agents.limits || {}), [el.dataset.lim]: Math.max(1, Math.round(+el.value || 3)) }; saveAgents(); rerender(); return; }
