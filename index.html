@@ -3829,7 +3829,8 @@ const BROKERS = [
   { id: 'apex', name: 'Apex Trader Funding', kind: 'Prop firm', csv: 'tradovate', c: 'orange', ab: 'AX', assets: ['Futures'], how: 'Apex accounts run on Tradovate or Rithmic. On Tradovate open Reports → Performance and download the CSV.' },
   { id: 'topstep', name: 'Topstep', kind: 'Prop firm', csv: 'generic', c: 'slate', ab: 'T', assets: ['Futures'] },
   { id: 'tpt', name: 'Take Profit Trader', kind: 'Prop firm', csv: 'tradovate', c: 'green', ab: 'TP', assets: ['Futures'] },
-  { id: 'mff', name: 'MyFundedFutures', kind: 'Prop firm', csv: 'tradovate', c: 'blue', ab: 'MF', assets: ['Futures'] }
+  { id: 'mff', name: 'MyFundedFutures', kind: 'Prop firm', csv: 'tradovate', c: 'blue', ab: 'MF', assets: ['Futures'] },
+  { id: 'lucid', name: 'Lucid Trading', kind: 'Prop firm', csv: 'tradovate', c: 'teal', ab: 'LT', assets: ['Futures'], pop: 1, how: 'Lucid Trading accounts run on Tradovate, NinjaTrader or TradingView (CQG) or on Rithmic platforms. On Tradovate open Reports → Performance and download the CSV. From NinjaTrader, R|Trader or another platform, export your closed trades as CSV and pick Other platform to match the columns.' }
 ];
 const brokerById = id => BROKERS.find(x => x.id === id);
 const brokerByName = n => BROKERS.find(x => x.name.toLowerCase() === String(n || '').toLowerCase());
