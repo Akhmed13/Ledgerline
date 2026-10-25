@@ -14,7 +14,9 @@ Set these environment variables in the Vercel project (Production and Preview), 
 | `LEDGERLINE_PASSWORD` | The password you'll type to open the journal. Without it the API refuses all requests, so nobody else can read or change your data. |
 | `OPENROUTER_API_KEY` | Optional. Turns on the AI on the website through [OpenRouter](https://openrouter.ai) (any model it offers). Usage is billed to your OpenRouter credits. |
 | `OPENROUTER_MODEL` | Optional. The OpenRouter model id, e.g. `anthropic/claude-sonnet-4.5` or `openai/gpt-4o`; default `openrouter/auto`. |
-| `AI_PROVIDER` | Optional. `openrouter` or `anthropic` when both keys are set (OpenRouter wins otherwise). |
+| `GEMINI_API_KEY` | Optional. Turns on the AI through Google Gemini with a Google AI Studio key (`GOOGLE_API_KEY` also works). |
+| `GEMINI_MODEL` | Optional. The Gemini model id; default `gemini-3.5-flash`. |
+| `AI_PROVIDER` | Optional. `openrouter`, `google` or `anthropic` when several keys are set (otherwise that order). |
 | `ANTHROPIC_API_KEY` | Optional. Turns on the AI (Ledgerline AI panel, Ask Claude, agents, reviews, backtest analysis) on the website, through `api/ai.js`. Usage is billed to your Anthropic account. |
 | `ANTHROPIC_MODEL` | Optional. The Claude model to use; default `claude-sonnet-5-5`. |
 | `METAAPI_TOKEN` | Optional. A [MetaApi](https://metaapi.cloud) API token, used for MetaTrader 4/5 auto-sync (`api/broker.js`). |
@@ -88,7 +90,7 @@ Records are stored as JSON documents (one row per document in `ledgerline_docs`)
 ```
 api/docs.js              server-side storage API (Vercel function)
 api/auth.js              sign-in and user management (Vercel function)
-api/ai.js                AI features through OpenRouter or Anthropic, streamed (Vercel function)
+api/ai.js                AI features through OpenRouter, Google Gemini or Anthropic, streamed (Vercel function)
 api/broker.js            MetaTrader auto-sync through MetaApi (Vercel function)
 package.json             server dependencies (pg, mysql2)
 index.html               the website (generated)
