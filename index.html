@@ -570,6 +570,19 @@ button.ins-alert{cursor:pointer}button.ins-alert:hover{border-color:var(--accent
 .acct-menu button{border:0;background:none;text-align:left;padding:8px 10px;border-radius:6px;font-size:13px}.acct-menu button:hover{background:var(--surface-2)}.acct-menu .danger{color:var(--loss)}
 @media (max-width:760px){.aw-grid,.aw-methods,.aw-cols{grid-template-columns:1fr}.aw-m{padding:36px 14px 18px}}
 
+
+/* v23: color accents */
+.netbig{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.netbig.pos{border-left-color:var(--gain);background:linear-gradient(90deg,color-mix(in srgb,var(--gain) 17%,var(--surface)) 0%,color-mix(in srgb,var(--gain) 6%,var(--surface)) 45%,var(--surface) 85%)}
+.netbig.neg{border-left-color:var(--loss);background:linear-gradient(90deg,color-mix(in srgb,var(--loss) 17%,var(--surface)) 0%,color-mix(in srgb,var(--loss) 6%,var(--surface)) 45%,var(--surface) 85%)}
+.netbig .legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mchip{display:inline-flex;gap:5px;align-items:baseline;font-size:12px;color:var(--muted);border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px}
+.mchip b{font-family:var(--f-num);font-weight:600}.mchip b.gain{color:var(--gain)}.mchip b.loss{color:var(--loss)}
+.tchip{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.03em;border-radius:999px;padding:2px 9px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border:1px solid color-mix(in srgb,var(--c) 30%,transparent)}
+.tchip.violet{--c:var(--c-violet)}.tchip.blue{--c:var(--c-blue)}.tchip.orange{--c:var(--c-orange)}.tchip.green{--c:var(--gain)}.tchip.red{--c:var(--loss)}.tchip.slate{--c:var(--muted)}
+.exec-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.exec-wrap .exec-head{display:flex;justify-content:space-between;padding:10px 12px;color:var(--muted);font-size:13px}
+.exec-wrap table{width:100%}.exec-wrap thead th{background:color-mix(in srgb,var(--accent) 10%,var(--surface-2))}
 /* v20: education */
 .st-open{display:flex;flex-direction:column;gap:8px;text-align:left;background:none;border:0;padding:0;color:inherit}
 .st-card{cursor:default}.st-open:hover b{color:var(--accent)}
@@ -1470,7 +1483,7 @@ function statsTab(t, withTags = true) {
   const mae = num(t.mae), mfe = num(t.mfe), x = num(t.exit);
   let scale = '';
   if (mae != null && mfe != null && x != null && mfe !== mae) { const pct = Math.max(0, Math.min(1, (x - mae) / (mfe - mae))); scale = `<div class="scale" title="Exit landed ${Math.round(pct * 100)}% of the way from worst to best price"><i style="left:${pct * 100}%"></i></div>`; }
-  return `<div class="netbig" style="border-color:${t.pnl > 0 ? 'var(--gain)' : t.pnl < 0 ? 'var(--loss)' : 'var(--line)'}"><div class="label">Net P&amp;L</div><div class="big ${cls(t.pnl)}">${fmt(t.pnl, rOf(t))}</div></div>
+  return `${netBox(t)}
   <dl class="fields">
     <dt>Side</dt><dd><select class="fin" data-keep data-field="side" data-id="${t.id}"><option ${t.side === 'Long' ? 'selected' : ''}>Long</option><option ${t.side === 'Short' ? 'selected' : ''}>Short</option></select></dd>
     <dt>Account</dt><dd><select class="fin" data-keep data-field="accountId" data-id="${t.id}">${allAccounts().map(a => `<option value="${a.id}" ${acctOf(t) === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select></dd>
@@ -1539,12 +1552,27 @@ function playbookTab(t) {
     <div class="prog"><span style="width:${rules.length ? checked.length / rules.length * 100 : 0}%"></span></div><div class="hint" style="text-align:right">${checked.length} / ${rules.length}</div></div>
     <div class="rules">${pb.groups.map(g => `<div class="rules"><h5>${esc(g.name)}</h5>${g.rules.map(r => `<label><input type="checkbox" data-action="rule" data-id="${t.id}" data-rule="${r.id}" ${checked.includes(r.id) ? 'checked' : ''}>${esc(r.text)}</label>`).join('')}</div>`).join('')}</div>`;
 }
+
+const sgnMoney = v => (v > 0 ? '+' : '') + money(v);
+const sgnCls = v => v > 0 ? 'gain' : v < 0 ? 'loss' : '';
+function netBox(t, legend = true) {
+  const r = roi(t), g = t.pnl + (num(t.fees) || 0), R = riskOf(t) ? rOf(t) : null, fees = num(t.fees) || 0;
+  return `<div class="netbig ${t.pnl > 0 ? 'pos' : t.pnl < 0 ? 'neg' : ''}"><div class="label">Net P&amp;L</div><div class="big ${cls(t.pnl)}">${S.unit === '$' ? priv(sgnMoney(t.pnl)) : fmt(t.pnl, rOf(t))}</div>
+    ${legend ? `<div class="legend">${r != null ? `<span class="mchip">ROI <b class="${sgnCls(r)}">${r > 0 ? '+' : ''}${r.toFixed(2)}%</b></span>` : ''}<span class="mchip">Gross <b class="${sgnCls(g)}">${priv(sgnMoney(g))}</b></span>${R != null ? `<span class="mchip">R <b class="${sgnCls(R)}">${R > 0 ? '+' : ''}${R.toFixed(2)}R</b></span>` : ''}${fees ? `<span class="mchip">Fees <b class="loss">${priv(money(-Math.abs(fees)))}</b></span>` : ''}</div>` : ''}</div>`;
+}
+function fillPnls(t) {
+  const ex = (t.executions || []).slice().sort((a, b) => a.time.localeCompare(b.time)), mult = num(t.mult) || 1; let pos = 0, avg = 0;
+  return ex.map(e => { const q = e.side === 'Buy' ? e.qty : -e.qty; let real = 0;
+    if (pos === 0 || Math.sign(pos) === Math.sign(q)) { avg = (avg * Math.abs(pos) + e.price * Math.abs(q)) / (Math.abs(pos) + Math.abs(q)); pos += q; }
+    else { const close = Math.min(Math.abs(q), Math.abs(pos)); real = (e.price - avg) * Math.sign(pos) * close * mult; const over = Math.abs(q) - close; pos += q; if (over > 0) avg = e.price; if (pos === 0) avg = 0; }
+    return { e, real }; });
+}
 function execTab(t) {
   const ex = (t.executions || []).slice().sort((a, b) => a.time.localeCompare(b.time)), rp = runningPnl(t);
   return `<div class="hint">Log each fill to see the running P&amp;L and fill in entry, exit and size automatically.</div>
-    ${ex.length ? `<div class="table-scroll"><table class="exec-table"><thead><tr><th>Time</th><th>Side</th><th class="r">Qty</th><th class="r">Price</th><th></th></tr></thead><tbody>
-      ${ex.map(e => `<tr><td class="num">${esc(e.time)}</td><td class="${e.side === 'Buy' ? 'gain' : 'loss'}">${e.side}</td><td class="r num">${e.qty}</td><td class="r num">${e.price}</td><td class="r"><button class="linkish" style="color:var(--muted)" data-action="delExec" data-id="${t.id}" data-ex="${e.id}">Remove</button></td></tr>`).join('')}
-    </tbody></table></div>` : ''}
+    ${ex.length ? `<div class="exec-wrap"><div class="exec-head"><span>${ex.length} execution${ex.length === 1 ? '' : 's'}</span>${rp ? `<span>Realized <b class="num ${sgnCls(rp.real)}">${priv(sgnMoney(rp.real))}</b></span>` : ''}</div><div class="table-scroll"><table class="exec-table"><thead><tr><th>Date / time</th><th>Side</th><th class="r">Price</th><th class="r">Quantity</th><th class="r">Gross P&amp;L</th><th></th></tr></thead><tbody>
+      ${fillPnls(t).map(({ e, real }) => `<tr><td class="num">${shortDate(t.date)} ${esc(e.time)}</td><td><span class="tchip ${e.side === 'Buy' ? 'green' : 'red'}">${e.side}</span></td><td class="r num">${e.price}</td><td class="r num">${e.side === 'Sell' ? -e.qty : e.qty}</td><td class="r num ${sgnCls(real)}">${priv(real ? sgnMoney(real) : '$0')}</td><td class="r"><button class="linkish" style="color:var(--muted)" data-action="delExec" data-id="${t.id}" data-ex="${e.id}">Remove</button></td></tr>`).join('')}
+    </tbody></table></div></div>` : ''}
     <form class="exec-add" data-form="exec" data-id="${t.id}">
       <input id="exTime" type="time" step="1" required aria-label="Fill time" value="${esc(t.time || '')}"><select id="exSide" aria-label="Buy or sell"><option>Buy</option><option>Sell</option></select>
       <input id="exQty" type="number" step="any" min="0" required placeholder="Qty" aria-label="Quantity"><input id="exPrice" type="number" step="any" required placeholder="Price" aria-label="Price">
@@ -2170,10 +2198,10 @@ function previewSheet() {
   else body = attachTab(t);
   return `<div class="drawer" role="dialog" aria-modal="true" aria-labelledby="pvTitle">
     <div class="dr-head"><div class="tv-title"><button class="icon-btn" data-action="preview" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button><h3 id="pvTitle">${esc(t.symbol)}</h3><button class="icon-btn" data-action="preview" data-id="${next ? next.id : ''}" ${next ? '' : 'disabled'} aria-label="Older trade">›</button>
-      <span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side.toUpperCase())}</span><span class="chip">${isOpen(t) ? 'Open' : 'Closed'}</span>${statusPill(t)}</div>
+      <span class="tchip ${t.side === 'Long' ? 'blue' : 'violet'}">${esc(t.side.toUpperCase())}</span><span class="tchip ${isOpen(t) ? 'blue' : 'orange'}">${isOpen(t) ? 'Open' : 'Closed'}</span><span class="tchip ${t.pnl > 0 ? 'green' : t.pnl < 0 ? 'red' : 'slate'}">${t.pnl > 0 ? 'Win' : t.pnl < 0 ? 'Loss' : 'Even'}</span></div>
       <span style="display:flex;gap:6px"><button class="secondary sm" data-action="replayTrade" data-id="${t.id}">▶ Replay</button><button class="icon-btn" data-action="close" aria-label="Close">✕</button></span></div>
     <div class="hint">${dateLabel(t.date)}${t.time ? ' · opened ' + esc(t.time) : ''}${t.exitTime ? ' · closed ' + esc(t.exitTime) : ''}${dur ? ' · held ' + dur : ''}${acc ? ' · ' + esc(acc.name) : ''}</div>
-    <div class="netbig" style="border-color:${t.pnl > 0 ? 'var(--gain)' : t.pnl < 0 ? 'var(--loss)' : 'var(--line)'}"><div class="label">Net P&amp;L</div><div class="big ${cls(t.pnl)}">${fmt(t.pnl, rOf(t))}</div><div class="legend">${r != null ? `<span class="chip">ROI ${r.toFixed(2)}%</span>` : ''}<span class="chip">Gross ${priv(money(t.pnl + (num(t.fees) || 0)))}</span>${riskOf(t) ? `<span class="chip">${rOf(t).toFixed(2)}R</span>` : ''}</div></div>
+    ${netBox(t)}
     <div class="actions" style="justify-content:flex-start"><button class="ghost" data-action="aiTrade" data-id="${t.id}">Review with Claude</button><button class="ghost" data-action="toggleRev" data-id="${t.id}" style="${t.reviewed ? 'color:var(--gain);border-color:var(--gain-line)' : ''}">${t.reviewed ? '✓ Reviewed' : 'Mark reviewed'}</button></div>
     <div class="tabs" role="tablist" style="padding:0">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${tab === k}" data-action="ptab" data-v="${k}">${l}</button>`).join('')}</div>
     <div class="tabbody" style="padding:4px 0">${body}</div>
