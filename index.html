@@ -258,7 +258,9 @@ select.fin{font-family:var(--f-body)}
 .spark{margin-top:4px}
 .tick{display:inline-block;padding:1px 8px;border-radius:6px;font-weight:700;font-size:12px;letter-spacing:.02em;color:var(--c,var(--ink));background:color-mix(in srgb,var(--c,var(--muted)) 15%,var(--surface));border:1px solid color-mix(in srgb,var(--c,var(--muted)) 38%,var(--line))}
 .dr-head .tick,.tv-title h1 .tick{font-size:17px;padding:2px 10px;border-radius:8px}
-.sym-pick{border:1px solid var(--line);border-radius:12px;background:var(--surface-2);padding:10px 12px;display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto}
+.sym-field{position:relative;min-width:0}.sym-field label{height:100%}
+.sym-pick{position:absolute;top:calc(100% + 4px);left:0;z-index:20;width:min(420px,calc(100vw - 56px));max-height:230px;overflow-y:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:0 14px 36px rgba(0,0,0,.22);padding:10px 12px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin}
+.sym-pick[hidden]{display:none}
 .sym-g .label{margin-bottom:4px}.sym-row{display:flex;flex-wrap:wrap;gap:6px}
 .sym-opt{background:none;border:0;padding:0;border-radius:6px}.sym-opt:hover .tick,.sym-opt:focus-visible .tick{filter:brightness(1.15);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 40%,transparent)}
 .sym-foot{border-top:1px solid var(--line);padding-top:6px}
@@ -312,8 +314,9 @@ select.fin{font-family:var(--f-body)}
 .sheet.wide{max-width:900px}
 .sheet h3{font-family:var(--f-display);margin:0;font-size:19px}
 .sheet-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.form.three{grid-template-columns:1fr 1fr 1fr}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.form.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.form label{min-width:0}.form input,.form select,.form textarea{width:100%;box-sizing:border-box}
 .form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
 .form .full{grid-column:1/-1}
 .form input,.form select,.form textarea{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 10px;font-size:14px;color:var(--ink);min-width:0}
@@ -4192,10 +4195,9 @@ function renderModal() {
         <label>Date<input id="fDate" type="date" required value="${m.arg || todayIso()}"></label>
         <label>Entry time<input id="fTime" type="time" value="${new Date().toTimeString().slice(0, 5)}"></label>
         <label>Exit time<input id="fExitTime" type="time"></label>
-        <label>Symbol<input id="fSym" required placeholder="Pick or type: NQ, XAUUSD" autocomplete="off" aria-controls="symPick"></label>
+        <div class="sym-field"><label>Symbol<input id="fSym" required placeholder="NQ, XAUUSD…" autocomplete="off" aria-controls="symPick" aria-haspopup="listbox"></label><div class="sym-pick" id="symPick" hidden></div></div>
         <label>Side<select id="fSide"><option>Long</option><option>Short</option></select></label>
         <label>Quantity<input id="fQty" type="number" step="any" min="0" placeholder="1"></label>
-        <div class="full sym-pick" id="symPick" hidden></div>
         <label>Entry price<input id="fEntry" type="number" step="any"></label>
         <label>Exit price<input id="fExit" type="number" step="any"></label>
         <label>Point value<input id="fMult" type="number" step="any" placeholder="1"></label>
@@ -4210,7 +4212,7 @@ function renderModal() {
         <div class="full hint">Fill in entry, exit and quantity and P&amp;L is worked out for you (point value × points × quantity − fees). Tags, notes and screenshots go on the trade page after saving.</div>
         <div class="full actions"><button type="button" class="secondary" data-action="close">Cancel</button><button type="submit" class="primary">Save trade</button></div>
       </form></div>`;
-    setTimeout(() => { const el = $('fSym'); if (el) { el.focus(); showSymPick(); } }, 30);
+    setTimeout(() => $('fSym')?.focus(), 30);
   } else if (m.kind === 'day') {
     const ts = S.trades.filter(t => t.date === m.arg).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
     const net = ts.reduce((a, t) => a + t.pnl, 0), r = ts.reduce((a, t) => a + rOf(t), 0);
@@ -4720,6 +4722,8 @@ document.addEventListener('input', e => {
   if (el.dataset.rm != null && S.rulesEdit) { S.rulesEdit.manual[+el.dataset.rm].text = el.value; return; }
   if (el.dataset.pbf && S.pbEdit) { const f = el.dataset.pbf; if (f === 'name') S.pbEdit.name = el.value; if (f === 'group') S.pbEdit.groups[+el.dataset.gi].name = el.value; if (f === 'rule') S.pbEdit.groups[+el.dataset.gi].rules[+el.dataset.ri].text = el.value; }
 });
+document.addEventListener('mousedown', e => { if (e.target.id === 'fSym') showSymPick(); else { const p = $('symPick'); if (p && !p.hidden && !p.contains(e.target)) p.hidden = true; } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { const p = $('symPick'); if (p && !p.hidden) { p.hidden = true; e.stopPropagation(); } } }, true);
 document.addEventListener('focusin', e => { const p = $('symPick'); if (!p || p.hidden) return; if (e.target.id === 'fSym') return; if (!p.contains(e.target)) p.hidden = true; });
 document.addEventListener('focusout', e => { if (e.target.id === 'editor') saveNote(true); });
 document.addEventListener('change', e => {
