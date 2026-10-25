@@ -1,8 +1,9 @@
 // Ledgerline storage API (Vercel serverless function).
 // Every create/read/update/delete runs here, against the database at process.env.DATABASE_URL.
 // PostgreSQL (postgres://, postgresql://) uses the `pg` driver; MySQL/MariaDB (mysql://, mariadb://) uses `mysql2`.
-// Access needs the password in process.env.LEDGERLINE_PASSWORD, sent by the page as the x-ledgerline-key header.
-import { createHash, timingSafeEqual } from 'node:crypto';
+// Access: the owner signs in as "admin" with process.env.LEDGERLINE_PASSWORD; other users get their own login (see api/auth.js).
+// Each user's documents are stored under u/<username>/..., the owner's at the top level; nobody can read another user's data.
+import { createHash, createHmac, timingSafeEqual, randomBytes, scryptSync } from 'node:crypto';
 
 const MAX_DOC_BYTES = 2_000_000; // per document (screenshots are stored inline as data URLs)
 const MAX_PAGE_BYTES = 3_000_000; // keeps responses under Vercel's 4.5 MB limit
@@ -33,8 +34,13 @@ async function postgresAdapter() {
     kind: 'postgres',
     ping: () => q('select 1'),
     now: async () => new Date((await q('select clock_timestamp() as now'))[0].now).toISOString(),
-    page: (after) => q(`select path, data from ${TABLE} where not deleted and path collate "C" > $1 order by path collate "C" limit ${PAGE_ROWS}`, [after]),
-    since: (iso, exact) => q(`select path, data, deleted, updated_at from ${TABLE} where updated_at ${exact ? '>= $1::timestamptz' : "> $1::timestamptz - interval '15 seconds'"} order by updated_at, path collate "C" limit ${PAGE_ROWS}`, [iso])
+    get: async path => { const r = await q(`select data from ${TABLE} where path = $1 and not deleted`, [path]); return r[0] ? r[0].data : null; },
+    list: prefix => q(`select path, data from ${TABLE} where not deleted and parent = $1 order by path`, [prefix]),
+    dropScope: sc => q(`update ${TABLE} set data = null, deleted = true, updated_at = clock_timestamp() where path collate "C" >= $1 and path collate "C" < $2`, [sc.lo, sc.hi]),
+    page: (after, sc) => sc.admin
+      ? q(`select path, data from ${TABLE} where not deleted and path collate "C" > $1 and left(path, 2) <> 'u/' and left(path, 2) <> '__' order by path collate "C" limit ${PAGE_ROWS}`, [after])
+      : q(`select path, data from ${TABLE} where not deleted and path collate "C" > $1 and path collate "C" >= $2 and path collate "C" < $3 order by path collate "C" limit ${PAGE_ROWS}`, [after, sc.lo, sc.hi]),
+    since: (iso, exact, sc) => q(`select path, data, deleted, updated_at from ${TABLE} where updated_at ${exact ? '>= $1::timestamptz' : "> $1::timestamptz - interval '15 seconds'"} ${sc.admin ? "and left(path, 2) <> 'u/' and left(path, 2) <> '__'" : 'and path collate "C" >= $2 and path collate "C" < $3'} order by updated_at, path collate "C" limit ${PAGE_ROWS}`, sc.admin ? [iso] : [iso, sc.lo, sc.hi])
       .then(rows => rows.map(r => ({ ...r, updated_at: new Date(r.updated_at).toISOString() }))),
     write: async ops => {
       const client = await pool.connect();
@@ -71,8 +77,13 @@ async function mysqlAdapter() {
     kind: 'mysql',
     ping: () => q('select 1'),
     now: async () => toIso((await q('select utc_timestamp(6) as now'))[0].now),
-    page: async (after) => (await q(`select path, data from ${TABLE} where deleted = 0 and path > ? order by path limit ${PAGE_ROWS}`, [after])).map(r => ({ path: r.path, data: parse(r.data) })),
-    since: async (iso, exact) => (await q(`select path, data, deleted, updated_at from ${TABLE} where updated_at ${exact ? '>= ?' : '> (? - interval 15 second)'} order by updated_at, path limit ${PAGE_ROWS}`, [toSql(iso)]))
+    get: async path => { const r = await q(`select data from ${TABLE} where path = ? and deleted = 0`, [path]); return r[0] ? parse(r[0].data) : null; },
+    list: async prefix => (await q(`select path, data from ${TABLE} where deleted = 0 and parent = ? order by path`, [prefix])).map(r => ({ path: r.path, data: parse(r.data) })),
+    dropScope: sc => q(`update ${TABLE} set data = null, deleted = 1, updated_at = utc_timestamp(6) where path >= ? and path < ?`, [sc.lo, sc.hi]),
+    page: async (after, sc) => (await (sc.admin
+      ? q(`select path, data from ${TABLE} where deleted = 0 and path > ? and left(path, 2) <> 'u/' and left(path, 2) <> '__' order by path limit ${PAGE_ROWS}`, [after])
+      : q(`select path, data from ${TABLE} where deleted = 0 and path > ? and path >= ? and path < ? order by path limit ${PAGE_ROWS}`, [after, sc.lo, sc.hi]))).map(r => ({ path: r.path, data: parse(r.data) })),
+    since: async (iso, exact, sc) => (await q(`select path, data, deleted, updated_at from ${TABLE} where updated_at ${exact ? '>= ?' : '> (? - interval 15 second)'} ${sc.admin ? "and left(path, 2) <> 'u/' and left(path, 2) <> '__'" : 'and path >= ? and path < ?'} order by updated_at, path limit ${PAGE_ROWS}`, sc.admin ? [toSql(iso)] : [toSql(iso), sc.lo, sc.hi]))
       .map(r => ({ path: r.path, data: parse(r.data), deleted: !!r.deleted, updated_at: toIso(r.updated_at) })),
     write: async ops => {
       const conn = await pool.getConnection();
@@ -90,7 +101,7 @@ async function mysqlAdapter() {
   };
 }
 
-function db() {
+export function db() {
   if (!dbUrl()) throw Object.assign(new Error('DATABASE_URL is not set in the Vercel project.'), { status: 503 });
   if (!adapterPromise) {
     adapterPromise = (isMySQL() ? mysqlAdapter() : postgresAdapter())
@@ -116,11 +127,35 @@ function explain(err) {
 
 /* ---------------- request handling ---------------- */
 const digest = s => createHash('sha256').update(String(s)).digest();
-function authorized(req) {
-  const want = process.env.LEDGERLINE_PASSWORD;
-  const got = req.headers['x-ledgerline-key'];
-  return !!want && typeof got === 'string' && got.length > 0 && timingSafeEqual(digest(got), digest(want));
+export const USERS = '__users';
+const tokenSecret = () => process.env.LEDGERLINE_SECRET || createHash('sha256').update('ledgerline-token|' + (process.env.LEDGERLINE_PASSWORD || '')).digest('hex');
+const adminVer = () => createHash('sha256').update('v|' + (process.env.LEDGERLINE_PASSWORD || '')).digest('hex').slice(0, 12);
+export function signToken(user, days = 30) {
+  const body = Buffer.from(JSON.stringify({ u: user.name, v: user.name === 'admin' ? adminVer() : user.hash.slice(0, 12), exp: Date.now() + days * 864e5 })).toString('base64url');
+  return 't:' + body + '.' + createHmac('sha256', tokenSecret()).update(body).digest('base64url');
 }
+function readToken(t) {
+  const [body, sig] = String(t).split('.'); if (!body || !sig) return null;
+  const want = createHmac('sha256', tokenSecret()).update(body).digest('base64url');
+  if (sig.length !== want.length || !timingSafeEqual(Buffer.from(sig), Buffer.from(want))) return null;
+  try { const p = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')); return p.exp > Date.now() ? p : null; } catch (e) { return null; }
+}
+export const hashPw = (pw, salt = randomBytes(16).toString('hex')) => ({ salt, hash: scryptSync(String(pw), salt, 32).toString('hex') });
+export const checkPw = (pw, u) => { if (!u || !u.salt || !u.hash) return false; const h = scryptSync(String(pw), u.salt, 32), w = Buffer.from(u.hash, 'hex'); return w.length === h.length && timingSafeEqual(h, w); };
+export const validName = n => typeof n === 'string' && /^[a-z0-9][a-z0-9_.-]{1,31}$/.test(n) && n !== 'admin';
+export const OWNER = { name: 'admin', admin: true, owner: true, prefix: '' };
+export const adminPasswordOk = pw => { const want = process.env.LEDGERLINE_PASSWORD; return !!want && typeof pw === 'string' && pw.length > 0 && timingSafeEqual(digest(pw), digest(want)); };
+// Who is calling: the owner (admin password or admin token) or a user (token). null = not signed in.
+export async function principal(req, store) {
+  const key = req.headers['x-ledgerline-key']; if (typeof key !== 'string' || !key) return null;
+  if (!key.startsWith('t:')) return adminPasswordOk(key) ? OWNER : null;
+  const p = readToken(key.slice(2)); if (!p) return null;
+  if (p.u === 'admin') return p.v === adminVer() ? OWNER : null;
+  const u = await (store || await db()).get(`${USERS}/${p.u}`);
+  if (!u || u.disabled || u.hash.slice(0, 12) !== p.v) return null;
+  return { name: p.u, admin: !!u.admin, owner: false, prefix: `u/${p.u}/` };
+}
+export const scopeOf = P => P.prefix ? { lo: P.prefix, hi: P.prefix.slice(0, -1) + '0' } : { admin: true };
 const PATH_RE = /^(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}(?:\/(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}){1,15}$/;
 const validPath = p => typeof p === 'string' && p.length <= 1000 && PATH_RE.test(p) && p.split('/').length % 2 === 0;
 const parentOf = p => p.split('/').slice(0, -1).join('/');
@@ -148,18 +183,19 @@ export default async function handler(req, res) {
       return res.status(200).json({ backend: true, configured: { db: !!dbUrl(), password: !!process.env.LEDGERLINE_PASSWORD } });
     }
     if (!process.env.LEDGERLINE_PASSWORD) return res.status(503).json({ error: 'LEDGERLINE_PASSWORD is not set in the Vercel project.' });
-    if (!authorized(req)) { log('rejected request with a wrong password'); return res.status(401).json({ error: 'Wrong password.' }); }
-
     const store = await db();
+    const P = await principal(req, store);
+    if (!P) { log('rejected request: not signed in'); return res.status(401).json({ error: 'Not signed in.' }); }
+    const sc = scopeOf(P), toSrv = p => P.prefix + p, toCli = p => p.slice(P.prefix.length);
 
-    if (q.check) { await store.ping(); return res.status(200).json({ ok: true, database: store.kind }); }
+    if (q.check) { await store.ping(); return res.status(200).json({ ok: true, database: store.kind, user: { name: P.name, admin: P.admin, owner: P.owner } }); }
 
     if (req.method === 'GET' && q.since) {
       const since = new Date(q.since);
       if (isNaN(since)) return res.status(400).json({ error: 'Bad cursor.' });
       const now = await store.now();
-      const rows = await store.since(since.toISOString(), !!q.exact);
-      const page = capPage(rows, r => [r.path, r.deleted ? null : r.data]);
+      const rows = await store.since(since.toISOString(), !!q.exact, sc);
+      const page = capPage(rows, r => [toCli(r.path), r.deleted ? null : r.data]);
       const more = page.length < rows.length || rows.length === PAGE_ROWS;
       return res.status(200).json({ changes: page, cursor: more ? rows[page.length - 1].updated_at : now, more });
     }
@@ -167,10 +203,10 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const after = typeof q.after === 'string' ? q.after : '';
       const now = await store.now();
-      const rows = await store.page(after);
-      const page = capPage(rows, r => [r.path, r.data]);
+      const rows = await store.page(after ? toSrv(after) : '', sc);
+      const page = capPage(rows, r => [toCli(r.path), r.data]);
       const next = page.length < rows.length || rows.length === PAGE_ROWS ? page[page.length - 1][0] : null;
-      if (!after) log(`loaded journal (${rows.length}${next ? '+' : ''} documents)`);
+      if (!after) log(`loaded journal for ${P.name} (${rows.length}${next ? '+' : ''} documents)`);
       return res.status(200).json({ docs: page, next, cursor: now });
     }
 
@@ -179,11 +215,11 @@ export default async function handler(req, res) {
       const ops = Array.isArray(body.ops) ? body.ops : null;
       if (!ops || !ops.length || ops.length > 500) return res.status(400).json({ error: 'Send between 1 and 500 operations.' });
       for (const op of ops) {
-        if (!validPath(op.path)) return res.status(400).json({ error: `Invalid path: ${String(op.path).slice(0, 80)}` });
+        if (!validPath(op.path) || /^(u\/|__)/.test(op.path)) return res.status(400).json({ error: `Invalid path: ${String(op.path).slice(0, 80)}` });
         if (op.data !== null && (typeof op.data !== 'object' || Array.isArray(op.data))) return res.status(400).json({ error: 'Each document must be a JSON object or null.' });
         if (op.data !== null && JSON.stringify(op.data).length > MAX_DOC_BYTES) return res.status(413).json({ error: 'A document is too large (over 2 MB).' });
       }
-      await store.write(ops.map(op => ({ path: op.path, parent: parentOf(op.path), data: op.data })));
+      await store.write(ops.map(op => ({ path: toSrv(op.path), parent: parentOf(toSrv(op.path)), data: op.data })));
       const dels = ops.filter(o => o.data === null).length;
       log(`saved ${ops.length - dels} and deleted ${dels} document(s)`);
       return res.status(200).json({ ok: true, count: ops.length });

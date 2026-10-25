@@ -3,7 +3,8 @@
 // then reads the closed-trade history and turns it into journal trades.
 // Needs process.env.METAAPI_TOKEN (a MetaApi API token) and process.env.LEDGERLINE_PASSWORD, like /api/docs.
 // The investor password is passed to MetaApi once and never stored in the journal database.
-import { createHash, timingSafeEqual, randomBytes } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
+import { principal } from './docs.js';
 
 export const config = { maxDuration: 30 };
 
@@ -13,11 +14,6 @@ const clientUrl = region => CLIENT.replace('{region}', region || 'new-york');
 const token = () => process.env.METAAPI_TOKEN || '';
 const log = (...a) => console.log('[ledgerline:broker]', ...a);
 
-const digest = s => createHash('sha256').update(String(s)).digest();
-function authorized(req) {
-  const want = process.env.LEDGERLINE_PASSWORD, got = req.headers['x-ledgerline-key'];
-  return !!want && typeof got === 'string' && got.length > 0 && timingSafeEqual(digest(got), digest(want));
-}
 async function readBody(req) {
   if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) return req.body;
   if (typeof req.body === 'string' || Buffer.isBuffer(req.body)) return JSON.parse(String(req.body) || '{}');
@@ -94,7 +90,7 @@ export default async function handler(req, res) {
   try {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Use POST.' });
     if (!process.env.LEDGERLINE_PASSWORD) return res.status(503).json({ error: 'LEDGERLINE_PASSWORD is not set in the Vercel project.' });
-    if (!authorized(req)) return res.status(401).json({ error: 'Wrong password.' });
+    if (!(await principal(req))) return res.status(401).json({ error: 'Not signed in.' });
     const b = await readBody(req), act = b.action;
     if (act === 'probe') return res.status(200).json({ configured: !!token() });
     if (!token()) return res.status(503).json({ error: 'Auto-sync needs a MetaApi token. Add METAAPI_TOKEN in Vercel → Settings → Environment Variables, then redeploy.' });

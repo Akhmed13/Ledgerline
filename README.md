@@ -20,6 +20,15 @@ Set these environment variables in the Vercel project (Production and Preview), 
 - Server logs appear in Vercel under the project's **Logs** tab, prefixed `[ledgerline]`. Connection problems are logged there and shown on the sign-in screen with a hint.
 - Changes made on one device appear on others within about 15 seconds.
 
+### Users and logins
+
+The owner signs in with username **admin** and the `LEDGERLINE_PASSWORD`. Under **Settings → Users** the owner (or anyone given "Can manage users") can add users with their own username and password, reset passwords, turn accounts off and delete users.
+
+- Every user has a private journal. The owner's data stays where it always was; a user's documents are stored under `u/<username>/` and the API only ever returns the signed-in user's own documents.
+- Passwords are stored as scrypt hashes (`__users/<name>` rows, never sent to the browser). Sign-in returns a signed token valid for 30 days; changing a password signs that user out everywhere.
+- Optional `LEDGERLINE_SECRET` sets the token signing key. Without it the key is derived from `LEDGERLINE_PASSWORD`, so changing the owner password signs everyone out.
+- After 8 wrong passwords for the same username, sign-in pauses for 10 minutes.
+
 ### Broker auto-sync (MetaTrader 4 / 5)
 
 **Add trades** opens a wizard: pick a broker, prop firm or platform, then choose Auto-sync, File upload or Add manually.
@@ -73,6 +82,7 @@ Records are stored as JSON documents (one row per document in `ledgerline_docs`)
 
 ```
 api/docs.js              server-side storage API (Vercel function)
+api/auth.js              sign-in and user management (Vercel function)
 api/broker.js            MetaTrader auto-sync through MetaApi (Vercel function)
 package.json             server dependencies (pg, mysql2)
 index.html               the website (generated)

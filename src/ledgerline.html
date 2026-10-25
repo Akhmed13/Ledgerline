@@ -911,6 +911,7 @@ a.focus-item{text-decoration:none;color:inherit}
         <button data-action="settings" data-v="fees" data-nav="settings:fees"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M10 6H7.2a1.2 1.2 0 000 2.4h1.6a1.2 1.2 0 010 2.4H6M8 4.5v7"/></svg>Commissions &amp; fees</button>
         <button data-action="settings" data-v="symbols" data-nav="settings:symbols"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="4" width="13" height="8" rx="2"/><path d="M4.5 8h2M9 8h2.5"/></svg>Symbols &amp; colors</button>
         <button data-action="settings" data-v="tags" data-nav="settings:tags"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5z"/><circle cx="5" cy="5" r="1"/></svg>Tags management</button>
+        <button data-action="settings" data-v="users" data-nav="settings:users"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="5.5" r="2.5"/><path d="M1.5 13.5c.6-2.4 2.3-3.6 4.5-3.6s3.9 1.2 4.5 3.6M11 3.2a2.4 2.4 0 010 4.6M12.5 9.9c1.1.5 1.8 1.6 2 3.6"/></svg>Users</button>
         <button data-action="settings" data-v="profile" data-nav="settings:profile"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.5 14c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/></svg>Profile</button>
         <button data-action="settings" data-v="data" data-nav="settings:data"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="8" cy="3.5" rx="5.5" ry="2"/><path d="M2.5 3.5v9c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-9M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg>Data &amp; backup</button>
       </div>
@@ -940,7 +941,7 @@ a.focus-item{text-decoration:none;color:inherit}
    browser's IndexedDB. Inside Claude this block does nothing. */
 (() => {
   if (window.claude) return;
-  const API = 'api/docs', KEY = 'll-key', DBN = 'ledgerline-local', STORE = 'docs';
+  const API = 'api/docs', AUTH = 'api/auth', KEY = 'll-key', DBN = 'ledgerline-local', STORE = 'docs';
   const mem = new Map(), docL = new Map(), colL = new Map(), pending = new Map();
   let mode = 'local', idb = null, cursor = null, queue = [], flushTimer = null, polling = null, apiKey = '';
   const err = (code, message) => Object.assign(new Error(message), { code, message });
@@ -969,7 +970,7 @@ a.focus-item{text-decoration:none;color:inherit}
     try { r = await fetch(API + (query ? '?' + query : ''), { method, headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' }); }
     catch (e) { throw err('unavailable', "Can't reach the server. Check your connection."); }
     let j = {}; try { j = await r.json(); } catch (e) {}
-    if (r.status === 401) { lsSet(KEY, ''); showGate('Your password was not accepted. Enter it again.'); throw err('invalid_argument', 'Not signed in.'); }
+    if (r.status === 401) { lsSet(KEY, ''); showGate(apiKey ? 'Your session ended. Sign in again.' : ''); apiKey = ''; throw err('invalid_argument', 'Not signed in.'); }
     if (r.status === 413) throw err('quota_exceeded', j.error || 'Too large to save.');
     if (!r.ok) throw err('unavailable', j.error || `Server error ${r.status}`);
     return j;
@@ -1045,17 +1046,21 @@ a.focus-item{text-decoration:none;color:inherit}
   const downloads = { save: async ({ filename, data }) => { const b = data instanceof Blob ? data : new Blob([data], { type: 'text/plain' }), u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); return { status: 'saved' }; } };
 
   /* ---- password screen ---- */
-  let gateResolve = null;
+  let gateResolve = null, gateUser = '';
+  const esc0 = v => String(v || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   function showGate(msg, setup) {
     let g = document.getElementById('llGate');
     if (!g) { g = document.createElement('div'); g.id = 'llGate'; g.className = 'scrim'; g.style.zIndex = '90'; document.body.appendChild(g); }
     g.hidden = false;
     g.innerHTML = setup
       ? `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="gTitle"><h3 id="gTitle">Finish setting up the database</h3><p class="hint">${msg}</p><p class="hint">In Vercel, open the project → Settings → Environment Variables, add the missing variable for Production and Preview, then redeploy.</p></div>`
-      : `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="gTitle"><h3 id="gTitle">Sign in to Ledgerline</h3><p class="hint">Enter the password set as LEDGERLINE_PASSWORD in your Vercel project.</p>
-        <form class="form" id="llGateForm"><label class="full">Password<input id="llGatePw" type="password" autocomplete="current-password" required></label>${msg ? `<div class="full banner"><span>${msg}</span></div>` : ''}<div class="full actions"><button class="primary" type="submit">Sign in</button></div></form></div>`;
+      : `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="gTitle" style="max-width:420px"><h3 id="gTitle">Sign in to Ledgerline</h3><p class="hint">Use the username and password you were given. The owner signs in as <b>admin</b> with the LEDGERLINE_PASSWORD from Vercel.</p>
+        <form class="form" id="llGateForm"><label class="full">Username<input id="llGateUser" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="admin" value="${esc0(gateUser || lsGet('ll-user'))}"></label><label class="full">Password<input id="llGatePw" type="password" autocomplete="current-password" required></label>${msg ? `<div class="full banner"><span>${msg}</span></div>` : ''}<div class="full actions"><button class="primary" type="submit">Sign in</button></div></form></div>`;
     const f = document.getElementById('llGateForm');
-    if (f) { setTimeout(() => document.getElementById('llGatePw').focus(), 30); f.addEventListener('submit', async e => { e.preventDefault(); e.stopPropagation(); apiKey = document.getElementById('llGatePw').value; const btn = f.querySelector('button'); btn.disabled = true; btn.textContent = 'Checking…'; try { await api('GET', 'check=1'); lsSet(KEY, apiKey); g.hidden = true; if (gateResolve) { const r = gateResolve; gateResolve = null; r(); } } catch (x) { if (!document.getElementById('llGate').hidden && x.message !== 'Not signed in.') showGate(x.message); } }); }
+    if (f) { setTimeout(() => document.getElementById('llGatePw').focus(), 30); setTimeout(() => { const u = document.getElementById('llGateUser'); (u && u.value ? document.getElementById('llGatePw') : u).focus(); }, 40); f.addEventListener('submit', async e => { e.preventDefault(); e.stopPropagation(); const user = document.getElementById('llGateUser').value.trim().toLowerCase(), pw = document.getElementById('llGatePw').value; gateUser = user; const btn = f.querySelector('button'); btn.disabled = true; btn.textContent = 'Signing in…';
+        let r, j = {}; try { r = await fetch(AUTH, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'login', username: user, password: pw }), cache: 'no-store' }); j = await r.json().catch(() => ({})); } catch (x) { return showGate("Can't reach the server. Check your connection."); }
+        if (!r.ok) return showGate(j.error || 'Sign-in failed.');
+        apiKey = j.token; lsSet(KEY, apiKey); lsSet('ll-user', user); window.__llLocal.user = j.user; g.hidden = true; if (gateResolve) { const res = gateResolve; gateResolve = null; res(); } }); }
   }
 
   /* ---- start-up ---- */
@@ -1068,7 +1073,7 @@ a.focus-item{text-decoration:none;color:inherit}
     if (!probe.configured.db || !probe.configured.password) { showGate(!probe.configured.db ? 'The DATABASE_URL variable is missing.' : 'Add a LEDGERLINE_PASSWORD variable: the password you will use to open your journal.', true); await new Promise(() => {}); }
     apiKey = lsGet(KEY);
     if (!apiKey) { await new Promise(r => { gateResolve = r; showGate(''); }); }
-    else { try { await api('GET', 'check=1'); } catch (e) { await new Promise(r => { gateResolve = r; if (e.message !== 'Not signed in.') showGate(e.message); }); } }
+    else { try { const c = await api('GET', 'check=1'); window.__llLocal.user = c.user || null; } catch (e) { await new Promise(r => { gateResolve = r; if (e.message !== 'Not signed in.') showGate(e.message); }); } }
     await loadAllRemote();
     const old = await idbAll(); window.__llLocal.oldCount = old.size; window.__llLocal._old = old;
     polling = setInterval(poll, 15000);
@@ -1083,7 +1088,8 @@ a.focus-item{text-decoration:none;color:inherit}
     restore: async text => { const j = JSON.parse(text); if (!j || j.app !== 'ledgerline' || !j.docs) throw new Error('Not a Ledgerline backup file.'); const w = []; for (const k of [...mem.keys()]) if (!(k in j.docs)) w.push(write(k, undefined)); for (const [k, v] of Object.entries(j.docs)) w.push(write(k, v)); await Promise.all(w); return Object.keys(j.docs).length; },
     copyOld: async () => { const old = window.__llLocal._old; if (!old || !old.size) return 0; await Promise.all([...old].map(([k, v]) => write(k, v))); await idbClear(); window.__llLocal.oldCount = 0; window.__llLocal._old = null; return old.size; },
     dropOld: async () => { await idbClear(); window.__llLocal.oldCount = 0; window.__llLocal._old = null; },
-    signOut: () => { lsSet(KEY, ''); location.reload(); },
+    signOut: () => { lsSet(KEY, ''); location.reload(); }, user: null,
+    auth: async body => { let r; try { r = await fetch(AUTH, { method: 'POST', headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: JSON.stringify(body), cache: 'no-store' }); } catch (e) { throw new Error("Can't reach the server. Check your connection."); } let j = {}; try { j = await r.json(); } catch (e) {} if (!r.ok) throw new Error(j.error || `Server error ${r.status}`); if (j.token) { apiKey = j.token; lsSet(KEY, apiKey); } return j; },
     broker: async body => { let r; try { r = await fetch(API.replace('docs', 'broker'), { method: 'POST', headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: JSON.stringify(body), cache: 'no-store' }); } catch (e) { throw new Error("Can't reach the server. Check your connection."); } let j = {}; try { j = await r.json(); } catch (e) {} if (!r.ok) throw new Error(j.error || `Server error ${r.status}`); return j; }
   };
   window.claude = { use: async name => { await ready; return name === 'db' ? db : name === 'assets' ? assets : name === 'downloads' ? downloads : null; } };
@@ -2738,7 +2744,7 @@ function yearTab(ts) {
 
 /* ---------- settings ---------- */
 function settingsView() {
-  const tab = S.setTab || 'accounts', tabs = [['profile', 'Profile'], ['accounts', 'Accounts'], ['tags', 'Tags management'], ['fees', 'Commissions & fees'], ['imports', 'Import history'], ['symbols', 'Symbols'], ['data', 'Data & backup']];
+  const tab = S.setTab || 'accounts', tabs = [['profile', 'Profile'], ['accounts', 'Accounts'], ['tags', 'Tags management'], ['fees', 'Commissions & fees'], ['imports', 'Import history'], ['symbols', 'Symbols'], ['users', 'Users'], ['data', 'Data & backup']];
   let body = '';
   if (tab === 'profile') body = profileSettings();
   else if (tab === 'accounts') {
@@ -2747,6 +2753,8 @@ function settingsView() {
     body = `<div class="toolbar"><div><h3 class="h3">Tag categories</h3><div class="hint">Rename categories, change their color and add or remove tags. Removing a tag here keeps it on trades that already use it.</div></div><button class="primary" data-action="addCat">Add category</button></div>
       <div class="stack">${S.cats.map(c => `<div class="panel card cat" style="${tc(c)}"><div class="pb-row"><span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--tc);flex:none"></span><input class="fin" data-catf="name" data-cat="${c.id}" value="${esc(c.name)}" aria-label="Category name" style="font-weight:600"><button class="del${S.armed === 'cat-' + c.id ? ' armed' : ''}" data-action="delCat" data-cat="${c.id}">${S.armed === 'cat-' + c.id ? 'Confirm' : 'Delete'}</button></div>
         ${swatches(COLORS.includes(c.color) ? c.color : 'slate', x => `data-action="catColor" data-cat="${c.id}" data-v="${x}"`)}<div class="tagbox">${(c.tags || []).map(x => `<span class="tagchip" style="${tc(c)}">${esc(x)}<button data-action="dropTag" data-cat="${c.id}" data-tag="${esc(x)}" aria-label="Remove ${esc(x)}">×</button></span>`).join('')}<input class="tagadd" data-tagadd="${c.id}" placeholder="Add tag and press Enter" aria-label="Add tag to ${esc(c.name)}"></div></div>`).join('') || '<div class="hint">No categories yet.</div>'}</div>`;
+  } else if (tab === 'users') {
+    body = usersSettings();
   } else if (tab === 'symbols') {
     body = symbolsSettings();
   } else if (tab === 'fees') {
@@ -3469,7 +3477,7 @@ const initials = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].t
 const avatar = (cls = '') => `<span class="avatar ${cls}" style="background:var(--c-${COLORS.includes(S.settings.avatarColor) ? S.settings.avatarColor : 'amber'})" aria-hidden="true">${esc(initials(profName()))}</span>`;
 function storageLine() {
   const L = window.__llLocal;
-  return L ? (L.mode === 'server' ? 'Saved in your database' : 'Saved in this browser') : 'Saved with this journal';
+  return L ? (L.mode === 'server' ? (L.user ? `Signed in as ${L.user.name}` : 'Saved in your database') : 'Saved in this browser') : 'Saved with this journal';
 }
 const PROF_ITEMS = [['profile', 'Profile', '<circle cx="8" cy="5.5" r="2.8"/><path d="M2.5 14c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/>'], ['accounts', 'Accounts', '<rect x="1.5" y="3.5" width="13" height="9" rx="1.5"/><path d="M1.5 6.5h13"/>'], ['tags', 'Tags management', '<path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5z"/><circle cx="5" cy="5" r="1"/>'], ['fees', 'Commissions & fees', '<circle cx="8" cy="8" r="6.3"/><path d="M10 5.8c-.5-.6-1.2-.9-2-.9-1.2 0-2 .6-2 1.5 0 2 4 1 4 3.1 0 .9-.9 1.6-2.1 1.6-.9 0-1.7-.4-2.1-1M8 3.5v9"/>'], ['imports', 'Import history', '<path d="M8 2v8M4.5 6.5L8 10l3.5-3.5M2.5 13.5h11"/>'], ['data', 'Data & backup', '<ellipse cx="8" cy="3.8" rx="5.5" ry="2"/><path d="M2.5 3.8v8.4c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V3.8M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/>']];
 
@@ -4364,6 +4372,28 @@ function strategiesPage() {
     ${S.pbView === 'grid' ? stratCards(list) : stratTable(list)}`;
 }
 
+/* ---------- v27: users ---------- */
+const meUser = () => (window.__llLocal && window.__llLocal.user) || null;
+async function loadUsers() { if (!meUser() || !meUser().admin) return; try { const j = await window.__llLocal.auth({ action: 'users' }); S.usersList = j.users; } catch (e) { S.usersErr = e.message; } rerender(); }
+async function usersCall(body, okMsg) { try { await window.__llLocal.auth(body); if (okMsg) toast(okMsg); S.userEdit = null; S.armed = null; await loadUsers(); } catch (e) { toast(e.message); } }
+function usersSettings() {
+  const L = window.__llLocal, me = meUser();
+  if (!L || L.mode !== 'server' || !me) return `<h3 class="h3">Users</h3><p class="hint">Separate logins work on your Ledgerline website (Vercel with DATABASE_URL). Each person gets a username, a password and a private journal.</p>`;
+  if (me.admin && !S.usersList && !S.usersLoading) { S.usersLoading = true; loadUsers().finally(() => { S.usersLoading = false; }); }
+  const list = S.usersList || [], fmtD = d => d ? new Date(d).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '–';
+  return `<div class="toolbar"><div><h3 class="h3">Users</h3><div class="hint">Signed in as <b>${esc(me.name)}</b> ${me.owner ? '<span class="chip">Owner</span>' : me.admin ? '<span class="chip">Admin</span>' : ''}. Every user has their own private journal: trades, notes and settings are never shared.</div></div></div>
+    ${me.owner ? `<div class="hint">You're the owner. Your password is LEDGERLINE_PASSWORD in Vercel; change it there and redeploy.</div>` : `<section class="panel card"><h3 class="h3">Change your password</h3><form class="form" data-form="pwChange"><label>Current password<input id="pwCur" type="password" autocomplete="current-password" required></label><label>New password<input id="pwNew" type="password" autocomplete="new-password" minlength="8" required></label><label>Repeat new password<input id="pwNew2" type="password" autocomplete="new-password" minlength="8" required></label><div class="actions" style="align-self:end;margin:0"><button class="primary" type="submit">Change password</button></div></form></section>`}
+    ${me.admin ? `<section class="panel card"><h3 class="h3">Add a user</h3><form class="form three" data-form="userAdd"><label>Username<input id="nuName" autocapitalize="none" spellcheck="false" placeholder="jane" required pattern="[a-z0-9][a-z0-9_.\\-]{1,31}" title="2–32 lowercase letters, numbers, dot, dash or underscore"></label><label>Password<input id="nuPw" type="password" autocomplete="new-password" minlength="8" required placeholder="at least 8 characters"></label><label style="flex-direction:row;align-items:center;gap:8px;align-self:end;padding-bottom:10px"><input type="checkbox" id="nuAdmin" style="width:auto">Can manage users</label><div class="full actions" style="justify-content:flex-start;margin:0"><button class="primary" type="submit">Create user</button><span class="hint">Share the username and password with them; they can change the password after signing in.</span></div></form></section>
+      <section class="panel log"><div class="table-scroll"><table class="rtable"><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th>Last sign-in</th><th class="r">Actions</th></tr></thead><tbody>
+      ${S.usersList ? list.map(u => `<tr><td><b>${esc(u.name)}</b>${u.name === me.name ? ' <span class="hint">(you)</span>' : ''}</td>
+        <td>${u.owner ? '<span class="chip">Owner</span>' : `<button class="tchip ${u.admin ? 'violet' : 'slate'}" data-action="userAdmin" data-v="${esc(u.name)}" data-on="${u.admin ? 0 : 1}" title="Click to change">${u.admin ? 'Admin' : 'User'}</button>`}</td>
+        <td>${u.owner ? '<span class="tchip green">Active</span>' : `<button class="tchip ${u.disabled ? 'red' : 'green'}" data-action="userOff" data-v="${esc(u.name)}" data-on="${u.disabled ? 0 : 1}" title="Click to change">${u.disabled ? 'Turned off' : 'Active'}</button>`}</td>
+        <td class="num">${fmtD(u.created)}</td><td class="num">${fmtD(u.lastLogin)}</td>
+        <td class="r" style="white-space:nowrap">${u.owner ? '<span class="hint">Set in Vercel</span>' : S.userEdit === u.name ? `<form class="pb-row" data-form="userPw" data-v="${esc(u.name)}" style="gap:6px;justify-content:flex-end"><input class="fin" id="upw" type="password" minlength="8" placeholder="New password" required style="max-width:170px"><button class="primary sm" type="submit">Save</button><button class="ghost sm" type="button" data-action="userEditPw" data-v="">Cancel</button></form>`
+          : `<button class="ghost sm" data-action="userEditPw" data-v="${esc(u.name)}">Reset password</button> <button class="del${S.armed === 'user-' + u.name ? ' armed' : ''}" data-action="userDel" data-v="${esc(u.name)}">${S.armed === 'user-' + u.name ? 'Confirm delete' : 'Delete'}</button>`}</td></tr>`).join('') : `<tr><td colspan="6" class="empty">${esc(S.usersErr || 'Loading users…')}</td></tr>`}
+      </tbody></table></div><div class="hint" style="padding:8px 12px">Deleting a user removes their login and their journal data. Turning an account off keeps the data but blocks sign-in.</div></section>` : ''}`;
+}
+
 /* ---------- modals ---------- */
 function openModal(kind, arg) { S.modal = { kind, arg }; renderModal(); }
 function closeModal() { if (S.prevModal) { S.modal = S.prevModal; S.prevModal = null; renderModal(); return; } S.modal = null; S.pbEdit = null; const b = $('modal'); b.hidden = true; b.innerHTML = ''; b.className = 'scrim'; }
@@ -4513,7 +4543,7 @@ document.addEventListener('click', async e => {
   if (!b) { if ((S.accMenu || S.dashMenu || S.repMenu) && !e.target.closest('.ddwrap')) { S.accMenu = false; S.dashMenu = false; S.repMenu = false; rerender(); } if (e.target === $('modal')) { saveNote(true); S.prevModal = null; closeModal(); } if (S.tagMenu && !e.target.closest('.menu')) { S.tagMenu = null; render(); } return; }
   const a = b.dataset.action, id = b.dataset.id;
   if (a !== 'fmt' && a !== 'tpl' && $('editor')) saveNote(true);
-  if (!['del', 'delTrade', 'clearSamples', 'bulkDelete', 'delPb', 'delCat', 'delNote', 'delFolder', 'acctDel', 'undoImport', 'tplDel', 'econDel', 'propDel', 'propTxDel', 'dashDelete', 'resetTracker', 'caDel', 'acctUnlink', 'vidDel'].includes(a)) S.armed = null;
+  if (!['del', 'delTrade', 'clearSamples', 'bulkDelete', 'delPb', 'delCat', 'delNote', 'delFolder', 'acctDel', 'undoImport', 'tplDel', 'econDel', 'propDel', 'propTxDel', 'dashDelete', 'resetTracker', 'caDel', 'acctUnlink', 'vidDel', 'userDel'].includes(a)) S.armed = null;
   if (a === 'sel' || a === 'selAll' || a === 'toggleRev') e.stopPropagation();
   switch (a) {
     case 'add': if (!needDb()) return; return openModal('add', b.dataset.d);
@@ -4697,6 +4727,10 @@ document.addEventListener('click', async e => {
     case 'pbView': S.pbView = b.dataset.v; break;
     case 'pbArch': S.pbArch = b.dataset.v === '1'; break;
     case 'setTheme': setTheme(b.dataset.v); return;
+    case 'userEditPw': S.userEdit = b.dataset.v || null; break;
+    case 'userAdmin': await usersCall({ action: 'setUser', username: b.dataset.v, admin: b.dataset.on === '1' }, 'Role updated'); return;
+    case 'userOff': await usersCall({ action: 'setUser', username: b.dataset.v, disabled: b.dataset.on === '1' }, b.dataset.on === '1' ? 'Account turned off' : 'Account turned on'); return;
+    case 'userDel': { const k = b.dataset.v; if (S.armed !== 'user-' + k) { S.armed = 'user-' + k; break; } await usersCall({ action: 'deleteUser', username: k, deleteData: true }, `${k} deleted`); return; }
     case 'aipToggle': S.aiOpen = !S.aiOpen; S.aipHist = false; renderAiPanel(); if (S.aiOpen) setTimeout(() => $('aipIn')?.focus(), 30); return;
     case 'aipClose': S.aiOpen = false; renderAiPanel(); return;
     case 'aipWide': S.aiWide = !S.aiWide; renderAiPanel(); return;
@@ -5046,6 +5080,9 @@ document.addEventListener('submit', async e => {
   if (f.dataset.form === 'video') { if (!needDb()) return; const url = $('vUrl').value.trim(), yt = ytId(url); if (!yt) { toast("That doesn't look like a YouTube link."); return; } try { await S.db.collection('videos').doc('v-' + uid()).set({ yt, url, title: ($('vTitle').value.trim() || 'Untitled video').slice(0, 120), cat: $('vCat').value.trim().slice(0, 40), note: '', at: new Date().toISOString() }); toast('Video saved'); } catch (err) { writeErr(err); } return; }
   if (f.dataset.form === 'symAdd') { if (!needDb()) return; const sym = $('symNew').value.trim().toUpperCase().slice(0, 20); if (!sym) return; const i = symInfo(sym); upsertSym(sym, { cat: $('symNewCat').value.trim().slice(0, 40) || (i.auto ? 'Other' : i.cat), color: i.color, mult: i.mult, tick: i.tick, hidden: false }); saveSymSet(); toast(sym + ' added'); rerender(); return; }
   if (f.dataset.form === 'aip') { const q = ($('aipIn').value || '').trim(); if (!q) return; S.aipDraft = ''; askClaude(q); return; }
+  if (f.dataset.form === 'userAdd') { await usersCall({ action: 'createUser', username: $('nuName').value.trim().toLowerCase(), password: $('nuPw').value, admin: $('nuAdmin').checked }, 'User created'); return; }
+  if (f.dataset.form === 'userPw') { await usersCall({ action: 'resetPassword', username: f.dataset.v, password: $('upw').value }, 'Password reset'); return; }
+  if (f.dataset.form === 'pwChange') { if ($('pwNew').value !== $('pwNew2').value) { toast("The new passwords don't match."); return; } try { await window.__llLocal.auth({ action: 'changePassword', current: $('pwCur').value, next: $('pwNew').value }); toast('Password changed'); f.reset(); } catch (e) { toast(e.message); } return; }
   if (f.dataset.form === 'pattern') { const q = ($('patIn').value || '').trim(); if (q) { S.patternQ = q; rerender(); } return; }
   if (f.dataset.form === 'sentiment') { if (!needDb()) return; const v = $('sVix').value, sp = $('sSpy').value; S.agents.sentiment = { date: todayIso(), vix: v === '' ? null : +v, spy: sp === '' ? null : +sp }; S.sentEdit = false; saveAgents(); rerender(); return; }
   if (f.dataset.form === 'ask') { const q = ($('askIn').value || '').trim(); S.askDraft = ''; askClaude(q); return; }
