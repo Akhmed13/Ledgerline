@@ -711,32 +711,98 @@ a.focus-item{text-decoration:none;color:inherit}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:480px){.kpis,.kpis.four{grid-template-columns:minmax(0,1fr)}.form,.form.three{grid-template-columns:1fr}.topbar h1{font-size:22px}.exec-add{grid-template-columns:1fr 1fr}}
+
+/* v19: double sidebar */
+.app{grid-template-columns:284px minmax(0,1fr)}
+.app.navc{grid-template-columns:64px minmax(0,1fr)}
+.rail{display:grid;grid-template-columns:64px minmax(0,1fr);padding:0;gap:0}
+.app.navc .rail{grid-template-columns:64px}.app.navc .navpanel{display:none}
+.strip{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0 14px;height:100vh;background:color-mix(in srgb,var(--rail) 78%,#000);border-right:1px solid color-mix(in srgb,var(--rail-ink) 9%,transparent)}
+.strip-logo{background:none;border:0;padding:4px;margin-bottom:10px;border-radius:10px}.strip-logo svg{width:30px;height:30px}
+.strip-btn{position:relative;width:42px;height:42px;border-radius:11px;display:grid;place-items:center;color:var(--rail-muted);background:none;border:0;font-size:16px}
+.strip-btn:hover{background:var(--rail-hover);color:var(--rail-ink)}
+.strip-btn[aria-current="true"]{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}
+.strip-btn[data-stip]:hover::after{content:attr(data-stip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:5px 9px;font-size:12px;white-space:nowrap;box-shadow:var(--shadow);z-index:50;pointer-events:none}
+.navx-btn{display:none}.app.navc .navx-btn{display:grid}
+.strip-foot{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:6px}
+.strip .badge{position:absolute;top:5px;right:4px;background:var(--loss);color:#fff;font-size:9.5px;font-weight:700;line-height:15px;border-radius:8px;padding:0 4px;min-width:15px;text-align:center}
+.strip #railProfile{margin-top:4px;border-top:0;padding-top:0}
+.strip .prof-btn{padding:3px;justify-content:center;border-radius:50%}.strip .prof-btn .pn,.strip .prof-btn .chev{display:none}
+.strip .prof-menu{left:calc(100% + 10px);bottom:0}
+.navpanel{display:flex;flex-direction:column;gap:18px;padding:18px 12px;height:100vh;min-height:0}
+.navpanel .brand{justify-content:space-between;padding:0 4px 0 8px}
+.navc-btn{background:none;border:0;color:var(--rail-muted);font-size:17px;width:28px;height:28px;border-radius:7px;line-height:1}.navc-btn:hover{background:var(--rail-hover);color:var(--rail-ink)}
+.navsec{display:none;flex-direction:column;gap:2px}
+.rail[data-sec="journal"] .navsec[data-sec="journal"],.rail[data-sec="ai"] .navsec[data-sec="ai"],.rail[data-sec="props"] .navsec[data-sec="props"],.rail[data-sec="accounts"] .navsec[data-sec="accounts"]{display:flex}
+.nav-sep{height:1px;background:color-mix(in srgb,var(--rail-ink) 12%,transparent);margin:8px 10px}
+@media (max-width:820px){
+  .app,.app.navc{grid-template-columns:minmax(0,1fr)}
+  .rail,.app.navc .rail{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:0;padding:0}
+  .strip{flex-direction:row;height:auto;padding:8px max(12px,env(safe-area-inset-left,0px));border-right:0;border-bottom:1px solid color-mix(in srgb,var(--rail-ink) 9%,transparent)}
+  .strip-logo{margin:0 6px 0 0}.strip-foot{margin:0 0 0 auto;flex-direction:row}
+  .strip-btn[data-stip]:hover::after{display:none}.navx-btn,.app.navc .navx-btn,.navc-btn{display:none}
+  .strip .prof-menu{left:auto;right:0;bottom:auto;top:calc(100% + 8px)}
+  .navpanel,.app.navc .navpanel{display:flex;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px;padding:10px max(16px,env(safe-area-inset-left,0px))}
+  .navpanel .brand{display:none}.navpanel .add-btn{margin-left:auto}
+  .navsec{flex-direction:row;flex:none}.rail[data-sec] .navsec .nav-label,.nav-sep{display:none}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
 <div class="app">
-  <aside class="rail">
-    <div class="brand">
-      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="var(--accent)"/><path d="M6 15.5l3.5-4 3 2.5L18 8" stroke="var(--accent-ink)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Ledgerline
+  <aside class="rail" data-sec="journal">
+    <div class="strip">
+      <button class="strip-logo" data-action="view" data-view="home" aria-label="Ledgerline home"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="var(--accent)"/><path d="M6 15.5l3.5-4 3 2.5L18 8" stroke="var(--accent-ink)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="strip-btn navx-btn" data-action="navCollapse" aria-label="Expand menu" data-stip="Expand menu">»</button>
+      <button class="strip-btn" data-action="navSec" data-v="journal" id="sec-journal" aria-label="Journal" data-stip="Journal"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3.5h9.5a2 2 0 012 2V17H6a2 2 0 01-2-2z"/><path d="M4 15a2 2 0 012-2h9.5M8 7h4"/></svg></button><button class="strip-btn" data-action="navSec" data-v="ai" id="sec-ai" aria-label="AI coach" data-stip="AI coach"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.5l1.6 4.4 4.4 1.6-4.4 1.6L10 14.5l-1.6-4.4L4 8.5l4.4-1.6z"/><path d="M15.5 13.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg></button><button class="strip-btn" data-action="navSec" data-v="props" id="sec-props" aria-label="Prop firms" data-stip="Prop firms"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 17.5V3M4.5 3.5h10l-2 3.5 2 3.5h-10"/></svg></button><button class="strip-btn" data-action="navSec" data-v="accounts" id="sec-accounts" aria-label="Accounts & settings" data-stip="Accounts & settings"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="M2.5 8h15M13 12h2"/></svg></button>
+      <div class="strip-foot">
+        <button class="strip-btn" data-action="themeFlip" id="themeFlip" aria-label="Switch light or dark mode" data-stip="Light / dark"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 12.2A7 7 0 017.8 3.5a7 7 0 108.7 8.7z"/></svg></button>
+        <button class="strip-btn" data-action="bell" id="bellBtn" aria-label="Alerts" data-stip="Alerts"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8a5 5 0 0110 0v4l1.5 2.5h-13L5 12z"/><path d="M8.3 17a1.8 1.8 0 003.4 0"/></svg><span class="badge" id="bellCount" hidden></span></button>
+        <div id="railProfile"></div>
+      </div>
     </div>
-    <button class="add-btn" data-action="addFlow" id="addBtn"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add trade</button>
-    <nav class="nav" aria-label="Main">
-      <button data-action="view" data-view="home" id="nav-home"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 7.2L8 2.5l6 4.7V14H9.8v-3.6H6.2V14H2z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Home</button>
-      <div class="nav-label">Journal</div>
-      <button data-action="view" data-view="dashboard" id="nav-dashboard"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Dashboard</button>
-      <button data-action="view" data-view="journal" id="nav-journal"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5 5h6M5 8h6M5 11h3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Daily journal</button>
-      <button data-action="view" data-view="log" id="nav-log"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12M2 8h12M2 12.5h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Trade log</button>
-      <button data-action="view" data-view="notebook" id="nav-notebook"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="1.5" width="10.5" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 4.5h3M1.5 8h3M1.5 11.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Notebook</button>
-      <button data-action="view" data-view="reports" id="nav-reports"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14V2M2 14h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M5 11V8M8 11V5M11 11V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Reports</button>
-      <button data-action="view" data-view="playbooks" id="nav-playbooks"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h4.5a1.5 1.5 0 011.5 1.5v9.5a1.2 1.2 0 00-1.2-1.2H2.5zM13.5 2.5H9a1.5 1.5 0 00-1.5 1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M13.5 2.5v9.8H9.7A1.2 1.2 0 008.5 13.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Playbooks</button>
-      <button data-action="view" data-view="replay" id="nav-replay"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.6 5.4l4 2.6-4 2.6z" fill="currentColor"/></svg>Replay</button>
-      <button data-action="view" data-view="progress" id="nav-progress"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 8.2l2.3 2.3 4.7-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Progress tracker</button>
-      <button data-action="view" data-view="resources" id="nav-resources"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Resources</button>
-      <button data-action="view" data-view="agents" id="nav-agents"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="4.5" width="11" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.5v3M5.5 9h.01M10.5 9h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Agents</button>
-      <button data-action="view" data-view="props" id="nav-props"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 13.5h12M3.5 13.5V7M8 13.5V7M12.5 13.5V7M1.5 6L8 2l6.5 4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Prop firms</button>
-    </nav>
-    <div id="railProfile"></div>
+    <div class="navpanel">
+      <div class="brand"><span>Ledgerline</span><button class="navc-btn" data-action="navCollapse" aria-label="Collapse menu" title="Collapse menu">«</button></div>
+      <button class="add-btn" data-action="addFlow" id="addBtn"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add trade</button>
+      <nav class="nav" aria-label="Main">
+      <div class="navsec" data-sec="journal">
+        <button data-action="view" data-view="home" id="nav-home" data-nav="home"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 7.2L8 2.5l6 4.7V14H9.8v-3.6H6.2V14H2z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Home</button>
+        <button data-action="view" data-view="dashboard" id="nav-dashboard" data-nav="dashboard"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Dashboard</button>
+        <button data-action="view" data-view="journal" id="nav-journal" data-nav="journal"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5 5h6M5 8h6M5 11h3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Daily journal</button>
+        <button data-action="view" data-view="log" id="nav-log" data-nav="log"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12M2 8h12M2 12.5h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Trade log</button>
+        <button data-action="view" data-view="notebook" id="nav-notebook" data-nav="notebook"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="1.5" width="10.5" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 4.5h3M1.5 8h3M1.5 11.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Notebook</button>
+        <button data-action="view" data-view="reports" id="nav-reports" data-nav="reports"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14V2M2 14h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M5 11V8M8 11V5M11 11V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Reports</button>
+        <button data-action="view" data-view="playbooks" id="nav-playbooks" data-nav="playbooks"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h4.5a1.5 1.5 0 011.5 1.5v9.5a1.2 1.2 0 00-1.2-1.2H2.5zM13.5 2.5H9a1.5 1.5 0 00-1.5 1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M13.5 2.5v9.8H9.7A1.2 1.2 0 008.5 13.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Playbooks</button>
+        <div class="nav-sep"></div>
+        <button data-action="view" data-view="replay" id="nav-replay" data-nav="replay"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.6 5.4l4 2.6-4 2.6z" fill="currentColor"/></svg>Replay</button>
+        <button data-action="view" data-view="progress" id="nav-progress" data-nav="progress"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 8.2l2.3 2.3 4.7-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Progress tracker</button>
+        <button data-action="view" data-view="resources" id="nav-resources" data-nav="resources"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 6h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Resources</button>
+      </div>
+      <div class="navsec" data-sec="ai">
+        <div class="nav-label">AI coach</div>
+        <button data-action="view" data-view="agents" id="nav-agents" data-nav="agents"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="4.5" width="11" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.5v3M5.5 9h.01M10.5 9h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Agents</button>
+        <button data-action="agTab" data-v="backtest" data-nav="agents:backtest"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 13.5h12M3.5 11l3-3.5 2.5 2 4-5"/></svg>Backtesting</button>
+        <button data-action="agTab" data-v="custom" data-nav="agents:custom"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v2M8 12.2v2M1.8 8h2M12.2 8h2M3.6 3.6l1.4 1.4M11 11l1.4 1.4M3.6 12.4L5 11M11 5l1.4-1.4"/></svg>Custom agents</button>
+        <button data-action="view" data-view="home" data-nav="home"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg>Ask Claude</button>
+      </div>
+      <div class="navsec" data-sec="props">
+        <div class="nav-label">Prop firms</div>
+        <button data-action="view" data-view="props" id="nav-props" data-nav="props"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 13.5h12M3.5 13.5V7M8 13.5V7M12.5 13.5V7M1.5 6L8 2l6.5 4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Prop firms</button>
+        <button data-action="propNav" data-v="accounts" data-nav="props:accounts"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="1.5"/><path d="M1.5 6.5h13"/></svg>Firm accounts</button>
+        <button data-action="propNav" data-v="tx" data-nav="props:tx"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h10l-2.5-2.5M14 11H4l2.5 2.5"/></svg>Payouts & fees</button>
+      </div>
+      <div class="navsec" data-sec="accounts">
+        <div class="nav-label">Accounts &amp; settings</div>
+        <button data-action="settings" data-v="accounts" data-nav="settings:accounts"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="1.5"/><path d="M1.5 6.5h13"/></svg>Accounts</button>
+        <button data-action="addFlow"  data-nav="__add"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V3M5 6l3-3 3 3M2.5 11v2.5h11V11"/></svg>Add trades / sync</button>
+        <button data-action="settings" data-v="imports" data-nav="settings:imports"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8M5 7l3 3 3-3M2.5 13.5h11"/></svg>Import history</button>
+        <button data-action="settings" data-v="fees" data-nav="settings:fees"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M10 6H7.2a1.2 1.2 0 000 2.4h1.6a1.2 1.2 0 010 2.4H6M8 4.5v7"/></svg>Commissions &amp; fees</button>
+        <button data-action="settings" data-v="tags" data-nav="settings:tags"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5z"/><circle cx="5" cy="5" r="1"/></svg>Tags management</button>
+        <button data-action="settings" data-v="profile" data-nav="settings:profile"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.5 14c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/></svg>Profile</button>
+        <button data-action="settings" data-v="data" data-nav="settings:data"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="8" cy="3.5" rx="5.5" ry="2"/><path d="M2.5 3.5v9c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-9M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg>Data &amp; backup</button>
+      </div>
+      </nav>
+    </div>
   </aside>
   <main class="main"><div class="wrap" id="root"></div></main>
 </div>
@@ -1032,9 +1098,23 @@ const TEMPLATES = {
   'End-of-day recap': '<h4>End-of-day recap</h4><ul><li class="todo">Followed my game plan</li><li class="todo">Took fewer than 5 trades</li><li class="todo">Respected every stop</li></ul><p><b>Things I did well:</b> </p><p><b>Things to improve tomorrow:</b> </p>'
 };
 
+
+/* double sidebar */
+const secOf = v => v === 'agents' ? 'ai' : v === 'props' ? 'props' : v === 'settings' ? 'accounts' : 'journal';
+try { S.navCollapsed = localStorage.getItem('ll-navc') === '1'; } catch (e) { S.navCollapsed = false; }
+function navPaint() {
+  if (S._lastView !== S.view) { S.navSec = secOf(S.view); S._lastView = S.view; }
+  const key = S.view === 'trade' ? 'log' : S.view === 'agents' ? (S.agTab && S.agTab !== 'agents' ? 'agents:' + S.agTab : 'agents') : S.view === 'props' ? (S.propTab && S.propTab !== 'dash' ? 'props:' + S.propTab : 'props') : S.view === 'settings' ? 'settings:' + (S.setTab || 'accounts') : S.view;
+  document.querySelectorAll('.nav [data-nav]').forEach(el => el.setAttribute('aria-current', el.dataset.nav === key && (el.dataset.nav !== 'home' || el.closest('.navsec').dataset.sec === S.navSec) ? 'page' : 'false'));
+  const rail = document.querySelector('.rail'); if (rail) rail.dataset.sec = S.navSec || 'journal';
+  document.querySelectorAll('.strip [id^="sec-"]').forEach(el => el.setAttribute('aria-current', el.id === 'sec-' + (S.navSec || 'journal') ? 'true' : 'false'));
+  const app = document.querySelector('.app'); if (app) app.classList.toggle('navc', !!S.navCollapsed);
+  const n = S.db ? alertFeed(7).length : 0, bc = $('bellCount'); if (bc) { bc.hidden = !n; bc.textContent = n > 99 ? '99+' : n; }
+}
+const isDark = () => { const t = getTheme(); return t === 'dark' || (t === 'system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); };
 /* ---------- render ---------- */
 function render() {
-  ['home', 'dashboard', 'journal', 'log', 'notebook', 'reports', 'playbooks', 'replay', 'progress', 'resources', 'agents', 'props'].forEach(v => $('nav-' + v).setAttribute('aria-current', (S.view === v || (v === 'log' && S.view === 'trade')) ? 'page' : 'false'));
+  navPaint();
   let html = '';
   if (S.view === 'dashboard') html = topbar(hour(), 'Stats for ' + (S.scope === 'all' ? 'all time' : `${MONTHS[S.month.getMonth()]} ${S.month.getFullYear()}`), true, (S.db && !S.dashEdit ? startBtn() : '') + (S.dashEdit ? '' : dashTplMenu())) + banner() + (S.dashEdit ? '' : importLine()) + dashboard();
   else if (S.view === 'log') html = topbar('Trade log', S.trades.length + ' trades recorded') + banner() + logView();
@@ -3871,7 +3951,7 @@ document.addEventListener('click', async e => {
   switch (a) {
     case 'add': if (!needDb()) return; return openModal('add', b.dataset.d);
     case 'close': return closeModal();
-    case 'view': S.view = b.dataset.view; S.tagMenu = null; S.accMenu = false; S.prevModal = null; closeModal(); rpStop(); window.scrollTo(0, 0); break;
+    case 'view': S.view = b.dataset.view; if (b.closest('.nav')) { if (S.view === 'props') S.propTab = 'dash'; if (S.view === 'agents') S.agTab = 'agents'; } S.tagMenu = null; S.accMenu = false; S.prevModal = null; closeModal(); rpStop(); window.scrollTo(0, 0); break;
     case 'unit': S.unit = b.dataset.v; try { localStorage.setItem('ll-unit', S.unit); } catch (_) {} break;
     case 'scope': S.scope = b.dataset.v; try { localStorage.setItem('ll-scope', S.scope); } catch (_) {} break;
     case 'month': S.month = new Date(S.month.getFullYear(), S.month.getMonth() + +b.dataset.v, 1); break;
@@ -4050,8 +4130,13 @@ document.addEventListener('click', async e => {
     case 'pbView': S.pbView = b.dataset.v; break;
     case 'pbArch': S.pbArch = b.dataset.v === '1'; break;
     case 'setTheme': setTheme(b.dataset.v); return;
+    case 'themeFlip': setTheme(isDark() ? 'light' : 'dark'); return;
+    case 'navSec': S.navSec = b.dataset.v; if (S.navCollapsed) { S.navCollapsed = false; try { localStorage.setItem('ll-navc', '0'); } catch (e) {} } navPaint(); return;
+    case 'navCollapse': S.navCollapsed = !S.navCollapsed; try { localStorage.setItem('ll-navc', S.navCollapsed ? '1' : '0'); } catch (e) {} navPaint(); return;
+    case 'bell': S.agTab = 'custom'; S.view = 'agents'; window.scrollTo(0, 0); break;
+    case 'propNav': S.view = 'props'; S.propTab = b.dataset.v; window.scrollTo(0, 0); break;
     case 'patQ': S.patternQ = b.dataset.v; break;
-    case 'agTab': S.agTab = b.dataset.v; S.view = 'agents'; window.scrollTo(0, 0); break;
+    case 'agTab': S.agTab = b.dataset.v; S.view = 'agents'; S.profMenu = false; window.scrollTo(0, 0); break;
     case 'actApply': { const a = (S.chat[+b.dataset.m] || {}).acts?.[+b.dataset.a]; if (a) await applyAction(a); return; }
     case 'actPreview': { const a = (S.chat[+b.dataset.m] || {}).acts?.[+b.dataset.a]; if (!a) return; const ts = actionPlan(a).ts; S.picked = ts.map(t => t.id); S.ai = { title: `${ts.length} matching trades`, text: ts.slice(0, 60).map(t => `- ${t.date} ${t.time || ''} **${t.symbol}** ${t.side} · ${money(t.pnl)}`).join('\n') + (ts.length > 60 ? `\n\n…and ${ts.length - 60} more` : ''), pending: false }; openModal('ai'); return; }
     case 'aiNote': { const t = byId(id); if (!t || S.noteBusy || !needDb()) return; S.noteBusy = true; rerender();
