@@ -88,6 +88,7 @@ package.json             server dependencies (pg, mysql2)
 index.html               the website (generated)
 src/ledgerline.html      the journal source / Claude artifact
 build.py                 rebuilds index.html from the source
-favicon.*, icon-*.png    site icons (plus apple-touch-icon.png, site.webmanifest)
+favicon.*, icon-*.png    site icons from the dragon shield emblem (plus apple-touch-icon.png, site.webmanifest)
+brand/                   Ledger Line logo files (dark-text and light-text versions)
 sample-data/trades.json  demo trades
 ```
