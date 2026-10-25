@@ -12,6 +12,8 @@ Set these environment variables in the Vercel project (Production and Preview), 
 | --- | --- |
 | `DATABASE_URL` | PostgreSQL: `postgres://user:password@host:5500/dbname` · MySQL/MariaDB: `mysql://user:password@host:5500/dbname` |
 | `LEDGERLINE_PASSWORD` | The password you'll type to open the journal. Without it the API refuses all requests, so nobody else can read or change your data. |
+| `ANTHROPIC_API_KEY` | Optional. Turns on the AI (Ledgerline AI panel, Ask Claude, agents, reviews, backtest analysis) on the website, through `api/ai.js`. Usage is billed to your Anthropic account. |
+| `ANTHROPIC_MODEL` | Optional. The Claude model to use; default `claude-sonnet-5-5`. |
 | `METAAPI_TOKEN` | Optional. A [MetaApi](https://metaapi.cloud) API token, used for MetaTrader 4/5 auto-sync (`api/broker.js`). |
 
 - The table `ledgerline_docs` is created automatically on first use. The database user needs permission to create tables.
@@ -83,6 +85,7 @@ Records are stored as JSON documents (one row per document in `ledgerline_docs`)
 ```
 api/docs.js              server-side storage API (Vercel function)
 api/auth.js              sign-in and user management (Vercel function)
+api/ai.js                Claude for the AI features, streamed (Vercel function)
 api/broker.js            MetaTrader auto-sync through MetaApi (Vercel function)
 package.json             server dependencies (pg, mysql2)
 index.html               the website (generated)

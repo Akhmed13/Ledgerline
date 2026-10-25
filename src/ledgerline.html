@@ -1100,7 +1100,23 @@ a.focus-item{text-decoration:none;color:inherit}
     auth: async body => { let r; try { r = await fetch(AUTH, { method: 'POST', headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: JSON.stringify(body), cache: 'no-store' }); } catch (e) { throw new Error("Can't reach the server. Check your connection."); } let j = {}; try { j = await r.json(); } catch (e) {} if (!r.ok) throw new Error(j.error || `Server error ${r.status}`); if (j.token) { apiKey = j.token; lsSet(KEY, apiKey); } return j; },
     broker: async body => { let r; try { r = await fetch(API.replace('docs', 'broker'), { method: 'POST', headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: JSON.stringify(body), cache: 'no-store' }); } catch (e) { throw new Error("Can't reach the server. Check your connection."); } let j = {}; try { j = await r.json(); } catch (e) {} if (!r.ok) throw new Error(j.error || `Server error ${r.status}`); return j; }
   };
-  window.claude = { use: async name => { await ready; return name === 'db' ? db : name === 'assets' ? assets : name === 'downloads' ? downloads : null; } };
+  /* ---- Claude through /api/ai (website only) ---- */
+  async function sample(input, opts = {}) {
+    let r;
+    try { r = await fetch(API.replace('docs', 'ai'), { method: 'POST', headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: JSON.stringify({ input }), cache: 'no-store' }); }
+    catch (e) { throw err('unavailable', "Can't reach the server. Check your connection."); }
+    if (!r.ok) { let j = {}; try { j = await r.json(); } catch (e) {} if (r.status === 401) { lsSet(KEY, ''); showGate('Your session ended. Sign in again.'); } throw err(j.code || (r.status === 429 ? 'rate_limited' : 'unavailable'), j.error || `AI error ${r.status}`); }
+    const reader = r.body.getReader(), dec = new TextDecoder(); let buf = '', text = '';
+    for (;;) {
+      const { value, done } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true }); let i;
+      while ((i = buf.indexOf('\n')) >= 0) { const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1); if (!line) continue; let o; try { o = JSON.parse(line); } catch (e) { continue; }
+        if (o.error) throw err(o.code || 'upstream', o.error);
+        if (typeof o.t === 'string') { text = o.t; if (opts.onText) try { opts.onText({ text }); } catch (e) {} } }
+    }
+    return { text };
+  }
+  window.claude = { use: async name => { await ready; return name === 'db' ? db : name === 'assets' ? assets : name === 'downloads' ? downloads : name === 'sample' && mode === 'server' ? sample : null; } };
 })();
 </script>
 <script>
@@ -2340,7 +2356,7 @@ async function askClaude(q, shown) {
   q = (q || '').trim(); if (!q || S.aiBusy) return;
   const sample = await getSample();
   S.chat.push({ role: 'user', content: q, display: shown || '' });
-  if (!sample) { S.chat.push({ role: 'assistant', content: "The assistant isn't available in this view. Open the journal from your Claude account to use it." }); rerender(); return; }
+  if (!sample) { S.chat.push({ role: 'assistant', content: "The assistant isn't available in this view. Open the journal from your Claude account, or from your Ledger Line website with an Anthropic API key set up." }); rerender(); return; }
   const msg = { role: 'assistant', content: '', pending: true }; S.chat.push(msg); S.aiBusy = true; rerender();
   const hist = S.chat.filter(m => !m.pending && m.content).slice(-10);
   const input = hist.map((m, i) => ({ role: m.role, content: i === 0 && m.role === 'user' ? `${AI_INSTR}\n${actionInstr()}\n\n<journal>\n${journalContext()}\n</journal>\n\nQuestion: ${m.content}` : m.content }));
@@ -2353,7 +2369,7 @@ async function askClaude(q, shown) {
   } catch (e) { msg.content = aiErr(e); }
   msg.pending = false; S.aiBusy = false; rerender();
 }
-const aiErr = e => e && e.code === 'rate_limited' ? 'Too many questions in a row. Wait a minute and try again.' : e && e.code === 'not_granted' ? 'The assistant needs your permission. Allow it when asked, then try again.' : "That didn't go through. Try again.";
+const aiErr = e => e && e.code === 'rate_limited' ? (e.message && /wait|busy/i.test(e.message) ? e.message : 'Too many questions in a row. Wait a minute and try again.') : e && e.code === 'not_granted' ? 'The assistant needs your permission. Allow it when asked, then try again.' : e && ['not_configured', 'upstream', 'unavailable'].includes(e.code) && e.message ? e.message : "That didn't go through. Try again.";
 async function aiReview(title, prompt, saveTo) {
   S.ai = { title, text: '', pending: true, saveTo }; openModal('ai');
   const sample = await getSample();
