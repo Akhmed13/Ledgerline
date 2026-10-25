@@ -3614,7 +3614,7 @@ function behaviorStats() {
   let early = [], late = []; Object.values(byD).forEach(d => { d.sort((a, b) => (a.time || '').localeCompare(b.time || '')); early.push(...d.slice(0, maxT)); late.push(...d.slice(maxT)); });
   if (late.length >= 3) { const we = early.filter(t => t.pnl > 0).length / early.length, wl = late.filter(t => t.pnl > 0).length / late.length, drop = Math.round((we - wl) * 100); out.push({ tone: drop >= 10 ? 'warn' : 'ok', title: drop >= 10 ? 'Overtrading' : 'Late trades hold up', txt: `Win rate ${Math.round(wl * 100)}% after trade #${maxT} vs ${Math.round(we * 100)}% before (${drop > 0 ? '−' + drop : '+' + -drop} pts)` }); }
   const days = Object.keys(byD).sort(); let streak = 0; for (let i = days.length - 1; i >= 0 && byD[days[i]].length <= maxT; i--) streak++;
-  if (days.length) out.push({ tone: streak >= 3 ? 'ok' : 'info', title: 'Session limit', txt: streak ? `Kept to ${maxT} trades or fewer ${streak} day${streak === 1 ? '' : 's'} in a row` : `Your last session went over ${maxT} trades` });
+  if (days.length) out.push({ tone: streak >= 3 ? 'ok' : 'neutral', title: 'Session limit', txt: streak ? `Kept to ${maxT} trades or fewer ${streak} day${streak === 1 ? '' : 's'} in a row` : `Your last session went over ${maxT} trades` });
   return { list: out, maxT };
 }
 const _behaviorCard0 = behaviorCard;
