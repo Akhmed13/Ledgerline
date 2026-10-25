@@ -512,6 +512,50 @@ button.ins-alert{cursor:pointer}button.ins-alert:hover{border-color:var(--accent
 .theme-card{border:2px solid var(--line);border-radius:10px;padding:8px;background:var(--surface);display:flex;flex-direction:column;gap:6px;text-align:left}
 .theme-card[aria-pressed="true"]{border-color:var(--accent)}
 .theme-card i{display:block;height:54px;border-radius:6px}
+
+/* v18: add-trades wizard + accounts */
+.aw-sheet{width:min(980px,100%);padding:0;overflow:hidden;background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--accent) 10%,var(--surface)) 0%,var(--surface) 60%)}
+.aw-close{position:absolute;top:12px;right:12px;z-index:2}
+.sheet.aw-sheet{position:relative;width:min(980px,100%);max-width:980px;padding:0}
+.acct-table td,.acct-table th{white-space:nowrap}
+.aw{position:relative;display:flex;flex-direction:column;gap:14px;padding:28px max(20px,4vw) 24px;max-width:760px;margin:0 auto}
+.aw.wide{max-width:none}
+.aw-kicker{color:var(--accent);text-align:center;font-weight:600;font-size:13px}
+.aw-h{font-family:var(--f-display);font-size:clamp(22px,3.2vw,32px);text-align:center;margin:0;letter-spacing:-.02em;text-wrap:balance}
+.aw-search{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:0 14px;color:var(--muted)}
+.aw-search input{flex:1;border:0;background:none;padding:14px 0;font-size:14.5px;min-width:0}
+.aw-search input:focus{outline:none}.aw-search:focus-within{border-color:var(--accent)}
+.aw-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;max-height:46vh;overflow-y:auto}
+.aw-b{display:flex;align-items:center;gap:12px;border:1px solid transparent;background:none;border-radius:10px;padding:8px 10px;text-align:left}
+.aw-b:hover{background:var(--surface-2)}.aw-b[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.aw-b span{display:flex;flex-direction:column}.aw-b small{color:var(--muted);font-size:12px}
+.blogo{flex:none;display:inline-grid;place-items:center;border-radius:22%;background:color-mix(in srgb,var(--bc) 16%,var(--surface));color:var(--bc);border:1px solid color-mix(in srgb,var(--bc) 35%,var(--line));font-weight:800;letter-spacing:-.02em;font-family:var(--f-display)}
+.aw-cta{width:100%;padding:12px;font-size:15px;border-radius:10px}
+.aw-back{position:absolute;left:12px;top:12px}
+.aw-center{display:flex;flex-direction:column;align-items:center;gap:8px}
+.aw-sub{margin:0;color:var(--muted);font-size:17px}.aw-sub b{color:var(--ink)}
+.aw-methods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.aw-m{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;border:1.5px solid var(--line);background:var(--surface-2);border-radius:14px;padding:44px 14px 22px}
+.aw-m[aria-pressed="true"]{border-color:var(--accent)}.aw-m:disabled{opacity:.5;cursor:not-allowed}
+.aw-m b{font-size:17px}.aw-m small{color:var(--muted);font-size:13px;line-height:1.45}
+.aw-ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.aw-rec{position:absolute;top:12px;left:12px;background:var(--accent);color:var(--accent-ink);font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:6px}
+.aw-bar{height:3px;background:var(--line);border-radius:3px;overflow:hidden;margin:0 auto 4px;width:min(520px,70%)}.aw-bar span{display:block;height:100%;background:var(--accent)}
+.aw-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:28px;align-items:start}
+.aw-form{display:flex;flex-direction:column;gap:12px}
+.aw-form label{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted)}
+.aw-form input,.aw-form select{border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:11px 12px;font-size:14px;color:var(--ink)}
+.aw-warn{border:1px solid color-mix(in srgb,var(--c-amber) 55%,var(--line));color:var(--c-amber);background:color-mix(in srgb,var(--c-amber) 8%,transparent);border-radius:10px;padding:10px 12px;font-size:12.5px}
+.aw-side{display:flex;flex-direction:column;gap:8px}
+.aw-ok{font-size:12.5px;color:var(--ink)}.aw-ok::first-letter{color:var(--gain)}
+.aw-steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:13px}.aw-steps li::marker{color:var(--accent);font-weight:700}
+.aw-prog{height:6px;background:var(--line);border-radius:4px;overflow:hidden}.aw-prog span{display:block;height:100%;background:var(--accent);transition:width .6s}
+.aw-okbox{border:1px solid var(--gain-line);background:var(--gain-bg);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.aw-check{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--gain);color:#fff;font-weight:700}
+.aw-bal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border-top:1px solid var(--gain-line);padding-top:10px}.aw-bal div{display:flex;flex-direction:column;gap:2px}.aw-bal b{font-family:var(--f-num);font-size:15px}
+.acct-menu{position:absolute;right:8px;top:calc(100% - 4px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.2);padding:4px;display:flex;flex-direction:column;min-width:180px}
+.acct-menu button{border:0;background:none;text-align:left;padding:8px 10px;border-radius:6px;font-size:13px}.acct-menu button:hover{background:var(--surface-2)}.acct-menu .danger{color:var(--loss)}
+@media (max-width:760px){.aw-grid,.aw-methods,.aw-cols{grid-template-columns:1fr}.aw-m{padding:36px 14px 18px}}
 .home-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:start}
 .focus{display:flex;flex-direction:column;gap:6px}
 .explore{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -851,7 +895,8 @@ a.focus-item{text-decoration:none;color:inherit}
     restore: async text => { const j = JSON.parse(text); if (!j || j.app !== 'ledgerline' || !j.docs) throw new Error('Not a Ledgerline backup file.'); const w = []; for (const k of [...mem.keys()]) if (!(k in j.docs)) w.push(write(k, undefined)); for (const [k, v] of Object.entries(j.docs)) w.push(write(k, v)); await Promise.all(w); return Object.keys(j.docs).length; },
     copyOld: async () => { const old = window.__llLocal._old; if (!old || !old.size) return 0; await Promise.all([...old].map(([k, v]) => write(k, v))); await idbClear(); window.__llLocal.oldCount = 0; window.__llLocal._old = null; return old.size; },
     dropOld: async () => { await idbClear(); window.__llLocal.oldCount = 0; window.__llLocal._old = null; },
-    signOut: () => { lsSet(KEY, ''); location.reload(); }
+    signOut: () => { lsSet(KEY, ''); location.reload(); },
+    broker: async body => { let r; try { r = await fetch(API.replace('docs', 'broker'), { method: 'POST', headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: JSON.stringify(body), cache: 'no-store' }); } catch (e) { throw new Error("Can't reach the server. Check your connection."); } let j = {}; try { j = await r.json(); } catch (e) {} if (!r.ok) throw new Error(j.error || `Server error ${r.status}`); return j; }
   };
   window.claude = { use: async name => { await ready; return name === 'db' ? db : name === 'assets' ? assets : name === 'downloads' ? downloads : null; } };
 })();
@@ -1867,7 +1912,8 @@ function importParse() {
 }
 function importModal() {
   const I = S.imp, step = I.step;
-  const head = `<div class="sheet-head"><div><div class="hint">Add trades · step ${step} of 3</div><h3 id="mTitle">${step === 1 ? 'Where are your trades from?' : step === 2 ? 'Upload your file' : 'Check and import'}</h3></div><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div><div class="prog"><span style="width:${step / 3 * 100}%"></span></div>`;
+  if (step === 'pick' || step === 'method' || step === 'sync') return `<div class="sheet aw-sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><button class="icon-btn aw-close" data-action="close" aria-label="Close" ${step === 'sync' && I.sync && I.sync.phase === 'connecting' ? 'disabled' : ''}>✕</button>${step === 'pick' ? addStepPick() : step === 'method' ? addStepMethod() : addStepSync()}</div>`;
+  const head = `<div class="sheet-head"><div><div class="hint">Add trades${I.srcBroker ? ' · ' + esc(I.srcBroker.name) : ''} · ${step === 2 ? 'upload' : 'check'}</div><h3 id="mTitle">${step === 1 ? 'Where are your trades from?' : step === 2 ? 'Upload your file' : 'Check and import'}</h3></div><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div><div class="prog"><span style="width:${step / 3 * 100}%"></span></div>`;
   if (step === 1) return `<div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="mTitle">${head}
     <div class="src-grid">${IMPORT_SOURCES.map(s => `<button class="src" data-action="impSrc" data-v="${s.id}" aria-pressed="${I.src === s.id}"><b>${s.name}</b><span>${s.id === 'generic' ? 'Match columns yourself' : 'CSV export'}</span></button>`).join('')}
       <button class="src" data-action="add"><b>Add manually</b><span>Type in one trade</span></button></div>
@@ -1877,7 +1923,7 @@ function importModal() {
   if (step === 2) {
     const M = I.map || {};
     return `<div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="mTitle">${head}
-      <div class="banner" style="background:var(--surface-2);border-color:var(--line)"><span>${esc(src.how)}</span></div>
+      <div class="banner" style="background:var(--surface-2);border-color:var(--line)"><span>${esc((I.srcBroker && I.srcBroker.how) || (I.srcBroker && I.srcBroker.sync ? `In ${I.srcBroker.sync === 'mt4' ? 'MetaTrader 4' : 'MetaTrader 5'} open the History tab, right-click and choose Report → Open XML/CSV (save it as CSV), then match the columns below.` : src.how))}</span></div>
       <div class="form"><label>Account<select id="impAcc">${accs.map(a => `<option value="${a.id}" ${I.accountId === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}<option value="__new" ${I.accountId === '__new' ? 'selected' : ''}>+ New account…</option></select></label>
         ${I.accountId === '__new' ? `<label>New account name<input id="impAccName" value="${esc(I.newAcc || '')}" placeholder="${esc(src.name)} account"></label>` : '<span></span>'}
         ${I.src !== 'tradovate' ? `<label>Date format in the file<select id="impFmt"><option value="MDY" ${I.dateFmt === 'MDY' ? 'selected' : ''}>Month/Day/Year</option><option value="DMY" ${I.dateFmt === 'DMY' ? 'selected' : ''}>Day/Month/Year</option></select></label><span></span>` : ''}
@@ -1899,14 +1945,14 @@ async function importRun() {
   I.busy = true; renderModal();
   try {
     let accountId = I.accountId;
-    if (accountId === '__new') { accountId = 'acc-' + uid(); await S.db.collection('accounts').doc(accountId).set({ name: (I.newAcc || IMPORT_SOURCES.find(s => s.id === I.src).name + ' account').slice(0, 60), broker: IMPORT_SOURCES.find(s => s.id === I.src).name, startingBalance: 0, order: Date.now() }); }
+    if (accountId === '__new') { accountId = 'acc-' + uid(); await S.db.collection('accounts').doc(accountId).set({ name: (I.newAcc || ((I.srcBroker && I.srcBroker.name) || IMPORT_SOURCES.find(s => s.id === I.src).name) + ' account').slice(0, 60), broker: (I.srcBroker && I.srcBroker.name) || IMPORT_SOURCES.find(s => s.id === I.src).name, startingBalance: 0, order: Date.now() }); }
     if (accountId === 'main' && !S.accounts.some(a => a.id === 'main')) await S.db.collection('accounts').doc('main').set({ name: 'Main account', broker: 'Manual', startingBalance: S.settings.startingBalance || 0, order: 0 });
     const importId = 'imp-' + uid(), now = new Date().toISOString(), list = I.parsed;
     if (S.agents.tagger.on) (S.agents.tagger.rules || []).forEach(r => r.cat && r.tag && ensureTagInCat(r.cat, r.tag));
     for (let i = 0; i < list.length; i += 10) {
       await Promise.all(list.slice(i, i + 10).map(t => S.db.collection('trades').doc('t-' + uid()).set({ ...t, accountId, importId, sample: false, tags: (S.agents.tagger.on && autoTags({ ...t, tags: {} })) || {}, rulesChecked: [], executions: [], attachments: [], note: '', reviewed: false, rating: 0, playbookId: '', createdAt: now })));
     }
-    await S.db.collection('imports').doc(importId).set({ source: IMPORT_SOURCES.find(s => s.id === I.src).name, accountId, count: list.length, at: now, from: list[0] ? list[0].date : '', to: list.length ? list[list.length - 1].date : '' });
+    await S.db.collection('imports').doc(importId).set({ source: (I.srcBroker && I.srcBroker.name) || IMPORT_SOURCES.find(s => s.id === I.src).name, accountId, count: list.length, at: now, from: list[0] ? list[0].date : '', to: list.length ? list[list.length - 1].date : '' });
     S.imp = null; closeModal(); toast(`${list.length} trades imported`); S.view = 'log'; render();
   } catch (e) { I.busy = false; renderModal(); writeErr(e); }
 }
@@ -2472,10 +2518,7 @@ function settingsView() {
   let body = '';
   if (tab === 'profile') body = profileSettings();
   else if (tab === 'accounts') {
-    const accs = allAccounts();
-    body = `<div class="toolbar"><div><h3 class="h3">Accounts</h3><div class="hint">Each account has its own starting balance. Use the account menu at the top of each page to switch between them.</div></div><button class="primary" data-action="acctEdit" data-v="">Add account</button></div>
-      <div class="table-scroll"><table class="rtable"><thead><tr><th>Account</th><th>Broker</th><th class="r">Starting balance</th><th class="r">Balance</th><th class="r">Trades</th><th>Last trade</th><th></th></tr></thead><tbody>
-      ${accs.map(a => { const ts = S.allTrades.filter(t => acctOf(t) === a.id), net = ts.reduce((x, t) => x + t.pnl, 0), cash = S.cash.filter(c => (c.accountId || 'main') === a.id).reduce((x, c) => x + c.amount, 0), lastT = ts.map(t => t.date).sort().pop(); return `<tr><td><b>${esc(a.name)}</b></td><td>${esc(a.broker || '–')}</td><td class="r num">${priv(money(+a.startingBalance || 0))}</td><td class="r num ${cls(net)}">${priv(money((+a.startingBalance || 0) + net + cash))}</td><td class="r num">${ts.length}</td><td class="num">${lastT || '–'}</td><td class="r" style="white-space:nowrap"><button class="ghost" data-action="acctEdit" data-v="${a.id}">Edit</button> ${ts.length ? '' : `<button class="del${S.armed === 'acc-' + a.id ? ' armed' : ''}" data-action="acctDel" data-v="${a.id}">${S.armed === 'acc-' + a.id ? 'Confirm' : 'Delete'}</button>`}</td></tr>`; }).join('')}</tbody></table></div>`;
+    body = accountsTable();
   } else if (tab === 'tags') {
     body = `<div class="toolbar"><div><h3 class="h3">Tag categories</h3><div class="hint">Rename categories, change their color and add or remove tags. Removing a tag here keeps it on trades that already use it.</div></div><button class="primary" data-action="addCat">Add category</button></div>
       <div class="stack">${S.cats.map(c => `<div class="panel card cat" style="${tc(c)}"><div class="pb-row"><span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--tc);flex:none"></span><input class="fin" data-catf="name" data-cat="${c.id}" value="${esc(c.name)}" aria-label="Category name" style="font-weight:600"><button class="del${S.armed === 'cat-' + c.id ? ' armed' : ''}" data-action="delCat" data-cat="${c.id}">${S.armed === 'cat-' + c.id ? 'Confirm' : 'Delete'}</button></div>
@@ -3499,6 +3542,182 @@ function taggerLastRun() {
   return out;
 }
 
+/* ---------- v18: add-trades wizard, broker auto-sync, accounts ---------- */
+const ALL_ASSETS = ['Stocks', 'Futures', 'Forex', 'Crypto', 'CFD', 'Options'];
+const MT_STEPS = p => ['Pick your broker or prop firm', `Enter your server. You'll find it in the ${p} login window or in your account email.`, `Enter your ${p} account number (login). Only numbers are allowed.`, `Enter your investor password. This is the read-only ${p} password, so trades can be read but never placed.`];
+const BROKERS = [
+  { id: 'mt5', name: 'MetaTrader 5', kind: 'Platform', sync: 'mt5', csv: 'generic', c: 'blue', ab: 'M5', assets: ['Stocks', 'Futures', 'Forex', 'Crypto', 'CFD'], pop: 1, servers: ['BlueberryMarkets-Demo', 'ICMarketsSC-Demo', 'ICMarketsSC-MT5', 'FTMO-Demo', 'FTMO-Server', 'Pepperstone-MT5-Live01'] },
+  { id: 'mt4', name: 'MetaTrader 4', kind: 'Platform', sync: 'mt4', csv: 'generic', c: 'indigo', ab: 'M4', assets: ['Forex', 'CFD', 'Crypto'], pop: 1 },
+  { id: 'ctrader', name: 'cTrader', kind: 'Platform', csv: 'generic', c: 'red', ab: 'cT', assets: ['Forex', 'CFD', 'Crypto', 'Stocks'], pop: 1, how: 'In cTrader open History, choose the date range and export to CSV or Excel (save it as CSV).' },
+  { id: 'tradovate', name: 'Tradovate', kind: 'Platform', csv: 'tradovate', c: 'cyan', ab: 'Tv', assets: ['Futures'], pop: 1 },
+  { id: 'tradelocker', name: 'TradeLocker', kind: 'Platform', csv: 'generic', c: 'slate', ab: 'TL', assets: ['Forex', 'CFD', 'Crypto', 'Stocks'], pop: 1, how: 'In TradeLocker open the Orders History tab and export it as CSV.' },
+  { id: 'ninjatrader', name: 'NinjaTrader', kind: 'Platform', csv: 'ninjatrader', c: 'orange', ab: 'NT', assets: ['Futures', 'Forex'], pop: 1 },
+  { id: 'topstepx', name: 'TopstepX', kind: 'Prop firm', csv: 'generic', c: 'slate', ab: 'TX', assets: ['Futures'], pop: 1, how: 'In TopstepX open Trades, choose the date range and export to CSV.' },
+  { id: 'thinkorswim', name: 'Thinkorswim', kind: 'Platform', csv: 'generic', c: 'green', ab: 'TS', assets: ['Stocks', 'Options', 'Futures'], pop: 1, how: 'In thinkorswim open Monitor → Account Statement, pick the dates and export to file (CSV).' },
+  { id: 'rithmic', name: 'Rithmic (R | Trader)', kind: 'Platform', csv: 'generic', c: 'teal', ab: 'R', assets: ['Futures'] },
+  { id: 'dxtrade', name: 'DXtrade', kind: 'Platform', csv: 'generic', c: 'violet', ab: 'DX', assets: ['Forex', 'CFD', 'Crypto'] },
+  { id: 'matchtrader', name: 'Match-Trader', kind: 'Platform', csv: 'generic', c: 'lime', ab: 'MT', assets: ['Forex', 'CFD', 'Crypto'] },
+  { id: 'tradingview', name: 'TradingView', kind: 'Platform', csv: 'generic', c: 'blue', ab: 'TV', assets: ['Stocks', 'Futures', 'Forex', 'Crypto'], how: 'In the TradingView Trading Panel open History and export the data as CSV.' },
+  { id: 'ibkr', name: 'Interactive Brokers', kind: 'Broker', csv: 'generic', c: 'red', ab: 'IB', assets: ['Stocks', 'Options', 'Futures', 'Forex'], how: 'In Client Portal open Performance & Reports → Flex Queries, build a Trades query and export it as CSV.' },
+  { id: 'schwab', name: 'Charles Schwab', kind: 'Broker', csv: 'generic', c: 'cyan', ab: 'CS', assets: ['Stocks', 'Options'] },
+  { id: 'webull', name: 'Webull', kind: 'Broker', csv: 'generic', c: 'blue', ab: 'W', assets: ['Stocks', 'Options', 'Crypto'] },
+  { id: 'robinhood', name: 'Robinhood', kind: 'Broker', csv: 'generic', c: 'lime', ab: 'R', assets: ['Stocks', 'Options', 'Crypto'] },
+  { id: 'binance', name: 'Binance', kind: 'Exchange', csv: 'generic', c: 'yellow', ab: 'B', assets: ['Crypto'] },
+  { id: 'bybit', name: 'Bybit', kind: 'Exchange', csv: 'generic', c: 'orange', ab: 'By', assets: ['Crypto'] },
+  { id: 'icmarkets', name: 'IC Markets', kind: 'Broker', sync: 'mt5', mt4: true, csv: 'generic', c: 'slate', ab: 'IC', assets: ['Forex', 'CFD', 'Crypto', 'Stocks'], servers: ['ICMarketsSC-Demo', 'ICMarketsSC-MT5', 'ICMarketsSC-MT5-2'] },
+  { id: 'pepperstone', name: 'Pepperstone', kind: 'Broker', sync: 'mt5', mt4: true, csv: 'generic', c: 'indigo', ab: 'P', assets: ['Forex', 'CFD', 'Crypto'] },
+  { id: 'blueberry', name: 'Blueberry Markets', kind: 'Broker', sync: 'mt5', mt4: true, csv: 'generic', c: 'blue', ab: 'BB', assets: ['Forex', 'CFD'], servers: ['BlueberryMarkets-Demo', 'BlueberryMarkets-Live'] },
+  { id: 'exness', name: 'Exness', kind: 'Broker', sync: 'mt5', mt4: true, csv: 'generic', c: 'yellow', ab: 'Ex', assets: ['Forex', 'CFD', 'Crypto'] },
+  { id: 'oanda', name: 'OANDA', kind: 'Broker', sync: 'mt5', mt4: true, csv: 'generic', c: 'slate', ab: 'O', assets: ['Forex', 'CFD'] },
+  { id: 'amp', name: 'AMP Futures', kind: 'Broker', csv: 'generic', c: 'teal', ab: 'AMP', assets: ['Futures'] },
+  { id: 'ftmo', name: 'FTMO', kind: 'Prop firm', sync: 'mt5', mt4: true, csv: 'generic', c: 'slate', ab: 'F', assets: ['Forex', 'CFD', 'Crypto', 'Stocks'], servers: ['FTMO-Demo', 'FTMO-Demo2', 'FTMO-Server', 'FTMO-Server2', 'FTMO-Server3'] },
+  { id: 'the5ers', name: 'The5ers', kind: 'Prop firm', sync: 'mt5', csv: 'generic', c: 'violet', ab: '5', assets: ['Forex', 'CFD'] },
+  { id: 'fundednext', name: 'FundedNext', kind: 'Prop firm', sync: 'mt5', mt4: true, csv: 'generic', c: 'purple', ab: 'FN', assets: ['Forex', 'CFD'] },
+  { id: 'fundingpips', name: 'FundingPips', kind: 'Prop firm', sync: 'mt5', csv: 'generic', c: 'teal', ab: 'FP', assets: ['Forex', 'CFD'] },
+  { id: 'apex', name: 'Apex Trader Funding', kind: 'Prop firm', csv: 'tradovate', c: 'orange', ab: 'AX', assets: ['Futures'], how: 'Apex accounts run on Tradovate or Rithmic. On Tradovate open Reports → Performance and download the CSV.' },
+  { id: 'topstep', name: 'Topstep', kind: 'Prop firm', csv: 'generic', c: 'slate', ab: 'T', assets: ['Futures'] },
+  { id: 'tpt', name: 'Take Profit Trader', kind: 'Prop firm', csv: 'tradovate', c: 'green', ab: 'TP', assets: ['Futures'] },
+  { id: 'mff', name: 'MyFundedFutures', kind: 'Prop firm', csv: 'tradovate', c: 'blue', ab: 'MF', assets: ['Futures'] }
+];
+const brokerById = id => BROKERS.find(x => x.id === id);
+const brokerByName = n => BROKERS.find(x => x.name.toLowerCase() === String(n || '').toLowerCase());
+const blogo = (x, size = 40) => { const b = typeof x === 'string' ? (brokerByName(x) || { name: x, ab: (x || '?').slice(0, 1).toUpperCase(), c: 'slate' }) : x; return `<span class="blogo" style="--bc:var(--c-${b.c});width:${size}px;height:${size}px;font-size:${Math.round(size * (b.ab.length > 2 ? .3 : .38))}px" aria-hidden="true">${esc(b.ab)}</span>`; };
+const hasBrokerApi = () => !!(window.__llLocal && window.__llLocal.broker && window.__llLocal.mode === 'server');
+
+function addStepPick() {
+  const I = S.imp, q = (I.q || '').trim().toLowerCase(), list = q ? BROKERS.filter(b => (b.name + ' ' + b.kind).toLowerCase().includes(q)) : I.showAll ? BROKERS : BROKERS.filter(b => b.pop);
+  return `<div class="aw"><div class="aw-kicker">Add trades</div><h2 class="aw-h" id="mTitle">Choose broker, prop firm or trading platform</h2>
+    <label class="aw-search"><input id="awSearch" data-keep value="${esc(I.q || '')}" placeholder="Start typing the broker, prop firm or trading platform" autocomplete="off" aria-label="Search brokers"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></label>
+    <div class="label" style="margin-top:6px">${q ? `${list.length} match${list.length === 1 ? '' : 'es'}` : I.showAll ? 'All brokers, prop firms and platforms' : 'Popular'}</div>
+    <div class="aw-grid">${list.map(b => `<button class="aw-b" data-action="awPick" data-v="${b.id}" aria-pressed="${I.broker === b.id}">${blogo(b)}<span><b>${esc(b.name)}</b><small>${b.kind}${b.sync ? ' · auto-sync' : ''}</small></span></button>`).join('') || `<p class="hint">Not listed? Pick “Other platform (CSV)” and match the columns yourself.</p>`}
+      ${q || !list.length ? `<button class="aw-b" data-action="awPick" data-v="__other">${blogo({ name: 'Other', ab: '…', c: 'slate' })}<span><b>Other platform (CSV)</b><small>Match columns yourself</small></span></button>` : ''}</div>
+    ${q || I.showAll ? '' : `<button class="linkish" data-action="awAll" style="align-self:flex-start">Show all ${BROKERS.length} brokers, prop firms and platforms</button>`}
+    <div class="actions"><button class="primary aw-cta" data-action="awNext" ${I.broker ? '' : 'disabled'}>Continue</button></div></div>`;
+}
+function addStepMethod() {
+  const I = S.imp, b = brokerById(I.broker) || { name: 'Other platform', ab: '…', c: 'slate' }, m = I.method || (b.sync ? 'sync' : 'file');
+  const card = (k, ic, t, d, off, rec) => `<button class="aw-m" data-action="awMethod" data-v="${k}" aria-pressed="${m === k}" ${off ? 'disabled' : ''}>${rec ? '<span class="aw-rec">Recommended</span>' : ''}<span class="aw-ic">${ic}</span><b>${t}</b><small>${d}</small></button>`;
+  const ic = p => `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  return `<div class="aw"><button class="icon-btn aw-back" data-action="awBack" aria-label="Back">←</button><div class="aw-center">${blogo(b, 64)}<p class="aw-sub">You're linking <b>${esc(b.name)}</b></p></div>
+    <div class="aw-methods">
+      ${card('sync', ic('<path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/>'), 'Auto-sync', b.sync ? 'Connect your broker with a read-only password' : 'Not available for this platform yet', !b.sync, !!b.sync)}
+      ${card('file', ic('<path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/>'), 'File upload', 'Upload the file from your broker with your trading history', false, !b.sync)}
+      ${card('manual', ic('<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 13l2 2 4-4"/>'), 'Add manually', 'Add your trades one by one', false, false)}
+    </div>
+    <div class="actions"><button class="primary aw-cta" data-action="awGo" data-v="${m}">Continue</button></div></div>`;
+}
+function addStepSync() {
+  const I = S.imp, b = brokerById(I.broker), Y = I.sync, plat = Y.platform === 'mt4' ? 'MetaTrader 4' : 'MetaTrader 5';
+  const right = `<aside class="aw-side"><div class="pb-row" style="gap:10px;align-items:center">${blogo(b, 40)}<h3 class="h3" style="margin:0">${esc(b.name)}</h3></div>
+    <div class="hint">Supported asset types</div><div class="fchips">${ALL_ASSETS.filter(a => b.assets.includes(a)).map(a => `<span class="aw-ok">✓ ${a}</span>`).join('')}</div>
+    <h4 style="margin:8px 0 0">Linking ${esc(b.name)}</h4><ol class="aw-steps">${MT_STEPS(plat).map(s => `<li>${esc(s)}</li>`).join('')}</ol></aside>`;
+  let left;
+  if (Y.phase === 'preview') {
+    const R = Y.res, net = R.trades.reduce((a, t) => a + t.pnl, 0), start = R.deposits ? R.deposits - (R.withdrawals || 0) : R.info.balance - net;
+    left = `<div class="aw-okbox"><div class="pb-row" style="gap:10px;align-items:center"><span class="aw-check">✓</span><div><b class="gain">Connected successfully</b><div class="hint">${esc(R.info.name || 'Account')} · ${esc(R.info.server || Y.server)}</div></div></div>
+      <div class="aw-bal"><div><span class="hint">Starting balance</span><b class="t-amber">${esc(R.info.currency)} ${start.toFixed(2)}</b></div><div><span class="hint">Current balance</span><b class="gain">${esc(R.info.currency)} ${(+R.info.balance).toFixed(2)}</b></div><div><span class="hint">Total P&amp;L</span><b class="${cls(R.info.balance - start)}">${R.info.balance - start >= 0 ? '+' : ''}${(R.info.balance - start).toFixed(2)}</b></div></div></div>
+      <div class="label">Trades to import (${Y.fresh.length})${Y.dupes ? ` · ${Y.dupes} already in your journal` : ''}</div>
+      <div class="table-scroll" style="max-height:300px;overflow-y:auto"><table><thead><tr><th>Date</th><th>Symbol</th><th>Type</th><th class="r">Lots</th><th class="r">P&amp;L</th></tr></thead><tbody>${Y.fresh.slice().reverse().slice(0, 200).map(t => `<tr><td class="num">${t.date}</td><td><b>${esc(t.symbol)}</b></td><td><span class="pill ${t.side === 'Long' ? 'g' : 'l'}">${t.side === 'Long' ? 'BUY' : 'SELL'}</span></td><td class="r num">${t.qty}</td><td class="r num ${cls(t.pnl)}">${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}</td></tr>`).join('')}</tbody></table></div>
+      <label class="hint" style="display:flex;gap:8px;align-items:center">Account name <input class="fin" id="awAccName" data-keep value="${esc(Y.accName || `${b.name} ${R.info.login || Y.login}`)}" style="max-width:260px"></label>
+      <button class="primary aw-cta" data-action="awImport" ${Y.busy ? 'disabled' : ''}>${Y.busy ? 'Importing…' : `⇪ Import ${Y.fresh.length} trade${Y.fresh.length === 1 ? '' : 's'}`}</button>`;
+  } else {
+    const busy = Y.phase === 'connecting';
+    left = `${b.mt4 || b.id === 'mt4' || b.id === 'mt5' ? `<label>Platform<select id="awPlat" ${busy ? 'disabled' : ''} ${b.id === 'mt4' || b.id === 'mt5' ? 'disabled' : ''}><option value="mt5" ${Y.platform !== 'mt4' ? 'selected' : ''}>MetaTrader 5</option><option value="mt4" ${Y.platform === 'mt4' ? 'selected' : ''}>MetaTrader 4</option></select></label>` : ''}
+      <label>Server <span class="loss">required</span><input id="awServer" data-keep list="awServers" value="${esc(Y.server || '')}" placeholder="e.g. ${esc((b.servers || ['Broker-Server'])[0])}" autocomplete="off" ${busy ? 'disabled' : ''}></label><datalist id="awServers">${(b.servers || []).map(s => `<option value="${esc(s)}">`).join('')}</datalist>
+      <label>Login <span class="loss">*</span><input id="awLogin" data-keep inputmode="numeric" value="${esc(Y.login || '')}" placeholder="Your ${plat.replace('MetaTrader ', 'MT')} account number" autocomplete="off" ${busy ? 'disabled' : ''}></label>
+      <label>Investor password (read-only) <span class="loss">*</span><input id="awPass" data-keep type="password" placeholder="Your read-only investor password" autocomplete="off" ${busy ? 'disabled' : ''}></label>
+      <div class="aw-warn">⚠ Beta. Read-only access, last 365 days of history. The password goes to the sync service once and isn't stored in your journal.</div>
+      ${Y.msg ? `<div class="banner ${Y.phase === 'error' ? '' : 'info'}"><span>${esc(Y.msg)}</span></div>` : ''}
+      ${busy ? `<div class="aw-prog"><span style="width:${Y.progress || 5}%"></span></div>` : ''}
+      <button class="primary aw-cta" data-action="awConnect" ${busy ? 'disabled' : ''}>${busy ? 'Connecting…' : 'Connect'}</button>
+      ${hasBrokerApi() ? '' : `<div class="hint">Auto-sync runs on your Ledgerline website (Vercel) with a MetaApi token. In this view, use File upload instead.</div>`}`;
+  }
+  return `<div class="aw wide"><button class="icon-btn aw-back" data-action="awBack" aria-label="Back" ${Y.phase === 'connecting' ? 'disabled' : ''}>←</button><div class="aw-bar"><span style="width:${Y.phase === 'preview' ? 100 : 66}%"></span></div>
+    <div class="aw-kicker">Add trades</div><h2 class="aw-h" id="mTitle">Connect broker</h2><div class="aw-cols"><div class="aw-form">${left}</div>${right}</div></div>`;
+}
+const pause = ms => new Promise(r => setTimeout(r, ms));
+async function awConnect() {
+  const I = S.imp, Y = I.sync, b = brokerById(I.broker);
+  Y.server = ($('awServer').value || '').trim(); Y.login = ($('awLogin').value || '').replace(/\D/g, ''); const pass = $('awPass').value; if ($('awPlat')) Y.platform = $('awPlat').value;
+  if (!Y.server || !Y.login || !pass) { Y.msg = 'Fill in the server, login and investor password.'; Y.phase = 'error'; return renderModal(); }
+  if (!hasBrokerApi()) { Y.msg = 'Auto-sync needs your Ledgerline website on Vercel with METAAPI_TOKEN set. Here, use File upload.'; Y.phase = 'error'; return renderModal(); }
+  const call = body => window.__llLocal.broker(body), step = (msg, p) => { Y.msg = msg; Y.progress = p; if (S.modal && S.modal.kind === 'import') renderModal(); };
+  Y.phase = 'connecting'; step('Checking your login with the broker server…', 8);
+  try {
+    let r = await call({ action: 'connect', platform: Y.platform, server: Y.server, login: Y.login, password: pass, broker: b.name, name: `${b.name} ${Y.login}` }), t0 = Date.now();
+    while (r.pending) { if (Date.now() - t0 > 240000) throw new Error('The broker is taking too long to respond. Try again in a few minutes.'); step('Detecting broker settings… this can take a minute the first time.', Math.min(40, 10 + (Date.now() - t0) / 6000)); await pause((r.wait || 5) * 1000); r = await call({ action: 'connect', platform: Y.platform, server: Y.server, login: Y.login, txId: r.txId, broker: b.name }); }
+    const accountId = r.accountId; let st = { region: r.region }; t0 = Date.now();
+    for (;;) { st = await call({ action: 'status', accountId }); if (st.connectionStatus === 'CONNECTED') break; if (Date.now() - t0 > 240000) throw new Error('The terminal could not connect to the broker. Check the server name and try again.'); step(`Starting the trading terminal (${(st.state || '').toLowerCase().replace(/_/g, ' ') || 'deploying'})…`, Math.min(80, 45 + (Date.now() - t0) / 5000)); await pause(5000); }
+    step('Reading your trade history…', 88);
+    let res; for (let k = 0; ; k++) { try { res = await call({ action: 'fetch', accountId, region: st.region, from: new Date(Date.now() - 365 * 864e5).toISOString() }); break; } catch (e) { if (k >= 5 || !/still connecting/i.test(e.message)) throw e; await pause(8000); } }
+    const have = new Set(S.allTrades.map(t => t.extId).filter(Boolean)), fresh = res.trades.filter(t => !have.has(t.extId));
+    Object.assign(Y, { phase: 'preview', res, fresh, dupes: res.trades.length - fresh.length, accountId, region: st.region, msg: '' });
+  } catch (e) { Y.phase = 'error'; Y.msg = e.message || "Couldn't connect."; }
+  if (S.modal && S.modal.kind === 'import') renderModal();
+}
+async function saveTradesBatch(list, accountId, importId) {
+  const now = new Date().toISOString();
+  if (S.agents.tagger.on) (S.agents.tagger.rules || []).forEach(r => r.cat && r.tag && ensureTagInCat(r.cat, r.tag));
+  for (let i = 0; i < list.length; i += 10) await Promise.all(list.slice(i, i + 10).map(t => S.db.collection('trades').doc('t-' + uid()).set({ ...t, accountId, importId, sample: false, tags: (S.agents.tagger.on && autoTags({ ...t, tags: {} })) || {}, rulesChecked: [], executions: [], attachments: [], note: '', reviewed: false, rating: 0, playbookId: '', createdAt: now })));
+}
+async function awImport() {
+  const I = S.imp, Y = I.sync, b = brokerById(I.broker), R = Y.res; if (!needDb() || Y.busy) return;
+  Y.busy = true; Y.accName = ($('awAccName') || {}).value || Y.accName; renderModal();
+  try {
+    const net = R.trades.reduce((a, t) => a + t.pnl, 0), start = R.deposits ? R.deposits - (R.withdrawals || 0) : R.info.balance - net, now = new Date().toISOString();
+    const existing = S.accounts.find(a => a.sync && a.sync.accountId === Y.accountId), accountId = existing ? existing.id : (I.accountId && I.accountId !== '__new' && I.forAccount ? I.accountId : 'acc-' + uid());
+    const sync = { type: 'auto', provider: 'metaapi', platform: Y.platform, accountId: Y.accountId, region: Y.region, server: Y.server, login: Y.login, lastSync: now, balance: +R.info.balance, currency: R.info.currency };
+    if (existing || (I.forAccount && acctById(accountId) && !acctById(accountId).virtual)) await S.db.collection('accounts').doc(accountId).update({ sync, broker: b.name });
+    else await S.db.collection('accounts').doc(accountId).set({ name: (Y.accName || `${b.name} ${Y.login}`).slice(0, 60), broker: b.name, startingBalance: Math.round(start * 100) / 100, order: Date.now(), sync });
+    const importId = 'imp-' + uid(); await saveTradesBatch(Y.fresh, accountId, importId);
+    await S.db.collection('imports').doc(importId).set({ source: `${b.name} (auto-sync)`, accountId, count: Y.fresh.length, at: now, from: Y.fresh[0] ? Y.fresh[0].date : '', to: Y.fresh.length ? Y.fresh[Y.fresh.length - 1].date : '' });
+    S.imp = null; closeModal(); toast(`${Y.fresh.length} trades imported · auto-sync is on`); S.view = 'settings'; S.setTab = 'accounts'; render();
+  } catch (e) { Y.busy = false; renderModal(); writeErr(e); }
+}
+const SYNC_EVERY = 6 * 3600e3;
+async function syncAccount(a, manual) {
+  if (!a.sync || a.sync.type !== 'auto' || !hasBrokerApi() || S.syncing[a.id]) return;
+  S.syncing[a.id] = true; if (manual) rerender();
+  try {
+    const from = new Date(Date.parse(a.sync.lastSync || 0) - 3 * 864e5 || Date.now() - 365 * 864e5);
+    let st = await window.__llLocal.broker({ action: 'status', accountId: a.sync.accountId });
+    for (let k = 0; st.connectionStatus !== 'CONNECTED' && k < 24; k++) { await pause(5000); st = await window.__llLocal.broker({ action: 'status', accountId: a.sync.accountId }); }
+    const res = await window.__llLocal.broker({ action: 'fetch', accountId: a.sync.accountId, region: st.region || a.sync.region, from: from.toISOString() });
+    const have = new Set(S.allTrades.map(t => t.extId).filter(Boolean)), fresh = res.trades.filter(t => !have.has(t.extId)), now = new Date().toISOString();
+    if (fresh.length) { const importId = 'imp-' + uid(); await saveTradesBatch(fresh, a.id, importId); await S.db.collection('imports').doc(importId).set({ source: `${a.broker} (auto-sync)`, accountId: a.id, count: fresh.length, at: now, from: fresh[0].date, to: fresh[fresh.length - 1].date }); }
+    await S.db.collection('accounts').doc(a.id).update({ sync: { ...a.sync, lastSync: now, balance: +res.info.balance, region: st.region || a.sync.region, error: '' } });
+    if (manual || fresh.length) toast(`${a.name}: ${fresh.length ? fresh.length + ' new trade' + (fresh.length === 1 ? '' : 's') : 'up to date'}`);
+  } catch (e) {
+    S.db.collection('accounts').doc(a.id).update({ sync: { ...a.sync, error: String(e.message || e).slice(0, 200), lastTry: new Date().toISOString() } }).catch(() => {});
+    if (manual) toast(`${a.name}: ${e.message || 'sync failed'}`);
+  }
+  S.syncing[a.id] = false; rerender();
+}
+function autoSyncDue() {
+  if (!hasBrokerApi() || S._autoSynced) return; S._autoSynced = true;
+  S.accounts.filter(a => !a.deleted && a.sync && a.sync.type === 'auto' && Date.now() - Date.parse(a.sync.lastSync || 0) > SYNC_EVERY && Date.now() - Date.parse(a.sync.lastTry || 0) > 3600e3).forEach(a => syncAccount(a));
+}
+const fmtStamp = iso => { if (!iso) return '–'; const d = new Date(iso); return isNaN(d) ? '–' : d.toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+function accountsTable() {
+  const accs = allAccounts();
+  return `<div class="toolbar"><div><h3 class="h3">Accounts</h3><div class="hint">Each account has its own balance. Auto-synced accounts pull new trades every 6 hours while the journal is open.</div></div><button class="primary" data-action="acctEdit" data-v="">Add account</button></div>
+    <div class="table-scroll"><table class="rtable acct-table"><thead><tr><th>Account name</th><th>Broker</th><th class="r">Balance</th><th>Last update</th><th>Next update</th><th>Type</th><th class="r">Actions</th></tr></thead><tbody>
+    ${accs.map(a => {
+      const ts = S.allTrades.filter(t => acctOf(t) === a.id), net = ts.reduce((x, t) => x + t.pnl, 0), cash = S.cash.filter(c => (c.accountId || 'main') === a.id).reduce((x, c) => x + c.amount, 0);
+      const Y = a.sync && a.sync.type === 'auto' ? a.sync : null, bal = Y && Y.balance != null ? Y.balance : (+a.startingBalance || 0) + net + cash;
+      const lastImp = S.imports.filter(i => i.accountId === a.id).map(i => i.at).sort().pop(), last = Y ? Y.lastSync : (lastImp || (ts.length ? ts.map(t => t.createdAt || t.date).sort().pop() : ''));
+      const open = S.acctMenu === a.id;
+      return `<tr><td><b>${esc(a.name)}</b>${Y && Y.error ? `<div class="hint loss" title="${esc(Y.error)}">Sync problem: ${esc(Y.error.slice(0, 60))}</div>` : ''}</td>
+        <td><span class="pb-row" style="gap:8px;align-items:center">${blogo(a.broker || 'Manual', 24)}${esc(a.broker || 'Manual')}</span></td>
+        <td class="r num"><button class="linkish num" data-action="acctEdit" data-v="${a.virtual ? '' : a.id}" ${a.virtual ? 'disabled' : ''}>${priv(money(bal))}</button></td>
+        <td class="num">${fmtStamp(last)}</td><td class="num">${Y ? (S.syncing[a.id] ? 'Syncing…' : fmtStamp(new Date(Math.max(Date.now(), Date.parse(Y.lastSync || 0) + SYNC_EVERY)).toISOString())) : '–'}</td>
+        <td>${Y ? `<span class="chip" style="color:var(--gain)">Auto-sync</span>` : 'Manual'}</td>
+        <td class="r" style="white-space:nowrap;position:relative"><button class="icon-btn has-tip" data-action="awForAcct" data-v="${a.id}" aria-label="Add trades to ${esc(a.name)}" data-tip="Add trades">+</button><button class="icon-btn" data-action="acctMenu" data-v="${a.id}" aria-expanded="${open}" aria-label="More actions">⋮</button>
+          ${open ? `<div class="acct-menu" role="menu">${Y ? `<button role="menuitem" data-action="acctSync" data-v="${a.id}" ${hasBrokerApi() ? '' : 'disabled'}>Sync now</button><button role="menuitem" data-action="acctUnlink" data-v="${a.id}">${S.armed === 'unl-' + a.id ? 'Confirm: stop auto-sync' : 'Stop auto-sync'}</button>` : ''}${a.virtual ? '' : `<button role="menuitem" data-action="acctEdit" data-v="${a.id}">Edit</button>`}${ts.length || a.virtual ? '' : `<button role="menuitem" class="danger" data-action="acctDel" data-v="${a.id}">${S.armed === 'acc-' + a.id ? 'Confirm delete' : 'Delete'}</button>`}</div>` : ''}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+S.syncing = {};
+
 /* ---------- modals ---------- */
 function openModal(kind, arg) { S.modal = { kind, arg }; renderModal(); }
 function closeModal() { if (S.prevModal) { S.modal = S.prevModal; S.prevModal = null; renderModal(); return; } S.modal = null; S.pbEdit = null; const b = $('modal'); b.hidden = true; b.innerHTML = ''; b.className = 'scrim'; }
@@ -3647,7 +3866,7 @@ document.addEventListener('click', async e => {
   if (!b) { if ((S.accMenu || S.dashMenu || S.repMenu) && !e.target.closest('.ddwrap')) { S.accMenu = false; S.dashMenu = false; S.repMenu = false; rerender(); } if (e.target === $('modal')) { saveNote(true); S.prevModal = null; closeModal(); } if (S.tagMenu && !e.target.closest('.menu')) { S.tagMenu = null; render(); } return; }
   const a = b.dataset.action, id = b.dataset.id;
   if (a !== 'fmt' && a !== 'tpl' && $('editor')) saveNote(true);
-  if (!['del', 'delTrade', 'clearSamples', 'bulkDelete', 'delPb', 'delCat', 'delNote', 'delFolder', 'acctDel', 'undoImport', 'tplDel', 'econDel', 'propDel', 'propTxDel', 'dashDelete', 'resetTracker', 'caDel'].includes(a)) S.armed = null;
+  if (!['del', 'delTrade', 'clearSamples', 'bulkDelete', 'delPb', 'delCat', 'delNote', 'delFolder', 'acctDel', 'undoImport', 'tplDel', 'econDel', 'propDel', 'propTxDel', 'dashDelete', 'resetTracker', 'caDel', 'acctUnlink'].includes(a)) S.armed = null;
   if (a === 'sel' || a === 'selAll' || a === 'toggleRev') e.stopPropagation();
   switch (a) {
     case 'add': if (!needDb()) return; return openModal('add', b.dataset.d);
@@ -3765,10 +3984,25 @@ document.addEventListener('click', async e => {
       S.armed = null; S.folders = S.folders.filter(f => f.id !== k); if (S.nbFolder === k) S.nbFolder = 'all';
       S.db.doc('settings/notebook').set({ folders: S.folders }).catch(writeErr); toast('Folder deleted. Its notes moved to My notes.'); break;
     }
-    case 'addFlow': if (!needDb()) return; S.imp = { step: 1, src: null, accountId: (S.accSel && S.accSel[0]) || allAccounts()[0].id, dateFmt: 'MDY', text: '' }; return openModal('import');
+    case 'addFlow': if (!needDb()) return; S.imp = { step: 'pick', src: null, accountId: (S.accSel && S.accSel[0]) || allAccounts()[0].id, dateFmt: 'MDY', text: '' }; return openModal('import');
     case 'impSrc': S.imp.src = b.dataset.v; S.imp.map = null; S.imp.header = null; renderModal(); return;
     case 'impNext': S.imp.step = 2; renderModal(); return;
-    case 'impBack': S.imp.step = Math.max(1, S.imp.step - 1); S.imp.msg = ''; renderModal(); return;
+    case 'impBack': S.imp.msg = ''; S.imp.step = S.imp.step === 2 ? (S.imp.broker && S.imp.broker !== '__other' ? 'method' : 'pick') : Math.max(2, S.imp.step - 1); renderModal(); return;
+    case 'awPick': S.imp.broker = b.dataset.v; renderModal(); return;
+    case 'awAll': S.imp.showAll = true; renderModal(); return;
+    case 'awNext': { const I = S.imp; if (!I.broker) return; if (I.broker === '__other') { I.src = 'generic'; I.srcBroker = null; I.map = null; I.header = null; I.step = 2; } else { I.method = brokerById(I.broker).sync ? 'sync' : 'file'; I.step = 'method'; } renderModal(); return; }
+    case 'awMethod': S.imp.method = b.dataset.v; renderModal(); return;
+    case 'awBack': { const I = S.imp; I.step = I.step === 'sync' ? 'method' : 'pick'; renderModal(); return; }
+    case 'awGo': { const I = S.imp, br = brokerById(I.broker), m = I.method || b.dataset.v;
+      if (m === 'sync') { I.sync = { platform: br.sync === 'mt4' ? 'mt4' : 'mt5', phase: 'form' }; I.step = 'sync'; renderModal(); return; }
+      if (m === 'manual') { closeModal(); return openModal('add'); }
+      I.src = br.csv || 'generic'; I.srcBroker = br; I.map = null; I.header = null; I.step = 2; if (!I.forAccount && br) { const ex = S.accounts.find(a => !a.deleted && a.broker === br.name); if (ex) I.accountId = ex.id; else if (S.accounts.some(a => !a.deleted)) { I.accountId = '__new'; I.newAcc = br.name + ' account'; } } renderModal(); return; }
+    case 'awConnect': awConnect(); return;
+    case 'awImport': awImport(); return;
+    case 'awForAcct': if (!needDb()) return; S.acctMenu = null; S.imp = { step: 'pick', src: null, accountId: b.dataset.v, forAccount: true, dateFmt: 'MDY', text: '' }; { const a = acctById(b.dataset.v), br = a && brokerByName(a.broker); if (br) { S.imp.broker = br.id; S.imp.step = 'method'; S.imp.method = br.sync ? 'sync' : 'file'; } } return openModal('import');
+    case 'acctMenu': S.acctMenu = S.acctMenu === b.dataset.v ? null : b.dataset.v; S.armed = null; break;
+    case 'acctSync': { const a = acctById(b.dataset.v); S.acctMenu = null; if (a) syncAccount(a, true); break; }
+    case 'acctUnlink': { const k = b.dataset.v, a = acctById(k); if (!a || !a.sync) return; if (S.armed !== 'unl-' + k) { S.armed = 'unl-' + k; break; } S.armed = null; S.acctMenu = null; if (hasBrokerApi()) window.__llLocal.broker({ action: 'remove', accountId: a.sync.accountId }).catch(() => {}); try { await S.db.collection('accounts').doc(k).update({ sync: { ...a.sync, type: 'manual', balance: null } }); toast('Auto-sync stopped. Trades already imported stay in your journal.'); } catch (err) { writeErr(err); } break; }
     case 'impPreview': {
       const ta = $('impText'); if (ta && ta.value && ta.value.length !== Math.min(20000, (S.imp.text || '').length)) S.imp.text = ta.value;
       const nm = $('impAccName'); if (nm) S.imp.newAcc = nm.value.trim();
@@ -3978,6 +4212,7 @@ document.addEventListener('input', e => {
   if (el.id === 'editor') return saveNote();
   if (el.id === 'pickSearch') { S.pickQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('pickSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'askIn') { S.askDraft = el.value; return; }
+  if (el.id === 'awSearch' && S.imp) { S.imp.q = el.value; const pos = el.selectionStart; renderModal(); const n = $('awSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'dashName' && S.dashEdit) { S.dashEdit.name = el.value; return; }
   if (el.id === 'colSearch') { S.colQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('colSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'libSearch') { S.libQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('libSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
@@ -3999,6 +4234,7 @@ document.addEventListener('focusout', e => { if (e.target.id === 'editor') saveN
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'fileIn') { uploadFiles(el.files, S.uploadFor); el.value = ''; return; }
+  if (el.id === 'awPlat' && S.imp && S.imp.sync) { S.imp.sync.platform = el.value; return; }
   if (el.id === 'btFile') { if (el.files[0]) btUpload(el.files[0]); el.value = ''; return; }
   if (el.dataset.bt && el.tagName === 'SELECT') { S.bt[el.dataset.bt] = el.value; rerender(); return; }
   if (el.dataset.lim) { if (!needDb()) return; S.agents.limits = { ...(S.agents.limits || {}), [el.dataset.lim]: Math.max(1, Math.round(+el.value || 3)) }; saveAgents(); rerender(); return; }
@@ -4149,7 +4385,7 @@ render();
   db.collection('playbooks').onSnapshot(snap => { S.playbooks = snap.docs.map(d => ({ groups: [], ...d.data(), id: d.id })).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)); safeRender(); }, () => {});
   db.collection('journal').onSnapshot(snap => { const j = {}; snap.docs.forEach(d => j[d.id] = d.data()); S.journal = j; safeRender(); }, () => {});
   db.doc('settings/rules').onSnapshot(s => { if (s.exists) { const x = s.data(); S.rules = { ...DEFAULT_RULES, ...x, on: { ...DEFAULT_RULES.on, ...(x.on || {}) }, manual: x.manual || [] }; } else S.rules = DEFAULT_RULES; safeRender(); }, () => {});
-  db.collection('accounts').onSnapshot(snap => { S.accounts = snap.docs.map(d => ({ ...d.data(), id: d.id })); applyFilters(); safeRender(); }, () => {});
+  db.collection('accounts').onSnapshot(snap => { S.accounts = snap.docs.map(d => ({ ...d.data(), id: d.id })); applyFilters(); safeRender(); if (!S._autoSynced) setTimeout(autoSyncDue, 4000); }, () => {});
   db.collection('dashTemplates').onSnapshot(snap => { S.dashDocs = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
   db.collection('econ').onSnapshot(snap => { S.econ = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(e => e.date && e.event); safeRender(); }, () => {});
   db.collection('props').onSnapshot(snap => { S.props = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(x => x.firm); safeRender(); }, () => {});
