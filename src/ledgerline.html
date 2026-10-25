@@ -556,6 +556,31 @@ button.ins-alert{cursor:pointer}button.ins-alert:hover{border-color:var(--accent
 .acct-menu{position:absolute;right:8px;top:calc(100% - 4px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.2);padding:4px;display:flex;flex-direction:column;min-width:180px}
 .acct-menu button{border:0;background:none;text-align:left;padding:8px 10px;border-radius:6px;font-size:13px}.acct-menu button:hover{background:var(--surface-2)}.acct-menu .danger{color:var(--loss)}
 @media (max-width:760px){.aw-grid,.aw-methods,.aw-cols{grid-template-columns:1fr}.aw-m{padding:36px 14px 18px}}
+
+/* v20: education */
+.learn{display:flex;flex-direction:column;gap:14px}
+.ln-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:6px}
+.ln-card{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.ln-card:hover{border-color:var(--accent)}.ln-card b{flex:1;font-size:13.5px}.ln-card small{color:var(--muted);font-size:11.5px;white-space:nowrap}
+.ln-dot{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px}.ln-dot.on{background:var(--gain);border-color:var(--gain);color:#fff}
+.ln-read{max-width:780px;display:flex;flex-direction:column;gap:10px}.ln-read .linkish{align-self:flex-start}
+.ln-h{font-family:var(--f-display);font-size:26px;margin:0;letter-spacing:-.02em}
+.ln-body{font-size:15px;line-height:1.7}.ln-body h4{margin:16px 0 4px;color:var(--accent);font-size:13px;text-transform:uppercase;letter-spacing:.06em}.ln-body ul,.ln-body ol{padding-left:22px}
+.ln-quiz{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px;background:var(--surface-2)}
+.ln-q{display:flex;flex-direction:column;gap:6px}.fchip.ok{border-color:var(--gain);color:var(--gain)}.fchip.bad{border-color:var(--loss);color:var(--loss)}
+.st-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;align-items:start}
+.st-card{display:flex;flex-direction:column;gap:8px;text-align:left;cursor:pointer}.st-card:hover{border-color:var(--accent)}.st-card b{font-size:16px}
+.st-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 24px}.st-grid h4{margin:10px 0 4px;color:var(--accent);font-size:12.5px;text-transform:uppercase;letter-spacing:.06em}.st-grid p{margin:0}.st-grid ul{margin:0;padding-left:20px}
+.vid-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+.learn .form{grid-template-columns:repeat(2,minmax(0,1fr))}.learn .form label{min-width:0}.learn .form input{width:100%;min-width:0}
+.learn .st-cards:has(.form){grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr))}
+.vid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;align-items:start}
+.vid{display:flex;flex-direction:column;gap:8px}
+.vid-thumb{position:relative;padding:0;border:0;border-radius:10px;overflow:hidden;aspect-ratio:16/9;background:var(--surface-2)}.vid-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.vid-thumb span{position:absolute;inset:0;margin:auto;width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:grid;place-items:center;font-size:20px}
+.vid-frame{aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000}.vid-frame iframe{width:100%;height:100%;border:0}
+.gl{display:grid;grid-template-columns:minmax(120px,180px) minmax(0,1fr);gap:8px 18px;margin:12px 0 0}.gl dt{font-weight:600}.gl dd{margin:0;color:var(--muted)}
+@media (max-width:640px){.st-grid,.vid-form,.gl{grid-template-columns:1fr}}
 .home-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:start}
 .focus{display:flex;flex-direction:column;gap:6px}
 .explore{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -733,7 +758,7 @@ a.focus-item{text-decoration:none;color:inherit}
 .navpanel .brand{justify-content:space-between;padding:0 4px 0 8px}
 .navc-btn{background:none;border:0;color:var(--rail-muted);font-size:17px;width:28px;height:28px;border-radius:7px;line-height:1}.navc-btn:hover{background:var(--rail-hover);color:var(--rail-ink)}
 .navsec{display:none;flex-direction:column;gap:2px}
-.rail[data-sec="journal"] .navsec[data-sec="journal"],.rail[data-sec="ai"] .navsec[data-sec="ai"],.rail[data-sec="props"] .navsec[data-sec="props"],.rail[data-sec="accounts"] .navsec[data-sec="accounts"]{display:flex}
+.rail[data-sec="journal"] .navsec[data-sec="journal"],.rail[data-sec="ai"] .navsec[data-sec="ai"],.rail[data-sec="props"] .navsec[data-sec="props"],.rail[data-sec="accounts"] .navsec[data-sec="accounts"],.rail[data-sec="learn"] .navsec[data-sec="learn"]{display:flex}
 .nav-sep{height:1px;background:color-mix(in srgb,var(--rail-ink) 12%,transparent);margin:8px 10px}
 @media (max-width:820px){
   .app,.app.navc{grid-template-columns:minmax(0,1fr)}
@@ -755,6 +780,7 @@ a.focus-item{text-decoration:none;color:inherit}
       <button class="strip-logo" data-action="view" data-view="home" aria-label="Ledgerline home"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="var(--accent)"/><path d="M6 15.5l3.5-4 3 2.5L18 8" stroke="var(--accent-ink)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="strip-btn navx-btn" data-action="navCollapse" aria-label="Expand menu" data-stip="Expand menu">»</button>
       <button class="strip-btn" data-action="navSec" data-v="journal" id="sec-journal" aria-label="Journal" data-stip="Journal"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3.5h9.5a2 2 0 012 2V17H6a2 2 0 01-2-2z"/><path d="M4 15a2 2 0 012-2h9.5M8 7h4"/></svg></button><button class="strip-btn" data-action="navSec" data-v="ai" id="sec-ai" aria-label="AI coach" data-stip="AI coach"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.5l1.6 4.4 4.4 1.6-4.4 1.6L10 14.5l-1.6-4.4L4 8.5l4.4-1.6z"/><path d="M15.5 13.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg></button><button class="strip-btn" data-action="navSec" data-v="props" id="sec-props" aria-label="Prop firms" data-stip="Prop firms"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 17.5V3M4.5 3.5h10l-2 3.5 2 3.5h-10"/></svg></button><button class="strip-btn" data-action="navSec" data-v="accounts" id="sec-accounts" aria-label="Accounts & settings" data-stip="Accounts & settings"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="M2.5 8h15M13 12h2"/></svg></button>
+      <button class="strip-btn" data-action="navSec" data-v="learn" id="sec-learn" aria-label="Education" data-stip="Education"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 8L10 4l8.5 4L10 12z"/><path d="M5 9.8V14c1.5 1.4 3.2 2 5 2s3.5-.6 5-2V9.8M18.5 8v4.5"/></svg></button>
       <div class="strip-foot">
         <button class="strip-btn" data-action="themeFlip" id="themeFlip" aria-label="Switch light or dark mode" data-stip="Light / dark"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 12.2A7 7 0 017.8 3.5a7 7 0 108.7 8.7z"/></svg></button>
         <button class="strip-btn" data-action="bell" id="bellBtn" aria-label="Alerts" data-stip="Alerts"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8a5 5 0 0110 0v4l1.5 2.5h-13L5 12z"/><path d="M8.3 17a1.8 1.8 0 003.4 0"/></svg><span class="badge" id="bellCount" hidden></span></button>
@@ -800,6 +826,14 @@ a.focus-item{text-decoration:none;color:inherit}
         <button data-action="settings" data-v="tags" data-nav="settings:tags"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5z"/><circle cx="5" cy="5" r="1"/></svg>Tags management</button>
         <button data-action="settings" data-v="profile" data-nav="settings:profile"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.5 14c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/></svg>Profile</button>
         <button data-action="settings" data-v="data" data-nav="settings:data"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="8" cy="3.5" rx="5.5" ry="2"/><path d="M2.5 3.5v9c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-9M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg>Data &amp; backup</button>
+      </div>
+      <div class="navsec" data-sec="learn">
+        <div class="nav-label">Education</div>
+        <button data-action="lnNav" data-v="lessons" data-nav="learn:lessons"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5h4.5A1.5 1.5 0 018 5v8.5a1.2 1.2 0 00-1.2-1.2H2zM14 3.5H9.5A1.5 1.5 0 008 5v8.5a1.2 1.2 0 011.2-1.2H14z"/></svg>Lessons</button>
+        <button data-action="lnNav" data-v="strategies" data-nav="learn:strategies"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13l3-4 2.5 2L13 4M10 4h3v3"/></svg>Strategies</button>
+        <button data-action="lnNav" data-v="videos" data-nav="learn:videos"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2"/><path d="M6.8 6.2v3.6L9.8 8z"/></svg>Videos</button>
+        <button data-action="lnNav" data-v="tools" data-nav="learn:tools"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="1.5" width="10" height="13" rx="1.5"/><path d="M5.5 4.5h5M5.5 8h.01M8 8h.01M10.5 8h.01M5.5 11h.01M8 11h.01M10.5 11h.01"/></svg>Tools &amp; calculators</button>
+        <button data-action="lnNav" data-v="glossary" data-nav="learn:glossary"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2.5h8l2 2v9H3zM6 6h5M6 9h5"/></svg>Glossary</button>
       </div>
       </nav>
     </div>
@@ -1100,11 +1134,11 @@ const TEMPLATES = {
 
 
 /* double sidebar */
-const secOf = v => v === 'agents' ? 'ai' : v === 'props' ? 'props' : v === 'settings' ? 'accounts' : 'journal';
+const secOf = v => v === 'learn' ? 'learn' : v === 'agents' ? 'ai' : v === 'props' ? 'props' : v === 'settings' ? 'accounts' : 'journal';
 try { S.navCollapsed = localStorage.getItem('ll-navc') === '1'; } catch (e) { S.navCollapsed = false; }
 function navPaint() {
   if (S._lastView !== S.view) { S.navSec = secOf(S.view); S._lastView = S.view; }
-  const key = S.view === 'trade' ? 'log' : S.view === 'agents' ? (S.agTab && S.agTab !== 'agents' ? 'agents:' + S.agTab : 'agents') : S.view === 'props' ? (S.propTab && S.propTab !== 'dash' ? 'props:' + S.propTab : 'props') : S.view === 'settings' ? 'settings:' + (S.setTab || 'accounts') : S.view;
+  const key = S.view === 'trade' ? 'log' : S.view === 'agents' ? (S.agTab && S.agTab !== 'agents' ? 'agents:' + S.agTab : 'agents') : S.view === 'props' ? (S.propTab && S.propTab !== 'dash' ? 'props:' + S.propTab : 'props') : S.view === 'settings' ? 'settings:' + (S.setTab || 'accounts') : S.view === 'learn' ? 'learn:' + (S.lnTab || 'lessons') : S.view;
   document.querySelectorAll('.nav [data-nav]').forEach(el => el.setAttribute('aria-current', el.dataset.nav === key && (el.dataset.nav !== 'home' || el.closest('.navsec').dataset.sec === S.navSec) ? 'page' : 'false'));
   const rail = document.querySelector('.rail'); if (rail) rail.dataset.sec = S.navSec || 'journal';
   document.querySelectorAll('.strip [id^="sec-"]').forEach(el => el.setAttribute('aria-current', el.id === 'sec-' + (S.navSec || 'journal') ? 'true' : 'false'));
@@ -1125,6 +1159,7 @@ function render() {
   else if (S.view === 'reports') html = topbar('Reports', 'Performance over time and by setup, symbol and time of day') + banner() + reportsView();
   else if (S.view === 'home') html = homeView();
   else if (S.view === 'replay') html = topbar('Replay', 'Step back through a trade or a whole trading day') + replayView();
+  else if (S.view === 'learn') html = topbar('Education', 'Lessons, strategies, videos and tools to sharpen your trading') + learnView();
   else if (S.view === 'resources') html = topbar('Resources', 'Economic calendar and reference links') + resourcesView();
   else if (S.view === 'agents') html = topbar('Agents', 'Automations that work on your journal') + agentsView();
   else if (S.view === 'props') html = topbar('Prop firms', 'Evaluations, funded accounts, fees and payouts') + propsView();
@@ -3798,6 +3833,117 @@ function accountsTable() {
 }
 S.syncing = {};
 
+/* ---------- v20: Education ---------- */
+const LESSONS = [
+  { id: 'rm1', track: 'Risk management', title: 'Risk per trade: the 1% idea', min: 4, body: `
+<p>Most accounts don't die from one bad idea. They die from sizing that turns a normal losing streak into a hole you can't climb out of. Fixing the amount you risk on every trade is the cheapest edge there is.</p>
+<h4>The rule</h4><p>Decide a fixed slice of your account you're willing to lose if the stop is hit, commonly 0.5–1%. On a $25,000 account, 1% is $250. Your position size comes from that number, not from how confident you feel.</p>
+<h4>Why it works</h4><ul><li>Ten losses in a row at 1% costs about 9.6% of the account. At 5% it costs about 40%.</li><li>A drawdown of 40% needs a 67% gain to recover. Small risk keeps recoveries realistic.</li><li>Your results become comparable in R (multiples of risk), which is how this journal measures you.</li></ul>
+<h4>Put it into practice</h4><ol><li>Set your risk in dollars before the session.</li><li>Use the position size calculator in Tools for every trade.</li><li>Log the risk on each trade so R-multiples are accurate.</li></ol>`, quiz: [['A $40,000 account risking 0.5% per trade risks how much?', ['$20', '$200', '$2,000'], 1], ['After a 50% drawdown, what gain gets you back to even?', ['50%', '75%', '100%'], 2]] },
+  { id: 'rm2', track: 'Risk management', title: 'Position sizing from your stop', min: 5, body: `
+<p>Size is the output of three inputs: how much you'll risk, where your stop is, and what one point is worth.</p>
+<h4>The formula</h4><p><b>Size = risk in $ ÷ (distance to stop × value per point)</b></p><ul><li>Stocks: value per point is $1 per share. Risk $200, stop $0.50 away → 400 shares.</li><li>ES futures: $50 per point. Risk $300, stop 4 points away → 300 ÷ 200 = 1.5, so 1 contract.</li><li>Forex: one standard lot is roughly $10 per pip on USD-quoted pairs. Risk $150, stop 15 pips → 1 lot.</li></ul>
+<h4>Common mistakes</h4><ul><li>Picking size first and then squeezing the stop to fit. The stop belongs where the idea is wrong.</li><li>Rounding up. Always round size down.</li><li>Forgetting fees and slippage on very tight stops.</li></ul>`, quiz: [['Risk $500, stop 2.5 points on NQ ($20/pt). How many contracts?', ['5', '10', '25'], 1]] },
+  { id: 'rm3', track: 'Risk management', title: 'Daily loss limits and stopping rules', min: 4, body: `
+<p>The worst trades of the month usually come after you're already down. A daily loss limit takes that decision away from the version of you that's upset.</p>
+<h4>Set three limits</h4><ul><li><b>Max daily loss:</b> often 2–3R. Hit it and you're done for the day.</li><li><b>Max trades:</b> the number after which your results get worse. Check Behavior alerts on Home to find yours.</li><li><b>Max consecutive losses:</b> two or three in a row means step away for 30 minutes.</li></ul>
+<p>Enter them in Progress tracker → Rules and as a custom agent (e.g. "warn me on my 4th trade of the day") so the journal holds you to them.</p>`, quiz: [['What is the main purpose of a daily loss limit?', ['To make more trades', 'To stop decisions made while tilted', 'To avoid fees'], 1]] },
+  { id: 'ps1', track: 'Psychology', title: 'Revenge trading and tilt', min: 5, body: `
+<p>Revenge trading is entering again quickly to win back a loss. It feels like action; it's usually a lower-quality trade at bigger size.</p>
+<h4>Signs</h4><ul><li>Re-entering within a few minutes of a loss.</li><li>Size above your normal.</li><li>Trading a setup that isn't in your playbook.</li></ul>
+<h4>What helps</h4><ol><li>A mandatory pause after a loss, for example 10–30 minutes. Your Behavior alert card shows your win rate when you wait.</li><li>Write one line in your journal before the next trade: what was the loss, was it a good trade?</li><li>Set a custom agent that flags trades within 5 minutes of a loss.</li></ol>`, quiz: [['Which is a classic sign of revenge trading?', ['Waiting 30 minutes', 'Bigger size right after a loss', 'Journaling'], 1]] },
+  { id: 'ps2', track: 'Psychology', title: 'Process over outcome', min: 4, body: `
+<p>A good trade can lose and a bad trade can win. If you grade yourself on P&amp;L alone, you'll reinforce luck and punish discipline.</p>
+<h4>Grade the process</h4><ul><li>Was it a playbook setup?</li><li>Was size correct for the stop?</li><li>Did you follow the exit plan?</li></ul>
+<p>Use playbook rule checks and the trade rating on every trade. Over weeks, compare P&amp;L of trades where you followed all rules versus the rest (Reports → by playbook).</p>`, quiz: [['A trade followed every rule but lost. How should it be graded?', ['As a mistake', 'As a good trade', 'Delete it'], 1]] },
+  { id: 'ps3', track: 'Psychology', title: 'FOMO and chasing', min: 3, body: `
+<p>Fear of missing out makes you enter late, far from your planned level, with a worse stop. The move you chase has already used part of its reward.</p>
+<ul><li>Define the entry zone before price gets there. If it's gone, it's gone.</li><li>Tag chased entries as a mistake so you can see their cost in Reports.</li><li>Remember: there's another setup tomorrow. Missing a trade costs nothing; chasing one costs money.</li></ul>`, quiz: [] },
+  { id: 'ta1', track: 'Technical analysis', title: 'Support, resistance and levels', min: 5, body: `
+<p>Levels are prices where buyers or sellers acted before: prior highs and lows, the previous day's high/low/close, the opening range, round numbers and VWAP.</p>
+<h4>Using them</h4><ul><li>Mark them before the open in your pre-market briefing.</li><li>Expect reaction, not certainty. A level is a place to watch, not a reason to enter.</li><li>A clean break and hold often turns resistance into support (and the reverse).</li></ul>
+<h4>Quality checks</h4><ul><li>How many times did price react there?</li><li>Was it a higher timeframe level?</li><li>Is there room to the next level for your target?</li></ul>`, quiz: [['Which is usually a stronger level?', ['A 1-minute swing', 'The previous day high', 'A random price'], 1]] },
+  { id: 'ta2', track: 'Technical analysis', title: 'Trend, structure and pullbacks', min: 5, body: `
+<p>An uptrend makes higher highs and higher lows; a downtrend makes lower highs and lower lows. Trading with the structure gives you the wind at your back.</p>
+<ul><li>In an uptrend, buy pullbacks into support (prior breakout level, rising moving average, VWAP).</li><li>A break of the last higher low is the first warning that structure is changing.</li><li>Ranges are different: fade the edges or wait for a breakout, don't trade the middle.</li></ul>`, quiz: [['A break below the last higher low suggests…', ['Trend strengthening', 'Possible change in structure', 'Nothing'], 1]] },
+  { id: 'ta3', track: 'Technical analysis', title: 'VWAP and volume', min: 4, body: `
+<p>VWAP is the average price weighted by volume since the session started. Many intraday traders and algorithms reference it, which is why price often reacts there.</p>
+<ul><li>Above VWAP, buyers are in control on average; below it, sellers are.</li><li>A reclaim of VWAP after a flush is a common long setup; a rejection from below is a common short.</li><li>Rising volume on a breakout confirms participation; a breakout on thin volume fails more often.</li></ul>`, quiz: [] },
+  { id: 'mk1', track: 'Markets & orders', title: 'Order types: market, limit, stop', min: 4, body: `
+<ul><li><b>Market:</b> fills now at the best available price. Fast, but you pay the spread and can slip.</li><li><b>Limit:</b> fills at your price or better. You may not get filled.</li><li><b>Stop (stop-market):</b> becomes a market order when price trades through your level. Used for stop losses and breakout entries.</li><li><b>Stop-limit:</b> becomes a limit order at the trigger; protects price but may not fill in a fast move.</li><li><b>Bracket / OCO:</b> a target and a stop attached to your entry; when one fills, the other cancels.</li></ul>
+<p>Use brackets so your stop is in the market the moment you're filled.</p>`, quiz: [['Which order guarantees price but not a fill?', ['Market', 'Limit', 'Stop-market'], 1]] },
+  { id: 'mk2', track: 'Markets & orders', title: 'Futures, forex and stocks: what differs', min: 5, body: `
+<ul><li><b>Futures:</b> standardized contracts with a fixed value per point (ES $50, NQ $20, MES $5, MNQ $2). Nearly 24-hour trading, leverage set by exchange margin.</li><li><b>Forex:</b> traded in lots (standard 100,000, mini 10,000, micro 1,000 units). Moves measured in pips. Spreads and swap fees matter.</li><li><b>Stocks:</b> priced per share, regular hours 9:30–16:00 ET with pre and post market. Watch liquidity and halts.</li></ul>
+<p>In this journal set the point value on each trade (or via Commissions &amp; fees) so P&amp;L and R are right.</p>`, quiz: [['What is MNQ worth per point?', ['$2', '$5', '$20'], 0]] },
+  { id: 'jr1', track: 'Journaling & review', title: 'A weekly review that changes something', min: 4, body: `
+<ol><li><b>Numbers:</b> net P&amp;L, win rate, average win vs loss, R. Dashboard → Week.</li><li><b>Best and worst 3 trades:</b> what made them so? Look at playbook checks and tags.</li><li><b>Mistake cost:</b> Reports → by mistake tag. Which mistake cost the most R?</li><li><b>One change:</b> pick a single rule for next week and add it to Progress tracker.</li></ol>
+<p>Ask Claude on Home to "Review my last 5 trading days" for a first draft, then edit it in your own words.</p>`, quiz: [] }
+];
+const STRATS = [
+  { id: 'orb', name: 'Opening range breakout', mk: 'Futures, stocks', tf: '1–5 min', level: 'Beginner', idea: 'The first minutes after the open set a range. A decisive break of that range often leads to a directional move as overnight orders and early participants commit.', setup: ['Mark the high and low of the first 15 minutes', 'Note the prior day high/low and pre-market levels', 'Prefer days with a catalyst or above-average volume'], entry: 'Stop order a tick beyond the range high (long) or low (short) after the range is complete.', stop: 'Other side of the range, or the range midpoint for tighter risk.', target: '1.5–3R, or the next key level. Consider taking partial at 1R.', avoid: ['Very wide opening ranges (risk too large)', 'Major news minutes away', 'Choppy pre-market with no levels'], mistakes: ['Entering inside the range early', 'Re-entering repeatedly after false breaks'], bt: { type: 'orb', orMin: 15, entryAfter: '09:45', entryBy: '11:30', stop: 3, target: 9 } },
+  { id: 'vwap', name: 'VWAP reclaim', mk: 'Stocks, futures', tf: '1–5 min', level: 'Intermediate', idea: 'When price flushes below VWAP and then reclaims it with volume, trapped sellers cover and buyers return to the average price.', setup: ['Clear flush below VWAP', 'Volume spike on the flush, then drying up', 'Reclaim candle closes back above VWAP'], entry: 'On the first pullback that holds above VWAP, or the break of the reclaim candle high.', stop: 'Below the reclaim candle low or a few ticks under VWAP.', target: 'The high of day or the next level above; trail under higher lows.', avoid: ['Strong trend days down with lower highs', 'Low-volume stocks'], mistakes: ['Buying the first touch of VWAP without a close above', 'Stops too tight inside VWAP noise'] },
+  { id: 'pullback', name: 'Trend pullback to moving average', mk: 'All', tf: '5–60 min', level: 'Beginner', idea: 'In a trend, price often rotates back to a rising average or prior breakout level before continuing.', setup: ['Higher highs and higher lows (or the reverse)', 'Pullback on lighter volume into the 20 EMA or prior breakout', 'Reversal candle at the level'], entry: 'Break of the reversal candle high (long).', stop: 'Below the pullback low.', target: 'Prior high first, then trail.', avoid: ['Late in an extended move', 'When structure has broken'], mistakes: ['Buying pullbacks in a range', 'Moving stops below every new low'] },
+  { id: 'retest', name: 'Breakout and retest', mk: 'All', tf: '5–60 min', level: 'Intermediate', idea: 'After breaking a key level, price often comes back to test it from the other side. A hold confirms the level has flipped.', setup: ['Clean break of a significant level', 'Pullback to the level with smaller candles', 'Rejection wick or engulfing candle at the level'], entry: 'On confirmation at the retest.', stop: 'Back inside the old range beyond the level.', target: 'Measured move (range height) or next level.', avoid: ['Breaks on news spikes', 'Levels already tested many times today'], mistakes: ['Chasing the initial breakout instead of waiting', 'Ignoring a close back inside the range'] },
+  { id: 'meanrev', name: 'Range mean reversion', mk: 'Forex, futures', tf: '5–15 min', level: 'Intermediate', idea: 'In a defined range, extremes tend to revert toward the middle while no catalyst pushes price out.', setup: ['At least two touches of each range edge', 'No major news scheduled', 'Momentum fading at the edge'], entry: 'Fade the edge after a rejection candle.', stop: 'Beyond the range edge by a buffer.', target: 'Range midpoint first, opposite edge second.', avoid: ['Trending days', 'Breakouts with volume'], mistakes: ['Fading a strong breakout', 'Holding for the full opposite edge every time'] },
+  { id: 'gap', name: 'Gap fill', mk: 'Stocks, index futures', tf: '1–15 min', level: 'Intermediate', idea: 'Opening gaps without a strong catalyst often partially or fully close as early imbalance fades.', setup: ['Gap of a meaningful size without major news', 'First 5–15 minutes fail to extend the gap', 'Price returns through the opening price'], entry: 'Break of the opening range toward the gap.', stop: 'Beyond the opening range extreme.', target: "Previous day's close (gap fill).", avoid: ['Earnings or big news gaps', 'Gaps into multi-day breakouts'], mistakes: ['Fading strong news gaps', 'Entering before the gap shows weakness'] },
+  { id: 'fvg', name: 'Fair value gap (imbalance) entries', mk: 'Forex, futures', tf: '1–15 min', level: 'Advanced', idea: 'A fast three-candle move leaves an imbalance where the first and third candles don\'t overlap. Price often returns into that gap before continuing.', setup: ['Displacement move in the direction of higher-timeframe bias', 'Clear gap between candle 1 and candle 3', 'Gap aligned with a liquidity sweep or key level'], entry: 'Limit order inside the gap, or confirmation within it.', stop: 'Beyond the candle that created the gap.', target: 'The opposing liquidity (prior high/low).', avoid: ['Against the higher-timeframe trend', 'Gaps formed in chop'], mistakes: ['Treating every gap as an entry', 'No higher-timeframe bias'] },
+  { id: 'sd', name: 'Supply and demand zones', mk: 'All', tf: '15 min – daily', level: 'Intermediate', idea: 'Areas where price left quickly show unfilled orders. The first return to a fresh zone can produce a reaction.', setup: ['Strong departure from a base', 'Zone untested since', 'Room to the next opposing zone'], entry: 'At the zone edge with confirmation on a lower timeframe.', stop: 'Beyond the far side of the zone.', target: 'Next opposing zone or 2R+.', avoid: ['Zones tested several times', 'Zones against a strong trend'], mistakes: ['Drawing zones too wide', 'Ignoring higher-timeframe context'] }
+];
+const GLOSSARY = [['ATR', 'Average true range: the average size of a bar over a period, used to size stops to volatility.'], ['Bracket order', 'An entry with a linked stop and target; when one exits, the other cancels.'], ['Drawdown', 'The drop from a peak in account equity to a later low.'], ['Expectancy', 'Average amount won or lost per trade: win rate × avg win − loss rate × avg loss.'], ['Fill', 'A completed execution of an order.'], ['Gap', 'A jump between one session\'s close and the next session\'s open.'], ['Leverage', 'Controlling a larger position than your cash, through margin or contract size.'], ['Liquidity', 'How easily you can trade without moving the price.'], ['Lot', 'Forex size unit: standard 100,000, mini 10,000, micro 1,000 units.'], ['MAE', 'Maximum adverse excursion: the worst price against you during a trade.'], ['MFE', 'Maximum favorable excursion: the best price in your favor during a trade.'], ['Margin', 'Money set aside by your broker to hold a leveraged position.'], ['Pip', 'The standard price step in forex, usually 0.0001 (0.01 for JPY pairs).'], ['Point value', 'Dollar value of a one-point move for one contract (ES $50, NQ $20).'], ['Profit factor', 'Gross profit divided by gross loss. Above 1 means profitable.'], ['R-multiple', 'Result expressed in units of initial risk. +2R means you made twice what you risked.'], ['Scalp', 'A very short trade aiming for a small move.'], ['Slippage', 'The difference between expected and actual fill price.'], ['Spread', 'The gap between bid and ask prices.'], ['Stop loss', 'An order that exits a losing trade at a set price.'], ['Swap', 'Overnight financing fee or credit on forex/CFD positions.'], ['Tick', 'The smallest price move for an instrument (ES 0.25 = $12.50).'], ['Trailing stop', 'A stop that moves with price in your favor.'], ['VWAP', 'Volume-weighted average price for the session.'], ['Win rate', 'Share of trades that are profitable.']];
+const VIDEO_TOPICS = ['position sizing for day traders', 'opening range breakout strategy', 'VWAP trading strategy explained', 'trading psychology revenge trading', 'support and resistance trading', 'how to journal trades', 'risk management for prop firm challenges', 'futures trading basics ES NQ'];
+function ytId(u) { const m = String(u || '').match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/); return m ? m[1] : null; }
+function learnView() {
+  const tab = S.lnTab || 'lessons', done = new Set((S.learn && S.learn.done) || []);
+  const tabs = [['lessons', 'Lessons'], ['strategies', 'Strategies'], ['videos', 'Videos'], ['tools', 'Tools'], ['glossary', 'Glossary']];
+  const head = `<div class="toolbar"><div class="seg" role="tablist">${tabs.map(([k, l]) => `<button role="tab" data-action="lnTab" data-v="${k}" aria-pressed="${tab === k}">${l}</button>`).join('')}</div><span class="hint">${done.size} of ${LESSONS.length} lessons completed</span></div>`;
+  let body = '';
+  if (tab === 'lessons') {
+    const L = LESSONS.find(x => x.id === S.lnOpen);
+    if (L) { const i = LESSONS.indexOf(L), nx = LESSONS[i + 1];
+      body = `<section class="panel card ln-read"><button class="linkish" data-action="lnOpen" data-v="">← All lessons</button><div class="hint">${esc(L.track)} · ${L.min} min read</div><h2 class="ln-h">${esc(L.title)}</h2><div class="ln-body">${L.body}</div>
+        ${L.quiz.length ? `<div class="ln-quiz"><div class="label">Check yourself</div>${L.quiz.map(([q, opts, ans], qi) => { const pick = (S.lnAns || {})[L.id + qi]; return `<div class="ln-q"><b>${esc(q)}</b><div class="fchips">${opts.map((o, oi) => `<button class="fchip ${pick != null ? (oi === ans ? 'ok' : pick === oi ? 'bad' : '') : ''}" data-action="lnAns" data-v="${L.id + qi}" data-o="${oi}" data-a="${ans}" ${pick != null ? 'disabled' : ''}>${esc(o)}</button>`).join('')}</div>${pick != null ? `<div class="hint">${pick === ans ? '✓ Correct' : '✗ Not quite — the highlighted answer is right.'}</div>` : ''}</div>`; }).join('')}</div>` : ''}
+        <div class="actions" style="justify-content:space-between"><button class="${done.has(L.id) ? 'ghost' : 'primary'}" data-action="lnDone" data-v="${L.id}">${done.has(L.id) ? '✓ Completed' : 'Mark as complete'}</button>${nx ? `<button class="secondary" data-action="lnOpen" data-v="${nx.id}">Next: ${esc(nx.title)} →</button>` : ''}</div></section>`;
+    } else {
+      const tracks = [...new Set(LESSONS.map(l => l.track))];
+      body = tracks.map(tr => { const ls = LESSONS.filter(l => l.track === tr), d = ls.filter(l => done.has(l.id)).length; return `<section class="panel card"><div class="cat-head"><h3 class="h3">${esc(tr)}</h3><span class="hint">${d}/${ls.length}</span></div><div class="prog"><span style="width:${d / ls.length * 100}%"></span></div>
+        <div class="ln-grid">${ls.map(l => `<button class="ln-card" data-action="lnOpen" data-v="${l.id}"><span class="ln-dot ${done.has(l.id) ? 'on' : ''}">${done.has(l.id) ? '✓' : ''}</span><b>${esc(l.title)}</b><small>${l.min} min${l.quiz.length ? ' · quiz' : ''}</small></button>`).join('')}</div></section>`; }).join('');
+    }
+  } else if (tab === 'strategies') {
+    const st = STRATS.find(x => x.id === S.lnStrat);
+    if (st) body = `<section class="panel card ln-read"><button class="linkish" data-action="lnStrat" data-v="">← All strategies</button><div class="fchips"><span class="chip">${esc(st.level)}</span><span class="chip">${esc(st.mk)}</span><span class="chip">${esc(st.tf)}</span></div><h2 class="ln-h">${esc(st.name)}</h2><p>${esc(st.idea)}</p>
+      <div class="st-grid"><div><h4>Setup checklist</h4><ul>${st.setup.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div><div><h4>Entry</h4><p>${esc(st.entry)}</p><h4>Stop</h4><p>${esc(st.stop)}</p><h4>Target</h4><p>${esc(st.target)}</p></div>
+      <div><h4>Avoid when</h4><ul>${st.avoid.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div><div><h4>Common mistakes</h4><ul>${st.mistakes.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
+      <div class="hint">Educational only, not a recommendation. Test any strategy on your own data before risking money.</div>
+      <div class="actions" style="justify-content:flex-start"><button class="primary" data-action="lnPb" data-v="${st.id}">Add to my playbooks</button>${st.bt ? `<button class="secondary" data-action="lnBt" data-v="${st.id}">Backtest it</button>` : ''}<button class="ghost" data-action="lnAsk" data-v="${st.id}">Ask Claude how it fits my trading</button></div></section>`;
+    else body = `<div class="st-cards">${STRATS.map(x => `<button class="panel card st-card" data-action="lnStrat" data-v="${x.id}"><div class="fchips"><span class="chip">${esc(x.level)}</span><span class="chip">${esc(x.tf)}</span></div><b>${esc(x.name)}</b><span class="hint">${esc(x.idea.slice(0, 120))}…</span><small class="hint">${esc(x.mk)}</small></button>`).join('')}</div>`;
+  } else if (tab === 'videos') {
+    const V = (S.videos || []).slice().sort((a, b) => (b.at || '').localeCompare(a.at || '')), cats = [...new Set(V.map(v => v.cat).filter(Boolean))], f = S.vidCat || '';
+    body = `<section class="panel card"><h3 class="h3">Your video library</h3><p class="hint" style="margin:0">Save YouTube videos you learn from, with your own notes. They play right here.</p>
+      <form class="form vid-form" data-form="video"><label class="full">YouTube link<input id="vUrl" data-keep placeholder="https://www.youtube.com/watch?v=…" required></label><label>Title<input id="vTitle" data-keep placeholder="What it teaches"></label><label>Category<input id="vCat" data-keep list="vCats" placeholder="Psychology, Strategy…"></label><datalist id="vCats">${['Risk management', 'Psychology', 'Strategy', 'Technical analysis', 'Futures', 'Forex', ...cats].filter((x, i, a) => a.indexOf(x) === i).map(c => `<option value="${esc(c)}">`).join('')}</datalist><div class="actions full" style="justify-content:flex-start;margin:0"><button class="primary" type="submit">Save video</button></div></form>
+      <div class="hint">Looking for something? Search YouTube: ${VIDEO_TOPICS.map(t => `<a href="https://www.youtube.com/results?search_query=${encodeURIComponent(t)}" target="_blank" rel="noopener" class="linkish">${esc(t)}</a>`).join(' · ')}</div></section>
+      ${cats.length ? `<div class="fchips"><button class="fchip" data-action="vidCat" data-v="" aria-pressed="${!f}">All</button>${cats.map(c => `<button class="fchip" data-action="vidCat" data-v="${esc(c)}" aria-pressed="${f === c}">${esc(c)}</button>`).join('')}</div>` : ''}
+      <div class="vid-grid">${V.filter(v => !f || v.cat === f).map(v => `<section class="panel card vid">${S.vidPlay === v.id ? `<div class="vid-frame"><iframe src="https://www.youtube-nocookie.com/embed/${esc(v.yt)}?autoplay=1&rel=0" title="${esc(v.title)}" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>` : `<button class="vid-thumb" data-action="vidPlay" data-v="${v.id}" aria-label="Play ${esc(v.title)}"><img src="https://i.ytimg.com/vi/${esc(v.yt)}/hqdefault.jpg" alt="" loading="lazy"><span>▶</span></button>`}
+        <b>${esc(v.title)}</b>${v.cat ? `<span class="chip" style="align-self:flex-start">${esc(v.cat)}</span>` : ''}
+        <textarea class="fin" data-vnote="${v.id}" rows="2" placeholder="Your notes and takeaways">${esc(v.note || '')}</textarea>
+        <div class="actions" style="margin:0;justify-content:space-between"><a class="linkish" href="https://www.youtube.com/watch?v=${esc(v.yt)}" target="_blank" rel="noopener">Open on YouTube</a><button class="del${S.armed === 'vid-' + v.id ? ' armed' : ''}" data-action="vidDel" data-v="${v.id}">${S.armed === 'vid-' + v.id ? 'Confirm' : 'Remove'}</button></div></section>`).join('') || '<p class="hint">No videos saved yet.</p>'}</div>`;
+  } else if (tab === 'tools') {
+    const C = S.calc = S.calc || { acct: 25000, pct: 1, entry: '', stop: '', target: '', pv: 1, wr: 50, aw: 2, al: 1 };
+    const risk = (+C.acct || 0) * (+C.pct || 0) / 100, dist = Math.abs((+C.entry || 0) - (+C.stop || 0)), size = dist && +C.pv ? Math.floor(risk / (dist * +C.pv) * 1000) / 1000 : null;
+    const rr = dist && C.target !== '' ? Math.abs(+C.target - +C.entry) / dist : null, exp = (+C.wr / 100) * +C.aw - (1 - +C.wr / 100) * +C.al;
+    const n = (k, l, step = 'any') => `<label>${l}<input type="number" step="${step}" data-calc="${k}" value="${esc(C[k])}"></label>`;
+    body = `<div class="st-cards"><section class="panel card"><h3 class="h3">Position size</h3><div class="form">${n('acct', 'Account size ($)')}${n('pct', 'Risk per trade (%)')}${n('entry', 'Entry price')}${n('stop', 'Stop price')}${n('pv', 'Value per point ($) · stock 1, ES 50, NQ 20, 1 lot ≈ 100,000')}${n('target', 'Target price (optional)')}</div>
+      <div class="bt-kpis"><div><div class="label">Risk</div><b class="num">${priv(money(risk))}</b></div><div><div class="label">Size</div><b class="num">${size == null ? '–' : size >= 1 ? Math.floor(size) : size}</b></div><div><div class="label">Reward : risk</div><b class="num">${rr == null ? '–' : rr.toFixed(2) + 'R'}</b></div></div><div class="hint">Size is rounded down. For futures and shares use whole units.</div></section>
+      <section class="panel card"><h3 class="h3">Expectancy</h3><div class="form">${n('wr', 'Win rate (%)')}${n('aw', 'Average win (R)')}${n('al', 'Average loss (R)')}</div>
+      <div class="bt-kpis"><div><div class="label">Expectancy per trade</div><b class="num ${cls(exp)}">${isFinite(exp) ? exp.toFixed(2) + 'R' : '–'}</b></div><div><div class="label">Break-even win rate</div><b class="num">${+C.aw + +C.al ? (+C.al / (+C.aw + +C.al) * 100).toFixed(1) + '%' : '–'}</b></div></div>
+      <div class="hint">Your real numbers: win rate ${(stats(S.trades).wr * 100).toFixed(1)}%. <button class="linkish" data-action="calcMine">Use my journal's numbers</button></div></section></div>`;
+  } else {
+    const q = (S.glQ || '').toLowerCase(), list = GLOSSARY.filter(([t, d]) => !q || (t + ' ' + d).toLowerCase().includes(q));
+    body = `<section class="panel card"><input class="fin" id="glSearch" data-keep value="${esc(S.glQ || '')}" placeholder="Search terms" aria-label="Search glossary" style="max-width:320px"><dl class="gl">${list.map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join('') || '<p class="hint">No matching terms.</p>'}</dl></section>`;
+  }
+  return `<div class="learn">${head}${body}</div>`;
+}
+const saveLearn = () => S.db.doc('settings/learn').set(S.learn).catch(writeErr);
+
 /* ---------- modals ---------- */
 function openModal(kind, arg) { S.modal = { kind, arg }; renderModal(); }
 function closeModal() { if (S.prevModal) { S.modal = S.prevModal; S.prevModal = null; renderModal(); return; } S.modal = null; S.pbEdit = null; const b = $('modal'); b.hidden = true; b.innerHTML = ''; b.className = 'scrim'; }
@@ -3946,7 +4092,7 @@ document.addEventListener('click', async e => {
   if (!b) { if ((S.accMenu || S.dashMenu || S.repMenu) && !e.target.closest('.ddwrap')) { S.accMenu = false; S.dashMenu = false; S.repMenu = false; rerender(); } if (e.target === $('modal')) { saveNote(true); S.prevModal = null; closeModal(); } if (S.tagMenu && !e.target.closest('.menu')) { S.tagMenu = null; render(); } return; }
   const a = b.dataset.action, id = b.dataset.id;
   if (a !== 'fmt' && a !== 'tpl' && $('editor')) saveNote(true);
-  if (!['del', 'delTrade', 'clearSamples', 'bulkDelete', 'delPb', 'delCat', 'delNote', 'delFolder', 'acctDel', 'undoImport', 'tplDel', 'econDel', 'propDel', 'propTxDel', 'dashDelete', 'resetTracker', 'caDel', 'acctUnlink'].includes(a)) S.armed = null;
+  if (!['del', 'delTrade', 'clearSamples', 'bulkDelete', 'delPb', 'delCat', 'delNote', 'delFolder', 'acctDel', 'undoImport', 'tplDel', 'econDel', 'propDel', 'propTxDel', 'dashDelete', 'resetTracker', 'caDel', 'acctUnlink', 'vidDel'].includes(a)) S.armed = null;
   if (a === 'sel' || a === 'selAll' || a === 'toggleRev') e.stopPropagation();
   switch (a) {
     case 'add': if (!needDb()) return; return openModal('add', b.dataset.d);
@@ -4134,6 +4280,19 @@ document.addEventListener('click', async e => {
     case 'navSec': S.navSec = b.dataset.v; if (S.navCollapsed) { S.navCollapsed = false; try { localStorage.setItem('ll-navc', '0'); } catch (e) {} } navPaint(); return;
     case 'navCollapse': S.navCollapsed = !S.navCollapsed; try { localStorage.setItem('ll-navc', S.navCollapsed ? '1' : '0'); } catch (e) {} navPaint(); return;
     case 'bell': S.agTab = 'custom'; S.view = 'agents'; window.scrollTo(0, 0); break;
+    case 'lnNav': S.view = 'learn'; S.lnTab = b.dataset.v; S.lnOpen = null; S.lnStrat = null; window.scrollTo(0, 0); break;
+    case 'lnTab': S.lnTab = b.dataset.v; S.lnOpen = null; S.lnStrat = null; break;
+    case 'lnOpen': S.lnOpen = b.dataset.v || null; window.scrollTo(0, 0); break;
+    case 'lnStrat': S.lnStrat = b.dataset.v || null; window.scrollTo(0, 0); break;
+    case 'lnAns': S.lnAns = { ...(S.lnAns || {}), [b.dataset.v]: +b.dataset.o }; break;
+    case 'lnDone': { if (!needDb()) return; const k = b.dataset.v, d = new Set((S.learn && S.learn.done) || []); d.has(k) ? d.delete(k) : d.add(k); S.learn = { ...(S.learn || {}), done: [...d] }; saveLearn(); break; }
+    case 'lnPb': { if (!needDb()) return; const st = STRATS.find(x => x.id === b.dataset.v); if (!st) return; try { await S.db.collection('playbooks').doc('pb-' + uid()).set({ name: st.name, order: Date.now(), description: st.idea, groups: [{ name: 'Setup', rules: st.setup.map(t => ({ id: uid(), text: t })) }, { name: 'Execution', rules: [st.entry, 'Stop: ' + st.stop, 'Target: ' + st.target].map(t => ({ id: uid(), text: t })) }, { name: 'Skip the trade when', rules: st.avoid.map(t => ({ id: uid(), text: t })) }] }); toast(`${st.name} added to your playbooks`); } catch (err) { writeErr(err); } return; }
+    case 'lnBt': { const st = STRATS.find(x => x.id === b.dataset.v); if (!st || !st.bt) return; S.bt = { ...BT_DEFAULT(), ...st.bt, text: st.name }; S.agTab = 'backtest'; S.view = 'agents'; window.scrollTo(0, 0); toast('Rules filled in. Upload bars or load saved ones, then run.'); break; }
+    case 'lnAsk': { const st = STRATS.find(x => x.id === b.dataset.v); if (!st) return; S.view = 'home'; askClaude(`Look at my journal and tell me how the "${st.name}" strategy fits my trading: which of my trades already look like it, how they performed, which times, symbols and conditions suit it based on my data, and what rules I should add if I trade it. Strategy summary: ${st.idea} Entry: ${st.entry} Stop: ${st.stop} Target: ${st.target}`); window.scrollTo(0, 0); return; }
+    case 'vidPlay': S.vidPlay = b.dataset.v; break;
+    case 'vidCat': S.vidCat = b.dataset.v; break;
+    case 'vidDel': { const k = b.dataset.v; if (S.armed !== 'vid-' + k) { S.armed = 'vid-' + k; break; } S.armed = null; S.db.collection('videos').doc(k).delete().catch(writeErr); break; }
+    case 'calcMine': { const st = stats(S.trades.filter(t => riskOf(t))), ts = S.trades.filter(t => riskOf(t)), w = ts.filter(t => t.pnl > 0), l = ts.filter(t => t.pnl < 0); if (!ts.length) { toast('Log the risk on your trades first, so results can be measured in R.'); return; } S.calc = { ...S.calc, wr: +(w.length / ts.length * 100).toFixed(1), aw: +(w.reduce((a, t) => a + rOf(t), 0) / (w.length || 1)).toFixed(2), al: +Math.abs(l.reduce((a, t) => a + rOf(t), 0) / (l.length || 1)).toFixed(2) }; break; }
     case 'propNav': S.view = 'props'; S.propTab = b.dataset.v; window.scrollTo(0, 0); break;
     case 'patQ': S.patternQ = b.dataset.v; break;
     case 'agTab': S.agTab = b.dataset.v; S.view = 'agents'; S.profMenu = false; window.scrollTo(0, 0); break;
@@ -4297,6 +4456,7 @@ document.addEventListener('input', e => {
   if (el.id === 'editor') return saveNote();
   if (el.id === 'pickSearch') { S.pickQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('pickSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'askIn') { S.askDraft = el.value; return; }
+  if (el.id === 'glSearch') { S.glQ = el.value; const pos = el.selectionStart; render(); const n = $('glSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'awSearch' && S.imp) { S.imp.q = el.value; const pos = el.selectionStart; renderModal(); const n = $('awSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
   if (el.id === 'dashName' && S.dashEdit) { S.dashEdit.name = el.value; return; }
   if (el.id === 'colSearch') { S.colQ = el.value; const pos = el.selectionStart; renderModal(); const n = $('colSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
@@ -4320,6 +4480,8 @@ document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'fileIn') { uploadFiles(el.files, S.uploadFor); el.value = ''; return; }
   if (el.id === 'awPlat' && S.imp && S.imp.sync) { S.imp.sync.platform = el.value; return; }
+  if (el.dataset.calc) { S.calc[el.dataset.calc] = el.value; rerender(); return; }
+  if (el.dataset.vnote) { if (!needDb()) return; S.db.collection('videos').doc(el.dataset.vnote).update({ note: el.value.slice(0, 2000) }).catch(writeErr); return; }
   if (el.id === 'btFile') { if (el.files[0]) btUpload(el.files[0]); el.value = ''; return; }
   if (el.dataset.bt && el.tagName === 'SELECT') { S.bt[el.dataset.bt] = el.value; rerender(); return; }
   if (el.dataset.lim) { if (!needDb()) return; S.agents.limits = { ...(S.agents.limits || {}), [el.dataset.lim]: Math.max(1, Math.round(+el.value || 3)) }; saveAgents(); rerender(); return; }
@@ -4425,6 +4587,7 @@ document.addEventListener('submit', async e => {
     const j = await aiJson(`Turn this auto-tagging instruction into a JSON array of rules [{"field","op","value","cat","tag"}]. Each rule is one condition that adds one tag. Fields: ${TAG_FIELDS.map(([k, l]) => `${k} (${l})`).join(', ')}. Ops: ${TAG_OPS.join(' ')}. Categories: ${S.cats.map(c => `${c.id} (${c.name})`).join(', ')}.\nInstruction: ${text}`); S.tgBusy = false;
     const rules = [].concat(j || []).filter(r => r && TAG_FIELDS.some(x => x[0] === r.field) && TAG_OPS.includes(r.op) && catById(r.cat) && r.tag).map(r => ({ id: 'r' + uid(), field: r.field, op: r.op, value: String(r.value), cat: r.cat, tag: String(r.tag).slice(0, 40) }));
     if (rules.length) { S.agents.tagger.rules = [...(S.agents.tagger.rules || []), ...rules]; rules.forEach(r => ensureTagInCat(r.cat, r.tag)); saveAgents(); toast(`Added ${rules.length} rule${rules.length === 1 ? '' : 's'}. Use “Run on existing trades” to tag past trades.`); } else if (j) toast("Claude couldn't turn that into a rule. Try naming a field, like hold time or entry time."); rerender(); return; }
+  if (f.dataset.form === 'video') { if (!needDb()) return; const url = $('vUrl').value.trim(), yt = ytId(url); if (!yt) { toast("That doesn't look like a YouTube link."); return; } try { await S.db.collection('videos').doc('v-' + uid()).set({ yt, url, title: ($('vTitle').value.trim() || 'Untitled video').slice(0, 120), cat: $('vCat').value.trim().slice(0, 40), note: '', at: new Date().toISOString() }); toast('Video saved'); } catch (err) { writeErr(err); } return; }
   if (f.dataset.form === 'pattern') { const q = ($('patIn').value || '').trim(); if (q) { S.patternQ = q; rerender(); } return; }
   if (f.dataset.form === 'sentiment') { if (!needDb()) return; const v = $('sVix').value, sp = $('sSpy').value; S.agents.sentiment = { date: todayIso(), vix: v === '' ? null : +v, spy: sp === '' ? null : +sp }; S.sentEdit = false; saveAgents(); rerender(); return; }
   if (f.dataset.form === 'ask') { const q = ($('askIn').value || '').trim(); S.askDraft = ''; askClaude(q); return; }
@@ -4480,6 +4643,8 @@ render();
   db.collection('templates').onSnapshot(snap => { S.templates = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(t => t.name); safeRender(); }, () => {});
   db.doc('settings/fees').onSnapshot(s => { S.fees = s.exists ? (s.data().rows || []) : []; safeRender(); }, () => {});
   db.collection('cash').onSnapshot(snap => { S.cash = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(c => c.date && typeof c.amount === 'number'); safeRender(); }, () => {});
+  db.collection('videos').onSnapshot(snap => { S.videos = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
+  db.doc('settings/learn').onSnapshot(sn => { if (sn.exists) { S.learn = sn.data(); safeRender(); } }, () => {});
   db.collection('notes').onSnapshot(snap => { S.notes = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
   db.doc('settings/notebook').onSnapshot(s => { S.folders = s.exists ? (s.data().folders || []) : []; safeRender(); }, () => {});
   db.doc('settings/account').onSnapshot(s => { if (s.exists) { const d = s.data(); S.settings = { ...S.settings, ...d }; if (d.theme && THEMES.some(x => x[0] === d.theme) && d.theme !== getTheme()) { try { localStorage.setItem('ll-theme', d.theme); } catch (e) {} applyTheme(d.theme); } safeRender(); renderProfile(); } }, () => {});

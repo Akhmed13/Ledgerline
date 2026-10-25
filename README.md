@@ -65,7 +65,7 @@ That regenerates `index.html` by wrapping the source in a full HTML document.
 
 Records are stored as JSON documents (one row per document in `ledgerline_docs`), grouped in these collections:
 
-`trades`, `accounts`, `imports`, `templates`, `candles`, `econ`, `props`, `propTx`, `tagcats`, `playbooks`, `journal`, `notes`, `cash`, `dashTemplates`, and the `settings` documents `account`, `rules`, `notebook`, `fees` and `agents`.
+`trades`, `accounts`, `imports`, `templates`, `candles`, `econ`, `props`, `propTx`, `tagcats`, `playbooks`, `journal`, `notes`, `cash`, `dashTemplates`, `videos`, and the `settings` documents `account`, `rules`, `notebook`, `fees`, `agents` and `learn`.
 
 `sample-data/trades.json` holds the 66 demo trades used to seed the artifact version.
 
