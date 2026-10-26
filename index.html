@@ -5003,6 +5003,10 @@ document.addEventListener('input', e => {
   if (el.dataset.rm != null && S.rulesEdit) { S.rulesEdit.manual[+el.dataset.rm].text = el.value; return; }
   if (el.dataset.pbf && S.pbEdit) { const f = el.dataset.pbf; if (f === 'name') S.pbEdit.name = el.value; if (f === 'group') S.pbEdit.groups[+el.dataset.gi].name = el.value; if (f === 'rule') S.pbEdit.groups[+el.dataset.gi].rules[+el.dataset.ri].text = el.value; }
 });
+document.addEventListener('mousedown', e => {
+  if ((S.pbMenu || S.acctMenu) && !(e.target.closest && e.target.closest('.acct-menu, [data-action="pbMenu"], [data-action="acctMenu"]'))) { S.pbMenu = null; S.acctMenu = null; S.armed = null; rerender(); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && (S.pbMenu || S.acctMenu)) { const k = S.pbMenu ? `[data-action="pbMenu"][data-pb="${S.pbMenu}"]` : `[data-action="acctMenu"][data-v="${S.acctMenu}"]`; S.pbMenu = null; S.acctMenu = null; S.armed = null; rerender(); document.querySelector(k)?.focus(); } });
 document.addEventListener('mousedown', e => { if (e.target.id === 'fSym') showSymPick(); else { const p = $('symPick'); if (p && !p.hidden && !p.contains(e.target)) p.hidden = true; } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.aiOpen && !S.modal && document.activeElement && document.activeElement.closest && document.activeElement.closest('#aiPanel')) { S.aiOpen = false; renderAiPanel(); $('aiTopBtn')?.focus(); return; } if (e.key === 'Escape') { const p = $('symPick'); if (p && !p.hidden) { p.hidden = true; e.stopPropagation(); } } }, true);
 document.addEventListener('focusin', e => { const p = $('symPick'); if (!p || p.hidden) return; if (e.target.id === 'fSym') return; if (!p.contains(e.target)) p.hidden = true; });
