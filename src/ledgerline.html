@@ -4063,12 +4063,12 @@ function learnView() {
     }
   } else if (tab === 'strategies') {
     const st = STRATS.find(x => x.id === S.lnStrat);
-    if (st) body = `<section class="panel card ln-read"><button class="linkish" data-action="lnStrat" data-v="">← All strategies</button><div class="fchips"><span class="chip">${esc(st.level)}</span><span class="chip">${esc(st.mk)}</span><span class="chip">${esc(st.tf)}</span></div><h2 class="ln-h">${esc(st.name)}</h2>${st.by ? `<div class="hint" style="margin-top:-4px">by ${esc(st.by)}</div>` : ''}<p>${esc(st.idea)}</p>
+    if (st) body = `<section class="panel card ln-read">${S.lnFrom === 'playbooks' ? `<button class="linkish" data-action="lnBack">← Back to my strategies</button>` : `<button class="linkish" data-action="lnStrat" data-v="">← All strategies</button>`}<div class="fchips"><span class="chip">${esc(st.level)}</span><span class="chip">${esc(st.mk)}</span><span class="chip">${esc(st.tf)}</span></div><h2 class="ln-h">${esc(st.name)}</h2>${st.by ? `<div class="hint" style="margin-top:-4px">by ${esc(st.by)}</div>` : ''}<p>${esc(st.idea)}</p>
       <div class="st-grid"><div><h4>Setup checklist</h4><ul>${st.setup.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div><div><h4>Entry</h4><p>${esc(st.entry)}</p><h4>Stop</h4><p>${esc(st.stop)}</p><h4>Target</h4><p>${esc(st.target)}</p></div>
       ${st.risk ? `<div><h4>Risk management</h4><p>${esc(st.risk)}</p></div>` : ''}<div><h4>Avoid when</h4><ul>${st.avoid.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>${(st.mistakes || []).length ? `<div><h4>Common mistakes</h4><ul>${st.mistakes.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}</div>
       ${(st.concepts || []).length ? `<div><span class="label">Key concepts</span><div class="fchips" style="margin-top:4px">${st.concepts.map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div></div>` : ''}
       ${st.claim ? `<div class="hint">Stated by the author: ${esc(st.claim)}. Your own numbers below are what count.</div>` : ''}
-      ${st.by ? `<div class="hint">Based on ${esc(st.by)}'s strategy published on TradeZella, summarized in our own words. <a class="linkish" href="${esc(st.url)}" target="_blank" rel="noopener">Read the original ↗</a></div>` : ''}
+      ${st.by ? `<div class="hint">Based on ${esc(st.by)}'s strategy published on TradeZella, summarized in our own words. <a class="linkish" href="${esc(st.url)}" target="_blank" rel="noopener" data-action="openUrl" data-v="${esc(st.url)}">Read the original ↗</a></div>` : ''}
       ${stratStatRow(st)}${(() => { const x = stratStats(st); return x && x.n ? `<div class="label">Your example trades</div><div class="daylist">${x.ts.slice().sort(byNewest).slice(0, 5).map(t => `<button class="dtrade" style="grid-template-columns:auto 1fr auto" data-action="preview" data-id="${t.id}"><span class="num">${shortDate(t.date)}</span><span><b>${esc(t.symbol)}</b> ${esc(t.side)}</span><span class="num ${cls(t.pnl)}">${priv(money(t.pnl))}</span></button>`).join('')}</div>` : ''; })()}
       <div class="hint">Educational only, not a recommendation. Test any strategy on your own data before risking money.</div>
       <div class="actions" style="justify-content:flex-start">${stratPb(st) ? `<button class="ghost" data-action="view" data-view="playbooks">✓ In your playbooks</button>` : `<button class="primary" data-action="lnPb" data-v="${st.id}">Get playbook</button>`}${st.bt ? `<button class="secondary" data-action="lnBt" data-v="${st.id}">Backtest it</button>` : ''}<button class="ghost" data-action="lnAsk" data-v="${st.id}">Ask Claude how it fits my trading</button></div></section>`;
@@ -4776,7 +4776,7 @@ document.addEventListener('click', async e => {
     case 'navSec': S.navSec = b.dataset.v; if (S.navCollapsed) { S.navCollapsed = false; try { localStorage.setItem('ll-navc', '0'); } catch (e) {} } navPaint(); return;
     case 'navCollapse': S.navCollapsed = !S.navCollapsed; try { localStorage.setItem('ll-navc', S.navCollapsed ? '1' : '0'); } catch (e) {} navPaint(); return;
     case 'bell': S.agTab = 'custom'; S.view = 'agents'; window.scrollTo(0, 0); break;
-    case 'lnNav': S.view = 'learn'; S.lnTab = b.dataset.v; S.lnOpen = null; S.lnStrat = null; window.scrollTo(0, 0); break;
+    case 'lnNav': S.lnFrom = null; S.view = 'learn'; S.lnTab = b.dataset.v; S.lnOpen = null; S.lnStrat = null; window.scrollTo(0, 0); break;
     case 'lnTab': S.lnTab = b.dataset.v; S.lnOpen = null; S.lnStrat = null; break;
     case 'lnOpen': S.lnOpen = b.dataset.v || null; window.scrollTo(0, 0); break;
     case 'lnStrat': S.lnStrat = b.dataset.v || null; window.scrollTo(0, 0); break;
@@ -4921,7 +4921,9 @@ document.addEventListener('click', async e => {
     case 'tplUseOpen': await createFromTemplate(b.dataset.v, true); return;
     case 'pbMenu': S.pbMenu = S.pbMenu === b.dataset.pb ? null : b.dataset.pb; S.armed = null; break;
     case 'pbIcon': S.pbEdit.icon = b.dataset.v; renderModal(); return;
-    case 'lnNavStrat': S.view = 'learn'; S.lnTab = 'strategies'; S.lnStrat = b.dataset.v; S.pbMenu = null; window.scrollTo(0, 0); break;
+    case 'lnNavStrat': S.lnFrom = S.view === 'playbooks' ? 'playbooks' : null; S.view = 'learn'; S.lnTab = 'strategies'; S.lnStrat = b.dataset.v; S.pbMenu = null; window.scrollTo(0, 0); break;
+    case 'lnBack': { const f = S.lnFrom; S.lnFrom = null; S.lnStrat = null; if (f) S.view = f; window.scrollTo(0, 0); break; }
+    case 'openUrl': { e.preventDefault(); const u = b.dataset.v; let w = null; try { w = window.open(u, '_blank'); if (w) w.opener = null; } catch (_) {} if (!w) { Promise.resolve().then(() => navigator.clipboard.writeText(u)).then(() => toast('Your browser blocked the new tab, so the link was copied. Paste it in a new tab.'), () => toast('Open this link in a new tab: ' + u)); } return; }
     case 'pbTrades': { const pb = S.playbooks.find(x => x.id === b.dataset.pb); S.pbMenu = null; if (!pb) return; S.view = 'log'; S.filters.q = pb.name; S.page = 0; window.scrollTo(0, 0); break; }
     case 'addTpl': {
       if (!needDb()) return; const tp = PB_TEMPLATES[+b.dataset.i];
