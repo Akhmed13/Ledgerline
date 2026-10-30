@@ -67,6 +67,16 @@ Opened from a plain static host or as a local file (no `/api/docs`), the page fa
 
 The file is a page fragment (it starts with `<title>` and `<style>`), because the artifact host wraps it in its own document skeleton.
 
+## NinjaTrader live sync
+
+Fills from NinjaTrader 8 (any connection: Lucid/Tradovate, Rithmic, CQG…) are sent to `api/ingest` as they happen and saved as journal trades when the position goes flat.
+
+1. In the journal open **Settings → Accounts → NinjaTrader live sync** and click **Turn on live sync**.
+2. Download `LedgerLineSync.cs` (your site address and sync key are already filled in).
+3. Copy it to `Documents\NinjaTrader 8\bin\Custom\AddOns\`, open **New → NinjaScript Editor** in NinjaTrader and press **F5**.
+
+The key is stored only as a SHA-256 hash (`settings/sync`). Making a new key or turning sync off stops the old add-on. Raw fills are kept in `ntx`, sync status in `settings/syncStatus`. The template lives in `integrations/LedgerLineSync.cs`.
+
 ## Editing
 
 Edit `src/ledgerline.html`, then rebuild the site:
@@ -81,7 +91,7 @@ That regenerates `index.html` by wrapping the source in a full HTML document.
 
 Records are stored as JSON documents (one row per document in `ledgerline_docs`), grouped in these collections:
 
-`trades`, `accounts`, `imports`, `templates`, `candles`, `econ`, `props`, `propTx`, `tagcats`, `playbooks`, `journal`, `notes`, `cash`, `dashTemplates`, `videos`, and the `settings` documents `account`, `rules`, `notebook`, `fees`, `agents` and `learn`.
+`trades`, `accounts`, `imports`, `templates`, `candles`, `econ`, `props`, `propTx`, `tagcats`, `playbooks`, `journal`, `notes`, `cash`, `dashTemplates`, `videos`, `ntx` (synced fills), and the `settings` documents `account`, `rules`, `notebook`, `fees`, `agents` and `learn`.
 
 `sample-data/trades.json` holds the 66 demo trades used to seed the artifact version.
 
@@ -92,6 +102,8 @@ api/docs.js              server-side storage API (Vercel function)
 api/auth.js              sign-in and user management (Vercel function)
 api/ai.js                AI features through OpenRouter, Google Gemini or Anthropic, streamed (Vercel function)
 api/broker.js            MetaTrader auto-sync through MetaApi (Vercel function)
+api/ingest.js            live fills from the NinjaTrader add-on → trades (Vercel function)
+integrations/            LedgerLineSync.cs, the NinjaTrader 8 add-on template
 package.json             server dependencies (pg, mysql2)
 index.html               the website (generated)
 src/ledgerline.html      the journal source / Claude artifact
