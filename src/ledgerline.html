@@ -867,6 +867,11 @@ a.focus-item{text-decoration:none;color:inherit}
 .brand-word{display:block;width:150px;height:22px;background:var(--logo-word-light) left center/contain no-repeat}
 .logo-full{display:block;width:200px;height:180px;margin:0 auto 4px;background:var(--logo-full) center/contain no-repeat}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.tvpage{padding:14px 16px}.tv-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}.tv-symform{display:flex;gap:6px}.tv-symform .fin{width:210px}
+.tv-bar .fchips{flex:1;min-width:0}.tv-bar .fchip{padding:2px 4px}.tv-bar .fchip.on{outline:2px solid var(--accent);outline-offset:1px}
+.tv-host{position:relative;width:100%;min-height:260px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.tv-host .tradingview-widget-copyright{display:none}.tv-wait{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:16px}
+.tv-foot{margin-top:8px}@media (max-width:700px){.tv-symform{width:100%}.tv-symform .fin{flex:1;width:auto}}
 </style>
 
 <div class="app">
@@ -891,6 +896,7 @@ a.focus-item{text-decoration:none;color:inherit}
         <button data-action="view" data-view="dashboard" id="nav-dashboard" data-nav="dashboard"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Dashboard</button>
         <button data-action="view" data-view="journal" id="nav-journal" data-nav="journal"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5 5h6M5 8h6M5 11h3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Daily journal</button>
         <button data-action="view" data-view="log" id="nav-log" data-nav="log"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12M2 8h12M2 12.5h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Trade log</button>
+        <button data-action="view" data-view="chart" id="nav-chart" data-nav="chart"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2.5v11M12 2.5v11M8 1.5v13"/><rect x="2.5" y="5" width="3" height="5" rx=".5"/><rect x="6.5" y="3.5" width="3" height="5.5" rx=".5"/><rect x="10.5" y="6" width="3" height="4.5" rx=".5"/></svg>Live chart</button>
         <button data-action="view" data-view="notebook" id="nav-notebook" data-nav="notebook"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="1.5" width="10.5" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 4.5h3M1.5 8h3M1.5 11.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Notebook</button>
         <button data-action="view" data-view="reports" id="nav-reports" data-nav="reports"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14V2M2 14h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M5 11V8M8 11V5M11 11V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Reports</button>
         <button data-action="view" data-view="playbooks" id="nav-playbooks" data-nav="playbooks"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h4.5a1.5 1.5 0 011.5 1.5v9.5a1.2 1.2 0 00-1.2-1.2H2.5zM13.5 2.5H9a1.5 1.5 0 00-1.5 1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M13.5 2.5v9.8H9.7A1.2 1.2 0 008.5 13.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Strategies</button>
@@ -1273,6 +1279,7 @@ function render() {
   navPaint();
   let html = '';
   if (S.view === 'dashboard') html = topbar(hour(), 'Stats for ' + (S.scope === 'all' ? 'all time' : `${MONTHS[S.month.getMonth()]} ${S.month.getFullYear()}`), true, (S.db && !S.dashEdit ? startBtn() : '') + (S.dashEdit ? '' : dashTplMenu())) + banner() + (S.dashEdit ? '' : importLine()) + dashboard();
+  else if (S.view === 'chart') html = topbar('Live chart', 'Real-time price chart for any symbol you trade') + chartPageView();
   else if (S.view === 'log') html = topbar('Trade log', S.trades.length + ' trades recorded') + banner() + logView();
   else if (S.view === 'trade') html = tradeView();
   else if (S.view === 'playbooks') html = `<div class="kicker">Tracking</div>` + topbar('Strategies', 'Every setup you trade, its rules and how it performs') + strategiesPage();
@@ -1287,7 +1294,9 @@ function render() {
   else if (S.view === 'props') html = topbar('Prop firms', 'Evaluations, funded accounts, fees and payouts') + propsView();
   else if (S.view === 'settings') html = topbar('Settings', 'Accounts, tags, fees and your data') + settingsView();
   else if (S.view === 'progress') html = topbar('Progress tracker', 'Your daily rules and how consistently you keep them') + progressView();
+  tvPark();
   $('root').innerHTML = html;
+  tvMount();
   renderProfile();
   renderAiPanel();
   fixAvatarInk();
@@ -2268,14 +2277,15 @@ function pvStats(t) {
 }
 function chartTab(t) {
   const shot = (t.attachments || [])[0];
-  return `${shot ? `<img class="shot" style="width:100%;border-radius:8px;border:1px solid var(--line)" src="${esc(shot.url)}" alt="Chart screenshot" data-action="zoom" data-src="${esc(shot.url)}">` : ''}
+  return `<div class="label">Live chart</div>${tradeLiveChart(t, '340px')}<div class="label" style="margin-top:12px">Your screenshot</div>${shot ? `<img class="shot" style="width:100%;border-radius:8px;border:1px solid var(--line)" src="${esc(shot.url)}" alt="Chart screenshot" data-action="zoom" data-src="${esc(shot.url)}">` : ''}
     <div class="actions" style="justify-content:flex-start"><button class="secondary sm" data-action="replayTrade" data-id="${t.id}">▶ Open in replay</button></div>${attachTab(t)}`;
 }
 function rightCard(t) {
-  const k = S.rtab || 'chart', tabs = [['chart', 'Chart'], ['notes', 'Notes'], ['running', 'Running P&L']];
+  const k = S.rtab || 'chart', tabs = [['chart', 'Chart'], ['live', 'Live chart'], ['notes', 'Notes'], ['running', 'Running P&L']];
   const head = `<div class="rtabs" role="tablist">${tabs.map(([v, l]) => `<button role="tab" aria-selected="${k === v}" data-action="rtab" data-v="${v}">${l}</button>`).join('')}</div>`;
   if (k === 'notes') return notesCard(t).replace('<section class="panel card">', `<section class="panel card" style="padding-top:0">${head}`);
   if (k === 'running') return `<section class="panel chartcard">${head}<div style="padding:16px">${pathChart(t, 640, 220)}</div></section>`;
+  if (k === 'live') return `<section class="panel chartcard">${head}<div style="padding:12px 16px 16px">${tradeLiveChart(t, '520px')}</div></section>`;
   return chartCard(t).replace('<section class="panel chartcard">', `<section class="panel chartcard">${head}`);
 }
 function previewSheet() {
@@ -4290,7 +4300,7 @@ function symbolsSettings() {
 const AI_LENS = { short: 'Keep the answer under 120 words.', medium: 'Keep the answer under 300 words.', detailed: 'Give a thorough answer with headings; up to 600 words.' };
 try { S.aiLen = localStorage.getItem('ll-ailen') || 'medium'; } catch (e) { S.aiLen = 'medium'; }
 try { S.chatHist = JSON.parse(localStorage.getItem('ll-chats') || '[]'); } catch (e) { S.chatHist = []; }
-const VIEW_NAMES = { home: 'Home', dashboard: 'Dashboard', journal: 'Daily journal', log: 'Trade log', trade: 'Trade', notebook: 'Notebook', reports: 'Reports', playbooks: 'Strategies', replay: 'Replay', progress: 'Progress tracker', resources: 'Resources', agents: 'Agents', props: 'Prop firms', settings: 'Settings', learn: 'Education' };
+const VIEW_NAMES = { home: 'Home', dashboard: 'Dashboard', journal: 'Daily journal', log: 'Trade log', trade: 'Trade', chart: 'Live chart', notebook: 'Notebook', reports: 'Reports', playbooks: 'Strategies', replay: 'Replay', progress: 'Progress tracker', resources: 'Resources', agents: 'Agents', props: 'Prop firms', settings: 'Settings', learn: 'Education' };
 function aiContext() {
   const v = S.view, t = v === 'trade' ? byId(S.tradeId) : null;
   const L = {
@@ -4432,10 +4442,69 @@ function usersSettings() {
       </tbody></table></div><div class="hint" style="padding:8px 12px">Deleting a user removes their login and their journal data. Turning an account off keeps the data but blocks sign-in.</div></section>` : ''}`;
 }
 
+/* ---------- v32: live charts (TradingView widget) ---------- */
+const TV_MAP = { NQ: 'CME_MINI:NQ1!', MNQ: 'CME_MINI:MNQ1!', ES: 'CME_MINI:ES1!', MES: 'CME_MINI:MES1!', RTY: 'CME_MINI:RTY1!', M2K: 'CME_MINI:M2K1!', YM: 'CBOT_MINI:YM1!', MYM: 'CBOT_MINI:MYM1!',
+  GC: 'COMEX:GC1!', MGC: 'COMEX:MGC1!', SI: 'COMEX:SI1!', SIL: 'COMEX:SIL1!', HG: 'COMEX:HG1!', CL: 'NYMEX:CL1!', MCL: 'NYMEX:MCL1!', NG: 'NYMEX:NG1!', ZB: 'CBOT:ZB1!', ZN: 'CBOT:ZN1!', '6E': 'CME:6E1!', '6B': 'CME:6B1!', '6J': 'CME:6J1!',
+  XAUUSD: 'OANDA:XAUUSD', XAGUSD: 'OANDA:XAGUSD', US30: 'OANDA:US30USD', NAS100: 'OANDA:NAS100USD', US100: 'OANDA:NAS100USD', SPX500: 'OANDA:SPX500USD', US500: 'OANDA:SPX500USD', GER40: 'OANDA:DE30EUR', DE40: 'OANDA:DE30EUR', UK100: 'OANDA:UK100GBP',
+  BTCUSD: 'COINBASE:BTCUSD', ETHUSD: 'COINBASE:ETHUSD', BTCUSDT: 'BINANCE:BTCUSDT', ETHUSDT: 'BINANCE:ETHUSDT', DXY: 'TVC:DXY', VIX: 'TVC:VIX' };
+const FX = ['EUR', 'USD', 'GBP', 'JPY', 'CHF', 'AUD', 'NZD', 'CAD'];
+function tvSym(sym) {
+  let s = String(sym || '').toUpperCase().trim().replace(/[\/\s]/g, ''); if (!s) return 'COMEX:MGC1!'; if (s.includes(':')) return s;
+  if (TV_MAP[s]) return TV_MAP[s];
+  const root = s.replace(/[FGHJKMNQUVXZ]\d{1,2}$/, '').replace(/1!$/, ''); if (root !== s && TV_MAP[root]) return TV_MAP[root]; // NQZ5, MGCZ25 → front month
+  if (s.length === 6 && FX.includes(s.slice(0, 3)) && FX.includes(s.slice(3))) return 'FX:' + s;
+  return s;
+}
+const tvDark = () => { const a = document.documentElement.getAttribute('data-theme'); return a ? a === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
+const tvTz = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Etc/UTC'; } catch (e) { return 'Etc/UTC'; } };
+try { S.tvSym = localStorage.getItem('ll-tvsym') || ''; S.tvInt = localStorage.getItem('ll-tvint') || '5'; } catch (e) { S.tvSym = ''; S.tvInt = '5'; }
+const TV = new Map(); // key → widget element, kept alive across re-renders
+function tvBox(sym, interval, h, opts = {}) {
+  const cfg = { autosize: true, symbol: tvSym(sym), interval: interval || '5', timezone: tvTz(), theme: tvDark() ? 'dark' : 'light', style: '1', locale: 'en', allow_symbol_change: true, withdateranges: true, hide_side_toolbar: !!opts.compact, save_image: true, calendar: false, details: false, support_host: 'https://www.tradingview.com', backgroundColor: tvDark() ? '#13141c' : '#ffffff' };
+  const key = [opts.slot || 'main', cfg.symbol, cfg.interval, cfg.theme].join('|');
+  return `<div class="tv-host" data-tv="${esc(key)}" data-cfg="${esc(JSON.stringify(cfg))}" style="height:${h}"><div class="tv-wait hint">Loading live chart…</div></div>`;
+}
+function tvMake(cfg) {
+  const box = document.createElement('div'); box.className = 'tradingview-widget-container'; box.style.cssText = 'height:100%;width:100%';
+  const w = document.createElement('div'); w.className = 'tradingview-widget-container__widget'; w.style.cssText = 'height:100%;width:100%'; box.appendChild(w);
+  const sc = document.createElement('script'); sc.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'; sc.async = true; sc.textContent = JSON.stringify(cfg);
+  sc.onerror = () => { box.innerHTML = `<div class="tv-wait hint">Couldn't load TradingView. Check your connection or ad blocker, or <a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(cfg.symbol)}" target="_blank" rel="noopener">open the chart on TradingView</a>.</div>`; };
+  box.appendChild(sc); return box;
+}
+function tvPark() {
+  let park = $('tvPark'); if (!park) { park = document.createElement('div'); park.id = 'tvPark'; park.setAttribute('aria-hidden', 'true'); park.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;height:500px;visibility:hidden;pointer-events:none'; document.body.appendChild(park); }
+  TV.forEach(el => { if (el.parentNode && el.parentNode !== park) { try { park.moveBefore ? park.moveBefore(el, null) : park.appendChild(el); } catch (e) { park.appendChild(el); } } });
+}
+function tvMount() {
+  const used = new Set();
+  document.querySelectorAll('.tv-host[data-tv]').forEach(host => {
+    const key = host.dataset.tv; used.add(key); let el = TV.get(key);
+    if (!el) { let cfg; try { cfg = JSON.parse(host.dataset.cfg); } catch (e) { return; } el = tvMake(cfg); TV.set(key, el); host.innerHTML = ''; host.appendChild(el); return; }
+    host.innerHTML = ''; try { host.moveBefore ? host.moveBefore(el, null) : host.appendChild(el); } catch (e) { host.appendChild(el); }
+  });
+  // keep at most 3 parked widgets so memory stays low
+  const spare = [...TV.keys()].filter(k => !used.has(k)); while (spare.length > 3) { const k = spare.shift(); const el = TV.get(k); if (el) el.remove(); TV.delete(k); }
+}
+const TV_INTS = [['1', '1m'], ['5', '5m'], ['15', '15m'], ['60', '1h'], ['240', '4h'], ['D', '1D']];
+function chartPageView() {
+  const recent = [...new Set(S.trades.slice().sort(byNewest).map(t => t.symbol).filter(Boolean))].slice(0, 10);
+  const sym = S.tvSym || recent[0] || 'MGC';
+  return `<section class="panel tvpage">
+    <div class="tv-bar"><form class="tv-symform" data-form="tvSym"><input id="tvSymIn" class="fin" value="${esc(sym)}" placeholder="Symbol (NQ, MGC, XAUUSD, AAPL…)" aria-label="Chart symbol" autocomplete="off"><button class="secondary sm" type="submit">Show</button></form>
+      <div class="fchips">${recent.map(s => `<button class="fchip${s === sym ? ' on' : ''}" data-action="tvPick" data-v="${esc(s)}" aria-pressed="${s === sym}">${symChip(s)}</button>`).join('')}</div>
+      <div class="seg" role="group" aria-label="Timeframe">${TV_INTS.map(([v, l]) => `<button data-action="tvInt" data-v="${v}" aria-pressed="${S.tvInt === v}">${l}</button>`).join('')}</div></div>
+    ${tvBox(sym, S.tvInt, 'calc(100vh - 230px)', { slot: 'page' })}
+    <div class="hint tv-foot">Showing <b>${esc(tvSym(sym))}</b> · live chart by <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>. CME futures (NQ, ES, MGC…) can be delayed about 10 minutes in the free chart; forex, gold (OANDA:XAUUSD) and crypto are live. Type any TradingView symbol like <code>OANDA:XAUUSD</code> to pick an exact feed.</div></section>`;
+}
+function tradeLiveChart(t, h) {
+  return `${tvBox(t.symbol, S.tvInt || '5', h, { slot: 'trade', compact: true })}<div class="hint tv-foot">Live ${esc(tvSym(t.symbol))} by TradingView · your trade was ${dateLabel(t.date)}${t.time ? ' at ' + esc(t.time) : ''}. <a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(tvSym(t.symbol))}" target="_blank" rel="noopener">Open in TradingView ↗</a></div>`;
+}
+
 /* ---------- modals ---------- */
 function openModal(kind, arg) { if (!S.modal) S._modalReturn = document.activeElement; S.modal = { kind, arg }; renderModal(); setTimeout(() => { const box = $('modal'); if (!box || box.hidden || box.contains(document.activeElement)) return; const f = box.querySelector('[autofocus], input:not([type=hidden]):not([disabled]), select, textarea, button:not([disabled])'); if (f) f.focus(); }, 40); }
-function closeModal() { if (S.prevModal) { S.modal = S.prevModal; S.prevModal = null; renderModal(); return; } S.modal = null; S.pbEdit = null; const b = $('modal'); b.hidden = true; b.innerHTML = ''; b.className = 'scrim'; const r = S._modalReturn; S._modalReturn = null; if (r && r.isConnected && r.focus) setTimeout(() => r.focus(), 0); }
-function renderModal() {
+function closeModal() { tvPark(); if (S.prevModal) { S.modal = S.prevModal; S.prevModal = null; renderModal(); return; } S.modal = null; S.pbEdit = null; const b = $('modal'); b.hidden = true; b.innerHTML = ''; b.className = 'scrim'; const r = S._modalReturn; S._modalReturn = null; if (r && r.isConnected && r.focus) setTimeout(() => r.focus(), 0); }
+function renderModal() { tvPark(); _renderModal(); tvMount(); }
+function _renderModal() {
   const m = S.modal; if (!m) return;
   const box = $('modal'); box.hidden = false; box.className = 'scrim' + (m.kind === 'preview' ? ' side' : '');
   if (m.kind === 'add' || m.kind === 'edit') {
@@ -4587,6 +4656,8 @@ document.addEventListener('click', async e => {
   if (a === 'sel' || a === 'selAll' || a === 'toggleRev') e.stopPropagation();
   switch (a) {
     case 'add': if (!needDb()) return; return openModal('add', b.dataset.d);
+    case 'tvPick': S.tvSym = b.dataset.v; try { localStorage.setItem('ll-tvsym', S.tvSym); } catch (e) {} break;
+    case 'tvInt': S.tvInt = b.dataset.v; try { localStorage.setItem('ll-tvint', S.tvInt); } catch (e) {} break;
     case 'editTrade': { if (!needDb() || !byId(id)) return; if (S.modal && S.modal.kind === 'preview') { S.prevModal = S.modal; S.modal = null; } return openModal('edit', id); }
     case 'close': return closeModal();
     case 'view': S.view = b.dataset.view; if (b.closest('.nav')) { if (S.view === 'props') S.propTab = 'dash'; if (S.view === 'agents') S.agTab = 'agents'; } S.tagMenu = null; S.accMenu = false; S.prevModal = null; closeModal(); rpStop(); window.scrollTo(0, 0); break;
@@ -5101,6 +5172,7 @@ document.addEventListener('submit', async e => {
     const fired = runCustomOnTrade(t); fired.forEach(a => { if (a.tag && a.tag.cat && a.tag.tag) { ensureTagInCat(a.tag.cat, a.tag.tag); t.tags = { ...t.tags, [a.tag.cat]: [...new Set([...(t.tags[a.tag.cat] || []), a.tag.tag])] }; } });
     try { const ref = await S.db.collection('trades').add(t); closeModal(); toast(fired.length ? `Trade saved · ⚑ ${fired.map(a => a.name).join(', ')}` : 'Trade saved'); S.view = 'trade'; S.tradeId = ref.id; S.tab = 'stats'; const [y, m] = t.date.split('-'); S.month = new Date(+y, +m - 1, 1); render(); } catch (err) { writeErr(err); }
   }
+  if (f.dataset.form === 'tvSym') { const v = $('tvSymIn').value.trim().toUpperCase().slice(0, 40); if (!v) return; S.tvSym = v; try { localStorage.setItem('ll-tvsym', v); } catch (e) {} rerender(); return; }
   if (f.dataset.form === 'bal') {
     const v = parseFloat($('balInput').value); if (isNaN(v) || v < 0) return toast('Enter a starting balance of 0 or more.');
     try { await S.db.doc('settings/account').set({ startingBalance: v }); S.editBal = false; render(); toast('Starting balance saved'); } catch (err) { writeErr(err); }
