@@ -1559,6 +1559,7 @@ function tradeView() {
       <button class="icon-btn" data-action="open" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button>
       <button class="icon-btn" data-action="open" data-id="${next ? next.id : ''}" ${next ? '' : 'disabled'} aria-label="Older trade">›</button>
       <button class="ghost" data-action="replayTrade" data-id="${t.id}">▶ Replay</button>
+      <button class="ghost" data-action="editTrade" data-id="${t.id}">✎ Edit</button>
       <button class="ghost" data-action="shareTrade" data-id="${t.id}">Share</button>
       ${unitSeg()}
       <button class="del${S.armed === 'tv-' + t.id ? ' armed' : ''}" data-action="delTrade" data-id="${t.id}">${S.armed === 'tv-' + t.id ? 'Confirm delete' : 'Delete'}</button>
@@ -2297,7 +2298,7 @@ function previewSheet() {
       <span style="display:flex;gap:6px"><button class="secondary sm" data-action="replayTrade" data-id="${t.id}">▶ Replay</button><button class="icon-btn" data-action="close" aria-label="Close">✕</button></span></div>
     <div class="hint">${dateLabel(t.date)}${t.time ? ' · opened ' + esc(t.time) : ''}${t.exitTime ? ' · closed ' + esc(t.exitTime) : ''}${dur ? ' · held ' + dur : ''}${acc ? ' · ' + esc(acc.name) : ''}</div>
     ${netBox(t)}
-    <div class="actions" style="justify-content:flex-start"><button class="ghost" data-action="aiTrade" data-id="${t.id}">Review with Claude</button><button class="ghost" data-action="toggleRev" data-id="${t.id}" style="${t.reviewed ? 'color:var(--gain);border-color:var(--gain-line)' : ''}">${t.reviewed ? '✓ Reviewed' : 'Mark reviewed'}</button></div>
+    <div class="actions" style="justify-content:flex-start"><button class="ghost" data-action="editTrade" data-id="${t.id}">✎ Edit trade</button><button class="ghost" data-action="aiTrade" data-id="${t.id}">Review with Claude</button><button class="ghost" data-action="toggleRev" data-id="${t.id}" style="${t.reviewed ? 'color:var(--gain);border-color:var(--gain-line)' : ''}">${t.reviewed ? '✓ Reviewed' : 'Mark reviewed'}</button></div>
     <div class="tabs" role="tablist" style="padding:0">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${tab === k}" data-action="ptab" data-v="${k}">${l}</button>`).join('')}</div>
     <div class="tabbody" style="padding:4px 0">${body}</div>
     <div class="dr-foot"><button class="secondary" data-action="close">Close</button><button class="primary" data-action="open" data-id="${t.id}">Go to trade details</button></div></div>`;
@@ -4437,28 +4438,30 @@ function closeModal() { if (S.prevModal) { S.modal = S.prevModal; S.prevModal = 
 function renderModal() {
   const m = S.modal; if (!m) return;
   const box = $('modal'); box.hidden = false; box.className = 'scrim' + (m.kind === 'preview' ? ' side' : '');
-  if (m.kind === 'add') {
-    box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">Add trade</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
-      <form class="form three" data-form="trade">
-        <label>Date<input id="fDate" type="date" required value="${m.arg || todayIso()}"></label>
-        <label>Entry time<input id="fTime" type="time" value="${new Date().toTimeString().slice(0, 5)}"></label>
-        <label>Exit time<input id="fExitTime" type="time"></label>
-        <div class="sym-field"><label>Symbol<input id="fSym" required placeholder="NQ, XAUUSD…" autocomplete="off" aria-controls="symPick" aria-haspopup="listbox"></label><div class="sym-pick" id="symPick" hidden></div></div>
-        <label>Side<select id="fSide"><option>Long</option><option>Short</option></select></label>
-        <label>Quantity<input id="fQty" type="number" step="any" min="0" placeholder="1"></label>
-        <label>Entry price<input id="fEntry" type="number" step="any"></label>
-        <label>Exit price<input id="fExit" type="number" step="any"></label>
-        <label>Point value<input id="fMult" type="number" step="any" placeholder="1"></label>
-        <label>Stop loss<input id="fStop" type="number" step="any"></label>
-        <label>Profit target<input id="fTarget" type="number" step="any"></label>
-        <label>Fees ($)<input id="fFees" type="number" step="any" placeholder="0"></label>
+  if (m.kind === 'add' || m.kind === 'edit') {
+    const E = m.kind === 'edit' ? byId(m.arg) : null; if (m.kind === 'edit' && !E) { S.modal = null; box.hidden = true; return; }
+    const v = x => x == null || x === '' ? '' : esc(String(x)), accId = E ? acctOf(E) : S.accSel && S.accSel[0], manualPnl = E && calcPnl(E) == null ? E.pnl : '';
+    box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">${E ? 'Edit trade' : 'Add trade'}</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
+      <form class="form three" data-form="trade"${E ? ` data-id="${E.id}"` : ''}>
+        <label>Date<input id="fDate" type="date" required value="${E ? v(E.date) : m.arg || todayIso()}"></label>
+        <label>Entry time<input id="fTime" type="time" value="${E ? v(E.time) : new Date().toTimeString().slice(0, 5)}"></label>
+        <label>Exit time<input id="fExitTime" type="time" value="${E ? v(E.exitTime) : ''}"></label>
+        <div class="sym-field"><label>Symbol<input id="fSym" required placeholder="NQ, XAUUSD…" autocomplete="off" aria-controls="symPick" aria-haspopup="listbox" value="${E ? v(E.symbol) : ''}"></label><div class="sym-pick" id="symPick" hidden></div></div>
+        <label>Side<select id="fSide"><option ${E && E.side === 'Long' ? 'selected' : ''}>Long</option><option ${E && E.side === 'Short' ? 'selected' : ''}>Short</option></select></label>
+        <label>Quantity<input id="fQty" type="number" step="any" min="0" placeholder="1" value="${E ? v(E.qty) : ''}"></label>
+        <label>Entry price<input id="fEntry" type="number" step="any" value="${E ? v(E.entry) : ''}"></label>
+        <label>Exit price<input id="fExit" type="number" step="any" value="${E ? v(E.exit) : ''}"></label>
+        <label>Point value<input id="fMult" type="number" step="any" placeholder="1" value="${E ? v(E.mult) : ''}"></label>
+        <label>Stop loss<input id="fStop" type="number" step="any" value="${E ? v(E.stop) : ''}"></label>
+        <label>Profit target<input id="fTarget" type="number" step="any" value="${E ? v(E.target) : ''}"></label>
+        <label>Fees ($)<input id="fFees" type="number" step="any" placeholder="0" value="${E ? v(E.fees) : ''}"></label>
         <h4>Or enter the result directly</h4>
-        <label>Net P&amp;L ($)<input id="fPnl" type="number" step="any" placeholder="from prices"></label>
-        <label>Risked ($)<input id="fRisk" type="number" step="any" placeholder="from stop"></label>
-        <label>Playbook<select id="fPb"><option value="">None</option>${S.playbooks.filter(p => !p.archived).map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></label>
-        <label>Account<select id="fAcc">${allAccounts().map(a => `<option value="${a.id}" ${S.accSel && S.accSel[0] === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select></label>
-        <div class="full hint">Fill in entry, exit and quantity and P&amp;L is worked out for you (point value × points × quantity − fees). Tags, notes and screenshots go on the trade page after saving.</div>
-        <div class="full actions"><button type="button" class="secondary" data-action="close">Cancel</button><button type="submit" class="primary">Save trade</button></div>
+        <label>Net P&amp;L ($)<input id="fPnl" type="number" step="any" placeholder="${E && calcPnl(E) != null ? esc(String(calcPnl(E))) + ' from prices' : 'from prices'}" value="${v(manualPnl)}"></label>
+        <label>Risked ($)<input id="fRisk" type="number" step="any" placeholder="from stop" value="${E && E.risk ? v(E.risk) : ''}"></label>
+        <label>Playbook<select id="fPb"><option value="">None</option>${S.playbooks.filter(p => !p.archived || (E && E.playbookId === p.id)).map(p => `<option value="${p.id}" ${E && E.playbookId === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>
+        <label>Account<select id="fAcc">${allAccounts().map(a => `<option value="${a.id}" ${accId === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select></label>
+        <div class="full hint">${E ? 'Change any field and save. P&amp;L is worked out again from entry, exit and quantity; clear those to type the net P&amp;L yourself. Tags, notes, fills and screenshots stay as they are.' : 'Fill in entry, exit and quantity and P&amp;L is worked out for you (point value × points × quantity − fees). Tags, notes and screenshots go on the trade page after saving.'}</div>
+        <div class="full actions"><button type="button" class="secondary" data-action="close">Cancel</button><button type="submit" class="primary">${E ? 'Save changes' : 'Save trade'}</button></div>
       </form></div>`;
     setTimeout(() => $('fSym')?.focus(), 30);
   } else if (m.kind === 'day') {
@@ -4584,6 +4587,7 @@ document.addEventListener('click', async e => {
   if (a === 'sel' || a === 'selAll' || a === 'toggleRev') e.stopPropagation();
   switch (a) {
     case 'add': if (!needDb()) return; return openModal('add', b.dataset.d);
+    case 'editTrade': { if (!needDb() || !byId(id)) return; if (S.modal && S.modal.kind === 'preview') { S.prevModal = S.modal; S.modal = null; } return openModal('edit', id); }
     case 'close': return closeModal();
     case 'view': S.view = b.dataset.view; if (b.closest('.nav')) { if (S.view === 'props') S.propTab = 'dash'; if (S.view === 'agents') S.agTab = 'agents'; } S.tagMenu = null; S.accMenu = false; S.prevModal = null; closeModal(); rpStop(); window.scrollTo(0, 0); break;
     case 'unit': S.unit = b.dataset.v; try { localStorage.setItem('ll-unit', S.unit); } catch (_) {} break;
@@ -5081,6 +5085,17 @@ document.addEventListener('submit', async e => {
       risk: g('fRisk') || 0, pnl: 0, playbookId: $('fPb').value, accountId: $('fAcc') ? $('fAcc').value : 'main', tags: {}, rulesChecked: [], executions: [], attachments: [], note: '', reviewed: false, rating: 0, sample: false, createdAt: new Date().toISOString() };
     const calc = calcPnl(t), manual = g('fPnl');
     t.pnl = calc != null ? calc : manual;
+    if (f.dataset.id) {
+      const id = f.dataset.id, old = byId(id); if (!old) return closeModal();
+      if (!sym || t.pnl == null) return toast('Add a symbol, plus either entry, exit and quantity or a net P&L.');
+      const keys = ['date', 'time', 'exitTime', 'symbol', 'side', 'qty', 'entry', 'exit', 'mult', 'stop', 'target', 'fees', 'risk', 'pnl', 'playbookId', 'accountId'];
+      if (g('fFees') == null) t.fees = 0;
+      const patch = {}; keys.forEach(k => { const nv = t[k] === undefined ? null : t[k]; if ((old[k] ?? null) !== nv) patch[k] = nv; });
+      if (!Object.keys(patch).length) { closeModal(); return toast('No changes'); }
+      Object.assign(old, patch);
+      try { await S.db.collection('trades').doc(id).update(patch); closeModal(); if (patch.date) { const [y, mo] = patch.date.split('-'); S.month = new Date(+y, +mo - 1, 1); } rerender(); toast('Trade updated'); } catch (err) { writeErr(err); }
+      return;
+    }
     if (S.agents.tagger.on && S.agents.tagger.manual && t.pnl != null) { const at = autoTags(t); if (at) { t.tags = at; (S.agents.tagger.rules || []).forEach(r => r.cat && r.tag && ensureTagInCat(r.cat, r.tag)); } }
     if (!sym || t.pnl == null) return toast('Add a symbol, plus either entry, exit and quantity or a net P&L.');
     const fired = runCustomOnTrade(t); fired.forEach(a => { if (a.tag && a.tag.cat && a.tag.tag) { ensureTagInCat(a.tag.cat, a.tag.tag); t.tags = { ...t.tags, [a.tag.cat]: [...new Set([...(t.tags[a.tag.cat] || []), a.tag.tag])] }; } });
