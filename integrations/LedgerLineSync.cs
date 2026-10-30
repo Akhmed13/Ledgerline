@@ -46,18 +46,7 @@ namespace NinjaTrader.NinjaScript.AddOns
 			}
 			else if (State == State.Configure || State == State.Active)
 			{
-				lock (Gate)
-				{
-					if (owner != null) return;
-					owner = this;
-				}
-				try { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; } catch { }
-				Account.AccountStatusUpdate += OnAccountStatus;
-				List<Account> all;
-				lock (Account.All) all = Account.All.ToList();
-				foreach (Account a in all) Hook(a);
-				timer = new System.Threading.Timer(_ => Flush(), null, 3000, 10000);
-				Say("started. Sending fills to " + SyncUrl);
+				Start();
 			}
 			else if (State == State.Terminated)
 			{
@@ -76,6 +65,32 @@ namespace NinjaTrader.NinjaScript.AddOns
 				if (timer != null) { timer.Dispose(); timer = null; }
 				Flush();
 			}
+		}
+
+		// NinjaTrader calls this for every open window, including right after you compile, so the add-on starts without a restart.
+		protected override void OnWindowCreated(System.Windows.Window window)
+		{
+			Start();
+		}
+
+		private void Start()
+		{
+			lock (Gate)
+			{
+				if (owner != null) return;
+				owner = this;
+			}
+			try
+			{
+				try { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; } catch { }
+				Account.AccountStatusUpdate += OnAccountStatus;
+				List<Account> all;
+				lock (Account.All) all = Account.All.ToList();
+				foreach (Account a in all) Hook(a);
+				timer = new System.Threading.Timer(_ => Flush(), null, 3000, 10000);
+				Say("started. Sending fills to " + SyncUrl + (Hooked.Count == 0 ? " (no live accounts connected yet; connect to Lucid and they're picked up automatically)" : ""));
+			}
+			catch (Exception ex) { Say("couldn't start: " + ex.Message); }
 		}
 
 		private static bool Wanted(Account a)
