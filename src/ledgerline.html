@@ -1985,10 +1985,11 @@ function tplSaveModal() {
 
 /* ---------- accounts & filters ---------- */
 const byId = id => S.allTrades.find(x => x.id === id);
-const acctOf = t => t.accountId || 'main';
+const acctOf = t => { const id = t.accountId || 'main'; return id === 'main' || !S.accounts.length || S.accounts.some(a => a.id === id && !a.deleted) ? id : 'main'; };
 function allAccounts() {
   const list = S.accounts.filter(a => !a.deleted).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  if (!list.some(a => a.id === 'main') && (S.allTrades.some(t => !t.accountId) || !list.length)) list.unshift({ id: 'main', name: 'Main account', broker: 'Manual', startingBalance: S.settings.startingBalance || 0, virtual: true });
+  const ids = new Set(list.map(a => a.id));
+  if (!ids.has('main') && (S.allTrades.some(t => !ids.has(acctOf(t))) || !list.length)) list.unshift({ id: 'main', name: 'Main account', broker: 'Manual', startingBalance: S.settings.startingBalance || 0, virtual: true });
   return list;
 }
 const acctById = id => allAccounts().find(a => a.id === id);
@@ -3395,7 +3396,7 @@ function logView() {
       <div class="seg" role="group" aria-label="Result"><button data-action="filter" data-k="status" data-v="all" aria-pressed="${f.status === 'all'}">All</button><button data-action="filter" data-k="status" data-v="win" aria-pressed="${f.status === 'win'}">Wins</button><button data-action="filter" data-k="status" data-v="loss" aria-pressed="${f.status === 'loss'}">Losses</button></div>
       <div class="seg" role="group" aria-label="Review state"><button data-action="filter" data-k="reviewed" data-v="all" aria-pressed="${f.reviewed === 'all'}">Any</button><button data-action="filter" data-k="reviewed" data-v="yes" aria-pressed="${f.reviewed === 'yes'}">Reviewed</button><button data-action="filter" data-k="reviewed" data-v="no" aria-pressed="${f.reviewed === 'no'}">To review</button></div>
     </div>
-    <div class="left">${S.sel.size ? `<div class="bulk"><span>${S.sel.size} selected</span><button class="ghost" data-action="bulkReview" data-v="1">Mark reviewed</button><button class="ghost" data-action="bulkReview" data-v="0">Mark not reviewed</button><button class="del${S.armed === 'bulk' ? ' armed' : ''}" data-action="bulkDelete">${S.armed === 'bulk' ? 'Confirm delete' : 'Delete'}</button><button class="linkish" data-action="clearSel">Clear</button></div>` : ''}${colBtn('log')}</div></div>
+    <div class="left">${S.sel.size ? `<div class="bulk"><span>${S.sel.size} selected</span><button class="ghost" data-action="bulkReview" data-v="1">Mark reviewed</button><button class="ghost" data-action="bulkReview" data-v="0">Mark not reviewed</button><select class="fin" id="bulkMove" aria-label="Move selected trades to an account" style="width:auto"><option value="">Move to account…</option>${allAccounts().map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join('')}</select><button class="del${S.armed === 'bulk' ? ' armed' : ''}" data-action="bulkDelete">${S.armed === 'bulk' ? 'Confirm delete' : 'Delete'}</button><button class="linkish" data-action="clearSel">Clear</button></div>` : ''}${colBtn('log')}</div></div>
     <div class="table-scroll"><table class="trades" style="min-width:${Math.max(700, cols.length * 92)}px"><thead><tr><th><input type="checkbox" data-action="selAll" ${allSel ? 'checked' : ''} aria-label="Select all on this page"></th>${cols.map(k => `<th${D[k][2] ? ' class="r"' : ''}>${esc(D[k][0])}</th>`).join('')}</tr></thead>
     <tbody>${rows.map(t => `<tr class="row" data-action="preview" data-id="${t.id}"><td><input type="checkbox" data-action="sel" data-id="${t.id}" ${S.sel.has(t.id) ? 'checked' : ''} aria-label="Select trade"></td>${cols.map(k => D[k][1](t)).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length + 1}" class="empty">No trades match these filters.</td></tr>`}</tbody></table></div>
     <div class="pager"><span>${all.length ? `${S.page * PER + 1}–${Math.min(all.length, S.page * PER + PER)} of ${all.length} trades` : '0 trades'}</span>
@@ -3966,6 +3967,13 @@ function autoSyncDue() {
   S.accounts.filter(a => !a.deleted && a.sync && a.sync.type === 'auto' && Date.now() - Date.parse(a.sync.lastSync || 0) > SYNC_EVERY && Date.now() - Date.parse(a.sync.lastTry || 0) > 3600e3).forEach(a => syncAccount(a));
 }
 const fmtStamp = iso => { if (!iso) return '–'; const d = new Date(iso); return isNaN(d) ? '–' : d.toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+async function moveTrades(ids, to) {
+  const acc = acctById(to); if (!acc || !ids.length) return;
+  if (to === 'main' && !S.accounts.some(a => a.id === 'main')) await S.db.collection('accounts').doc('main').set({ name: 'Main account', broker: 'Manual', startingBalance: S.settings.startingBalance || 0, order: 0 }).catch(writeErr);
+  toast(`Moving ${ids.length} trade${ids.length === 1 ? '' : 's'} to ${acc.name}…`);
+  for (let i = 0; i < ids.length; i += 20) await Promise.all(ids.slice(i, i + 20).map(id => { const t = byId(id); if (t) t.accountId = to; return S.db.collection('trades').doc(id).update({ accountId: to }).catch(writeErr); }));
+  toast(`${ids.length} trade${ids.length === 1 ? '' : 's'} now in ${acc.name}`); rerender();
+}
 function accountsTable() {
   const accs = allAccounts();
   return `<div class="toolbar"><div><h3 class="h3">Accounts</h3><div class="hint">Each account has its own balance. Auto-synced accounts pull new trades every 6 hours while the journal is open.</div></div><button class="primary" data-action="acctEdit" data-v="">Add account</button></div>
@@ -3981,7 +3989,7 @@ function accountsTable() {
         <td class="num">${fmtStamp(last)}</td><td class="num">${Y ? (S.syncing[a.id] ? 'Syncing…' : fmtStamp(new Date(Math.max(Date.now(), Date.parse(Y.lastSync || 0) + SYNC_EVERY)).toISOString())) : '–'}</td>
         <td>${Y ? `<span class="chip" style="color:var(--gain)">Auto-sync</span>` : 'Manual'}</td>
         <td class="r" style="white-space:nowrap;position:relative"><button class="icon-btn has-tip" data-action="awForAcct" data-v="${a.id}" aria-label="Add trades to ${esc(a.name)}" data-tip="Add trades">+</button><button class="icon-btn" data-action="acctMenu" data-v="${a.id}" aria-expanded="${open}" aria-label="More actions">⋮</button>
-          ${open ? `<div class="acct-menu" role="menu">${Y ? `<button role="menuitem" data-action="acctSync" data-v="${a.id}" ${hasBrokerApi() ? '' : 'disabled'}>Sync now</button><button role="menuitem" data-action="acctUnlink" data-v="${a.id}">${S.armed === 'unl-' + a.id ? 'Confirm: stop auto-sync' : 'Stop auto-sync'}</button>` : ''}${a.virtual ? '' : `<button role="menuitem" data-action="acctEdit" data-v="${a.id}">Edit</button>`}${ts.length || a.virtual ? '' : `<button role="menuitem" class="danger" data-action="acctDel" data-v="${a.id}">${S.armed === 'acc-' + a.id ? 'Confirm delete' : 'Delete'}</button>`}</div>` : ''}</td></tr>`;
+          ${open ? `<div class="acct-menu" role="menu">${Y ? `<button role="menuitem" data-action="acctSync" data-v="${a.id}" ${hasBrokerApi() ? '' : 'disabled'}>Sync now</button><button role="menuitem" data-action="acctUnlink" data-v="${a.id}">${S.armed === 'unl-' + a.id ? 'Confirm: stop auto-sync' : 'Stop auto-sync'}</button>` : ''}${a.virtual ? '' : accs.filter(o => o.id !== a.id).map(o => { const n = S.allTrades.filter(t => acctOf(t) === o.id).length; return n ? `<button role="menuitem" data-action="acctMoveIn" data-v="${a.id}" data-from="${o.id}">Move ${n} trade${n === 1 ? '' : 's'} here from ${esc(o.name)}</button>` : ''; }).join('')}${a.virtual ? '' : `<button role="menuitem" data-action="acctEdit" data-v="${a.id}">Edit</button>`}${ts.length || a.virtual ? '' : `<button role="menuitem" class="danger" data-action="acctDel" data-v="${a.id}">${S.armed === 'acc-' + a.id ? 'Confirm delete' : 'Delete'}</button>`}</div>` : ''}</td></tr>`;
     }).join('')}</tbody></table></div>`;
 }
 S.syncing = {};
@@ -4706,6 +4714,7 @@ document.addEventListener('click', async e => {
     case 'awConnect': awConnect(); return;
     case 'awImport': awImport(); return;
     case 'awForAcct': if (!needDb()) return; S.acctMenu = null; S.imp = { step: 'pick', src: null, accountId: b.dataset.v, forAccount: true, dateFmt: 'MDY', text: '' }; { const a = acctById(b.dataset.v), br = a && brokerByName(a.broker); if (br) { S.imp.broker = br.id; S.imp.step = 'method'; S.imp.method = br.sync ? 'sync' : 'file'; } } return openModal('import');
+    case 'acctMoveIn': { if (!needDb()) return; const to = b.dataset.v, from = b.dataset.from, ts = S.allTrades.filter(t => acctOf(t) === from); S.acctMenu = null; await moveTrades(ts.map(t => t.id), to); return; }
     case 'acctMenu': S.acctMenu = S.acctMenu === b.dataset.v ? null : b.dataset.v; S.armed = null; break;
     case 'acctSync': { const a = acctById(b.dataset.v); S.acctMenu = null; if (a) syncAccount(a, true); break; }
     case 'acctUnlink': { const k = b.dataset.v, a = acctById(k); if (!a || !a.sync) return; if (S.armed !== 'unl-' + k) { S.armed = 'unl-' + k; break; } S.armed = null; S.acctMenu = null; if (hasBrokerApi()) window.__llLocal.broker({ action: 'remove', accountId: a.sync.accountId }).catch(() => {}); try { await S.db.collection('accounts').doc(k).update({ sync: { ...a.sync, type: 'manual', balance: null } }); toast('Auto-sync stopped. Trades already imported stay in your journal.'); } catch (err) { writeErr(err); } break; }
@@ -5008,6 +5017,7 @@ document.addEventListener('change', e => {
   if (el.dataset.vnote) { if (!needDb()) return; S.db.collection('videos').doc(el.dataset.vnote).update({ note: el.value.slice(0, 2000) }).catch(writeErr); return; }
   if (el.id === 'aipLen') { S.aiLen = el.value; try { localStorage.setItem('ll-ailen', el.value); } catch (e) {} return; }
   if (el.id === 'stratPickShow') { try { localStorage.setItem('ll-stratpick', el.checked ? '1' : '0'); } catch (e) {} return; }
+  if (el.id === 'bulkMove') { const to = el.value; if (!to || !needDb()) return; const ids = [...S.sel]; S.sel.clear(); moveTrades(ids, to); return; }
   if (el.id === 'btFile') { if (el.files[0]) btUpload(el.files[0]); el.value = ''; return; }
   if (el.dataset.bt && el.tagName === 'SELECT') { S.bt[el.dataset.bt] = el.value; rerender(); return; }
   if (el.dataset.lim) { if (!needDb()) return; S.agents.limits = { ...(S.agents.limits || {}), [el.dataset.lim]: Math.max(1, Math.round(+el.value || 3)) }; saveAgents(); rerender(); return; }
