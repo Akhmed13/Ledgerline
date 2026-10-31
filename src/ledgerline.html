@@ -5024,7 +5024,7 @@ function folderModal(id) {
   const fo = nbFolders().find(x => x.id === id), D = S.folderDraft || {}, col = D.color || (fo && fo.color) || 'violet', ic = D.icon || (fo && (fo.icon || NB_DEF_ICON[fo.id])) || 'folder', q = (D.q || '').toLowerCase();
   const groups = Object.entries(NB_ICONS).map(([g, set]) => { const keys = Object.keys(set).filter(k => !q || k.includes(q) || g.toLowerCase().includes(q)); return keys.length ? `<div class="ip-g"><div class="label">${g}</div><div class="ip-grid">${keys.map(k => `<button type="button" data-action="folderIcon" data-v="${k}" aria-pressed="${ic === k}" aria-label="${k} icon" title="${k}">${nbSvg(k, 17)}</button>`).join('')}</div></div>` : ''; }).join('') || '<p class="hint">No icons match.</p>';
   return `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">${fo ? 'Edit folder' : 'New folder'}</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
-    <form class="form" data-form="folder" data-v="${fo ? fo.id : ''}"><label class="full">Folder name<input id="folderName" required maxlength="40" value="${esc(fo ? fo.name : '')}" placeholder="Weekly recaps"></label>
+    <form class="form" data-form="folder" data-v="${fo ? fo.id : ''}"><label class="full">Folder name<input id="folderName" autofocus required maxlength="40" value="${esc(fo ? fo.name : '')}" placeholder="Weekly recaps"></label>
     <div class="full ip-prev" style="--fc:var(--c-${col})"><span class="nbf-ic big">${nbSvg(ic, 22)}</span><span><b id="ipName">${esc(fo ? fo.name : 'New folder')}</b><span class="hint">Pick an icon and a colour below</span></span></div>
     <div class="full"><div class="pb-row" style="justify-content:space-between;margin-bottom:6px"><span class="label">Icon</span><input id="ipSearch" class="fin" type="search" placeholder="Search icons" value="${esc(D.q || '')}" aria-label="Search icons" style="max-width:180px"></div><div class="ip-wrap" style="--fc:var(--c-${col})">${groups}</div></div>
     <div class="full"><div class="label" style="margin-bottom:6px">Colour</div><div class="nb-colors">${NB_COLORS.map(c => `<button type="button" data-action="folderColor" data-v="${c}" style="--fc:var(--c-${c})" aria-pressed="${col === c}" aria-label="${c}"></button>`).join('')}</div></div>
@@ -5233,7 +5233,7 @@ function tradeLiveChart(t, h) {
 }
 
 /* ---------- modals ---------- */
-function openModal(kind, arg) { if (!S.modal) S._modalReturn = document.activeElement; S.modal = { kind, arg }; renderModal(); setTimeout(() => { const box = $('modal'); if (!box || box.hidden || box.contains(document.activeElement)) return; const f = box.querySelector('[autofocus], input:not([type=hidden]):not([disabled]), select, textarea, button:not([disabled])'); if (f) f.focus(); }, 40); }
+function openModal(kind, arg) { if (!S.modal) S._modalReturn = document.activeElement; S.modal = { kind, arg }; renderModal(); setTimeout(() => { const box = $('modal'); if (!box || box.hidden || box.contains(document.activeElement)) return; const f = box.querySelector('[autofocus]') || box.querySelector('input:not([type=hidden]):not([disabled]), select, textarea, button:not([disabled])'); if (f) f.focus(); }, 40); }
 function closeModal() { tvPark(); if (S.prevModal) { S.modal = S.prevModal; S.prevModal = null; renderModal(); return; } S.modal = null; S.pbEdit = null; const b = $('modal'); b.hidden = true; b.innerHTML = ''; b.className = 'scrim'; const r = S._modalReturn; S._modalReturn = null; if (r && r.isConnected && r.focus) setTimeout(() => r.focus(), 0); }
 function renderModal() { tvPark(); _renderModal(); tvMount(); }
 function _renderModal() {
@@ -5292,7 +5292,7 @@ function _renderModal() {
   else if (m.kind === 'tplSave') { box.innerHTML = tplSaveModal(); setTimeout(() => $('tplName')?.focus(), 30); }
   if (S.tagMenu && m.kind === 'preview') { const i = $('tagSearch'); if (i) { i.focus(); i.value = S.tagQuery; filterTagMenu(); } }
   else if (m.kind === 'tplLib') { box.innerHTML = tplLibModal(); box.className = 'scrim tl-scrim'; if (S.tl.mode !== 'view') setTimeout(() => (S.tl.mode === 'new' ? $('tlTitle') : $('tplEd'))?.focus(), 30); }
-  else if (m.kind === 'folder') { box.innerHTML = folderModal(m.arg); setTimeout(() => $('folderName')?.focus(), 30); }
+  else if (m.kind === 'folder') { box.innerHTML = folderModal(m.arg); }
   else if (m.kind === 'dlog') {
     const d = m.arg, ts = tradesByDate()[d] || [], st = dayStats(ts);
     box.innerHTML = `<div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><div><h3 id="mTitle">Daily log</h3><div class="hint">${dateLabel(d)}${ts.length ? ` · <span class="num ${cls(st.net)}">Net P&amp;L ${priv(money(st.net))}</span>` : ''}${(S.journal[d] || {}).startedAt ? ` · started ${esc(S.journal[d].startedAt)}` : ''}</div></div>
