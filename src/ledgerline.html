@@ -876,6 +876,121 @@ a.focus-item{text-decoration:none;color:inherit}
 .nt-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}.nt-map label{display:grid;gap:4px;font-size:13px;align-content:end}
 .blogo{position:relative;overflow:hidden}.blogo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:18%;box-sizing:border-box;background:#fff;border-radius:inherit}
 .blogo.has-ic{border-color:var(--line)!important}
+
+/* v34 notebook */
+.nb-top{display:flex;gap:8px;margin-bottom:12px}.nb-top .search{flex:1;width:auto}
+.nb-filt.on{color:var(--accent);border-color:var(--accent)}
+.nb2{display:grid;grid-template-columns:230px 280px minmax(0,1fr);gap:12px;align-items:start}
+.nb2.noside{grid-template-columns:280px minmax(0,1fr)}.nb2.focus{grid-template-columns:minmax(0,1fr)}
+.nb-side,.nb-list{padding:10px;display:flex;flex-direction:column;gap:6px;position:sticky;top:12px;max-height:calc(100vh - 120px);overflow:auto}
+.nbs-head,.nbl-head{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:2px 2px 8px;border-bottom:1px solid var(--line)}
+.nb-addf,.nbl-head .linkish{font-weight:600;color:var(--ink)}
+.nbs-l{margin:8px 4px 2px}.nbs-sep{height:1px;background:var(--line);margin:6px 4px}
+.nbfs{display:flex;flex-direction:column;gap:2px}
+.nbf{display:flex;align-items:center;gap:2px;border-radius:8px;position:relative}
+.nbf::before{content:"";width:4px;align-self:stretch;margin:4px 0;border-radius:3px;background:color-mix(in srgb,var(--fc) 70%,transparent)}
+.nbf.on{background:var(--surface-2)}
+.nbf-btn{flex:1;display:flex;justify-content:space-between;align-items:center;gap:6px;border:0;background:none;padding:7px 8px;border-radius:7px;text-align:left;color:var(--ink);min-width:0}
+.nbf-btn .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nbf-btn .ct{color:var(--muted);font-size:12px}
+.nbf-btn:hover{background:var(--surface-2)}.nbf-btn[aria-pressed="true"]{font-weight:600}
+.nbf-more{width:26px;height:26px;opacity:.6}.nbf:hover .nbf-more{opacity:1}
+.nb-taglist{display:flex;flex-wrap:wrap;gap:6px;padding:0 4px}
+.nb-tagf{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--ink)}
+.nb-tagf span{display:inline-block;min-width:16px;margin-left:4px;padding:0 5px;border-radius:999px;background:var(--surface);font-size:11px}
+.nb-tagf[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.nb-trash{margin-top:auto;border-top:1px solid var(--line);border-radius:0;padding-top:10px}
+.nb-selall{display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 6px;color:var(--ink)}
+.nb-selall input,.nbi input{width:15px;height:15px;accent-color:var(--accent);flex:none}
+.nb-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px;border-radius:8px;background:var(--accent-soft,var(--surface-2));font-size:12.5px}.nb-bulk select{max-width:130px;padding:4px 6px}
+.nbl{display:flex;flex-direction:column;gap:2px}
+.nbi{display:flex;align-items:flex-start;gap:8px;padding:4px 6px;border-radius:9px}
+.nbi input{margin-top:12px}
+.nbi.on{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--accent)}.nbi:hover{background:var(--surface-2)}
+.nbi-b{flex:1;display:flex;flex-direction:column;gap:2px;border:0;background:none;text-align:left;padding:8px 4px;min-width:0;color:var(--ink)}
+.nbi-b b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nbi-p{font-size:12px;font-weight:700;letter-spacing:.02em}.nbi-pv{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nbi-b small{color:var(--muted);font-size:11.5px}
+.nb-ed{padding:18px 22px;min-width:0}
+.nbh{display:flex;align-items:center;gap:10px}
+.nbh-title{font-family:var(--f-display);font-size:24px;margin:0;flex:1;min-width:0;overflow-wrap:anywhere}
+.nbh .nb-title{flex:1;font-size:22px;border-color:transparent;background:none;padding:4px 6px}.nbh .nb-title:hover,.nbh .nb-title:focus{border-color:var(--line)}
+.nbh-pnl{font-size:20px;font-weight:700;margin:10px 0 2px}.nbh-meta{color:var(--muted);font-size:12.5px;margin:4px 0 8px}
+.nb-statt{width:28px;height:28px;border-radius:50%;margin:2px 0 6px}
+.nb-ed{container-type:inline-size}.nb-day{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:center;margin:0 0 14px}@container (max-width:860px){.nb-day{grid-template-columns:1fr}}
+.nb-dstats dd{font-family:inherit}
+.nb-area{width:100%;height:auto;display:block}.nb-noday{display:grid;place-items:center;min-height:150px;border:1px dashed var(--line);border-radius:10px}
+.nb-dstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 10px;margin:0}
+.nb-dstats div{border-left:1px solid var(--line);padding-left:10px}.nb-dstats dt{font-size:12px;color:var(--muted)}.nb-dstats dd{margin:2px 0 0;font-weight:700;font-size:15px}
+.nb-tcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0 14px;background:var(--surface)}
+.nb-tcard-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.nb-tcard-h b{font-size:16px}
+.nb-tcard dl{display:flex;flex-wrap:wrap;gap:14px 28px;margin:12px 0 0}.nb-tcard dt{font-size:12px;color:var(--muted)}.nb-tcard dd{margin:2px 0 0;font-weight:700}
+.nb-tplrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}.nb-tplrow .tpl{padding:5px 12px;font-size:12.5px;color:var(--ink)}.nb-tplrow .tpl.add{background:none;color:var(--accent);font-weight:600}
+.nb-tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.nb-addtag{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:12.5px;color:var(--muted)}
+.nb-tag{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px 4px 3px 10px;font-size:12px}
+.nb-tag button{border:0;background:none;color:var(--muted);font-size:14px;line-height:1;padding:0 4px}
+.nb-popwrap{position:relative;display:inline-flex}
+.nb-pop{position:absolute;top:calc(100% + 4px);left:0;z-index:40;min-width:190px;max-height:320px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:1px}
+.nb-pop.right{left:auto;right:0}.nb-pop .label{margin:6px 8px 2px}
+.nb-pop button{border:0;background:none;text-align:left;padding:7px 10px;border-radius:7px;font-size:13px;color:var(--ink)}.nb-pop button:hover{background:var(--surface-2)}
+.nb-pop button.danger{color:var(--loss)}.nb-pop .sep{height:1px;background:var(--line);margin:4px 2px}
+.nb-pop form{display:flex;gap:6px;padding:4px}.nb-pop input{flex:1;min-width:0}
+.logpop form{flex-direction:column;align-items:stretch}.logpop label{display:grid;gap:4px}
+.nb-colors{display:flex;gap:8px;flex-wrap:wrap}.nb-colors button{width:28px;height:28px;border-radius:50%;border:2px solid transparent;background:var(--fc);box-shadow:inset 0 0 0 2px var(--surface)}.nb-colors button[aria-pressed="true"]{border-color:var(--ink)}
+/* editor */
+.ed-box{border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.ed-box .etools{border:0;border-bottom:1px solid var(--line);border-radius:12px 12px 0 0;align-items:center;gap:1px;padding:5px 6px;position:sticky;top:0;z-index:5}
+.ed-box .editor{border:0;border-radius:0 0 12px 12px;min-height:320px;padding:16px 20px}
+.etools .vsep{width:1px;height:20px;background:var(--line);margin:0 4px}
+.etools button.on{color:var(--loss);background:var(--surface)}
+.ed-dd .car,.car{font-size:9px;margin-left:2px;opacity:.7}
+.ed-wrap{position:relative;display:inline-flex}
+.ed-size{display:inline-flex;align-items:center;gap:1px}.ed-size .num{min-width:28px;text-align:center;border:1px solid var(--line);border-radius:6px;font-size:12px;padding:1px 4px;background:var(--surface)}
+.a-col{border-bottom:3px solid var(--loss);line-height:1;font-weight:700}.a-hil{background:#fef08a;color:#111;padding:0 3px;border-radius:2px;font-weight:700}
+.ed-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:50;min-width:170px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;display:flex;flex-direction:column}
+.ed-pop button{text-align:left;color:var(--ink)!important;padding:6px 10px!important;border-radius:6px;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.ed-pop .ic{display:inline-grid;place-items:center;width:22px;height:22px;border:1px solid var(--line);border-radius:5px;font-size:11px;color:var(--muted)}
+.ed-pop.wide{min-width:220px;max-height:340px;overflow:auto}.ed-pop .sep{height:1px;background:var(--line);margin:4px}
+.ed-pop.sw{flex-direction:row;flex-wrap:wrap;width:184px;gap:6px}.ed-pop.sw button{width:26px;height:26px;min-width:0;padding:0!important;border-radius:50%;background:var(--sw)!important;border:1px solid var(--line);justify-content:center}
+.ed-pop.emo{flex-direction:row;flex-wrap:wrap;width:240px}.ed-pop.emo button{width:36px;min-width:0;justify-content:center;font-size:18px;padding:4px!important}
+.ed-pop.linkp{min-width:280px}.ed-pop.linkp form{display:flex;gap:6px}.ed-pop.linkp input{flex:1}
+.ed-pop .ed-h1{font-size:20px;font-weight:700}.ed-pop .ed-h2{font-size:17px;font-weight:700}.ed-pop .ed-h3{font-size:15px;font-weight:700}
+.hl-mini{font-size:12px!important;margin:0!important}
+.editor h1{font-family:var(--f-display);font-size:24px;margin:14px 0 6px}.editor h2{font-family:var(--f-display);font-size:19px;margin:12px 0 4px}
+.editor h3[class^="hl-"],.editor h3[class*=" hl-"],.hl-mini{display:inline-block;padding:3px 10px;border-radius:3px;color:#fff;text-transform:uppercase;letter-spacing:.02em;font-size:17px;margin:14px 0 6px}
+.hl-violet{background:#a855f7}.hl-red{background:#dc2626}.hl-green{background:#16a34a}.hl-blue{background:#2563eb}.hl-amber{background:#d97706}
+.editor table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px}
+.editor td,.editor th{border:1px solid var(--line);padding:9px 12px;vertical-align:top;min-width:60px}
+.editor th{background:var(--surface-2);text-align:left;font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:.02em}
+.editor td:first-child{font-weight:600}
+.editor ol{padding-left:22px;margin:4px 0}.editor blockquote{border-left:3px solid var(--accent);margin:8px 0;padding:4px 12px;color:var(--muted)}
+.editor pre{background:var(--surface-2);border-radius:8px;padding:10px 12px;font-family:var(--f-mono,monospace);font-size:13px;white-space:pre-wrap}
+.editor code{background:var(--surface-2);border-radius:4px;padding:1px 5px;font-family:var(--f-mono,monospace);font-size:.9em}
+.editor hr{border:0;border-top:1px solid var(--line);margin:14px 0}.editor img{max-width:100%;border-radius:8px;margin:6px 0;display:block}
+.editor a{color:var(--accent);text-decoration:underline}
+.editor details{border:1px solid var(--line);border-left:1px solid var(--line);border-radius:10px;padding:8px 14px;margin:8px 0;background:var(--surface)}
+.editor summary{font-weight:700}
+.slash-menu{position:fixed;z-index:200;width:220px;max-height:320px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.22);padding:5px}
+.slash-menu button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;padding:7px 10px;border-radius:8px;font-size:14px;color:var(--ink)}
+.slash-menu button[aria-selected="true"],.slash-menu button:hover{background:var(--surface-2)}
+.slash-menu .ic{display:inline-grid;place-items:center;width:26px;height:26px;font-weight:700;font-size:12px;color:var(--muted)}
+/* template library */
+.tl-scrim{align-items:stretch;padding:24px}
+.tl-sheet{width:min(1180px,100%);max-width:none;height:calc(100vh - 48px);max-height:none;padding:0;display:grid;grid-template-columns:270px minmax(0,1fr);overflow:hidden}
+.tl-side{border-right:1px solid var(--line);padding:18px 16px;display:flex;flex-direction:column;gap:10px;overflow:auto;background:var(--surface)}
+.tl-back{text-align:left;font-weight:600}
+.tl-grp{border-top:1px solid var(--line);padding-top:8px}.tl-gh{width:100%;display:flex;justify-content:space-between;border:0;background:none;padding:6px 4px;color:var(--muted);font-size:14px}
+.tl-items{display:flex;flex-direction:column;gap:2px;padding:2px 0 6px}
+.tl-items button{border:0;background:none;text-align:left;padding:8px 12px;border-radius:8px;color:var(--ink);font-weight:500}
+.tl-items button:hover{background:var(--surface-2)}.tl-items button[aria-pressed="true"]{background:var(--accent-fill,var(--accent));color:#fff}
+.tl-main{padding:22px 28px;overflow:auto;display:flex;flex-direction:column;gap:12px;background:var(--surface-2)}
+.tl-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.tl-name{font-family:var(--f-display);font-size:26px;margin:0}.tl-title{font-size:16px;max-width:340px}
+.tl-preview{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:22px 26px;min-height:300px}
+.tl-ed{min-height:420px!important}
+.tl-empty{margin:auto;text-align:center;display:grid;gap:14px;justify-items:center;color:var(--muted)}
+.tl-doc{width:90px;height:110px;border:2px solid var(--line);border-radius:8px;background:linear-gradient(var(--line),var(--line)) 14px 26px/60px 10px no-repeat,linear-gradient(var(--line),var(--line)) 14px 48px/40px 6px no-repeat,var(--surface)}
+@media (max-width:1100px){.nb2{grid-template-columns:240px minmax(0,1fr)}.nb2 .nb-side{display:none}.nb-day{grid-template-columns:1fr}}
+@media (max-width:760px){.nb2,.nb2.noside{grid-template-columns:1fr}.nb-side,.nb-list{position:static;max-height:none}.nb-dstats{grid-template-columns:repeat(2,1fr)}.tl-sheet{grid-template-columns:1fr;height:auto}.tl-side{border-right:0;border-bottom:1px solid var(--line)}.tl-scrim{padding:8px}}
 </style>
 
 <div class="app">
@@ -1238,22 +1353,6 @@ const catById = id => S.cats.find(c => c.id === id);
 const tc = c => `--tc:var(--c-${c && COLORS.includes(c.color) ? c.color : 'slate'})`;
 
 /* ---------- sanitizing notes ---------- */
-const ALLOWED = { DETAILS: 1, SUMMARY: 1, B: 1, STRONG: 1, I: 1, EM: 1, U: 1, H3: 1, H4: 1, P: 1, DIV: 1, BR: 1, UL: 1, OL: 1, LI: 1, SPAN: 1 };
-function sanitize(html) {
-  const doc = new DOMParser().parseFromString('<div>' + (html || '') + '</div>', 'text/html');
-  const root = doc.body.firstChild;
-  (function walk(n) {
-    [...n.childNodes].forEach(c => {
-      if (c.nodeType === 1) {
-        if (/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|TEMPLATE)$/.test(c.tagName)) { c.remove(); return; }
-        walk(c);
-        if (!ALLOWED[c.tagName]) { c.replaceWith(...c.childNodes); return; }
-        [...c.attributes].forEach(a => { if (!((a.name === 'class' && /^(todo|todo done|done todo)$/.test(a.value)) || (a.name === 'open' && c.tagName === 'DETAILS'))) c.removeAttribute(a.name); });
-      } else if (c.nodeType !== 3) c.remove();
-    });
-  })(root);
-  return root ? root.innerHTML : '';
-}
 const TEMPLATES = {
   'Full day plan': '<details open><summary>Preparation and game plan</summary><p><b>Watchlist:</b> </p><p><b>Economic events:</b> </p><p><b>Daily / weekly bias:</b> </p><p><b>Levels to watch:</b> </p><p><b>Game plan:</b> </p></details><details open><summary>Session log</summary><p>Note your thoughts with timestamps as the session goes.</p></details><details open><summary>End-of-day recap</summary><p><b>Overall day recap:</b> </p><p><b>The plus / minus:</b> </p></details><p></p>',
   'Pre-market checklist': '<h4>Pre-market checklist</h4><ul><li class="todo">Check the economic calendar</li><li class="todo">Build today\'s watchlist</li><li class="todo">Mark key levels on the chart</li><li class="todo">Set my max daily loss</li></ul><h4>Game plan</h4><p>Bias and levels I care about today…</p>',
@@ -1710,13 +1809,6 @@ function notesCard(t) {
     ${isTrade ? `<div class="actions" style="justify-content:flex-start;margin:0 0 6px"><button class="ghost sm" data-action="aiNote" data-id="${t.id}" ${S.noteBusy ? 'disabled' : ''}>${S.noteBusy ? 'Writing…' : '✦ Write notes with AI'}</button></div>` : ''}
     ${editor(isTrade ? 'trade' : 'journal', isTrade ? t.id : t.date, html)}</section>`;
 }
-function editor(kind, key, html) {
-  return `${tplRow()}
-  <div><div class="etools" role="toolbar" aria-label="Formatting">
-    <button data-action="fmt" data-v="bold" aria-label="Bold"><b>B</b></button><button data-action="fmt" data-v="italic" aria-label="Italic"><i>I</i></button><button data-action="fmt" data-v="underline" aria-label="Underline"><u>U</u></button>
-    <button data-action="fmt" data-v="h4" aria-label="Section heading">H</button><button data-action="fmt" data-v="insertUnorderedList" aria-label="Bullet list">• List</button><button data-action="fmt" data-v="todo" aria-label="Checklist">☐ Checklist</button></div>
-  <div class="editor" id="editor" contenteditable="true" data-keep data-kind="${kind}" data-key="${esc(key)}" data-ph="${kind === 'trade' ? 'Write about this trade…' : 'Write about your trading day…'}">${sanitize(html)}</div></div>`;
-}
 
 /* ---------- playbooks ---------- */
 function playbooksView() {
@@ -1825,40 +1917,6 @@ function miniCal(byD) {
 }
 
 /* ---------- notebook ---------- */
-function nbFolders() { return [{ id: 'all', name: 'All notes', fixed: 1 }, { id: 'trade', name: 'Trade notes', fixed: 1 }, { id: 'journal', name: 'Daily journal', fixed: 1 }, { id: 'mine', name: 'My notes', fixed: 1 }, ...S.folders]; }
-function nbItems() {
-  const items = [], fids = S.folders.map(f => f.id);
-  S.trades.forEach(t => { if (hasText(t.note)) items.push({ kind: 'trade', key: t.id, title: `${t.symbol} · ${shortDate(t.date)}`, sort: t.date + 'T' + (t.time || ''), folder: 'trade', preview: strip(t.note), sub: 'Trade note' }); });
-  Object.keys(S.journal).forEach(k => { const h = S.journal[k].html; if (hasText(h)) items.push({ kind: 'journal', key: k, title: dateLabel(k), sort: k + 'T99', folder: 'journal', preview: strip(h), sub: 'Daily journal' }); });
-  S.notes.forEach(n => items.push({ kind: 'note', key: n.id, title: n.title || 'Untitled note', sort: n.updatedAt || '', folder: fids.includes(n.folder) ? n.folder : 'mine', preview: strip(n.html), tags: n.tags || [], sub: (n.tags || []).length ? n.tags.join(', ') : 'Note' }));
-  return items.sort((a, b) => b.sort.localeCompare(a.sort));
-}
-function notebookView() {
-  const all = nbItems(), f = S.nbFolder, q = S.nbQuery.trim().toLowerCase(), sel = S.nbSel;
-  const list = all.filter(i => f === 'all' || i.folder === f).filter(i => !q || (i.title + ' ' + i.preview + ' ' + (i.tags || []).join(' ')).toLowerCase().includes(q));
-  const folders = nbFolders().map(x => `<div class="nbf"><button class="nbf-btn" data-action="nbFolder" data-v="${x.id}" aria-pressed="${f === x.id}"><span>${esc(x.name)}</span><span class="chip">${all.filter(i => x.id === 'all' || i.folder === x.id).length}</span></button>${x.fixed ? '' : `<button class="linkish" style="color:${S.armed === 'folder-' + x.id ? 'var(--loss)' : 'var(--muted)'}" data-action="delFolder" data-v="${x.id}" aria-label="Delete folder ${esc(x.name)}">${S.armed === 'folder-' + x.id ? 'Delete?' : '✕'}</button>`}</div>`).join('');
-  return `<div class="nb">
-    <section class="panel card"><div class="label">Folders</div><div class="nbfs">${folders}</div><button class="linkish" data-action="addFolder" style="align-self:flex-start">+ Add folder</button></section>
-    <section class="panel card"><div class="pb-row"><input class="search" id="nbSearch" type="search" placeholder="Search notes" value="${esc(S.nbQuery)}" aria-label="Search notes" style="flex:1;width:auto"><button class="primary sm" data-action="newNote">New note</button></div>
-      <div class="nbl">${list.map(i => `<button class="nbi" data-action="nbSel" data-kind="${i.kind}" data-key="${esc(i.key)}" aria-pressed="${!!sel && sel.kind === i.kind && sel.key === i.key}"><b>${esc(i.title)}</b><small>${esc(i.sub)}</small><span>${esc(i.preview.slice(0, 90)) || '<i>Empty</i>'}</span></button>`).join('') || '<div class="hint">No notes here yet.</div>'}</div></section>
-    <section class="panel card nb-ed">${nbEditor(sel)}</section></div>`;
-}
-function nbEditor(sel) {
-  if (!sel) return '<div class="empty"><h3>Pick a note</h3><p>Trade notes and daily journal entries collect here on their own. Use New note for anything else, like weekly reviews or lessons learned.</p></div>';
-  if (!S.db) return '<div class="hint">Saving isn\'t available in this view.</div>';
-  if (sel.kind === 'trade') {
-    const t = byId(sel.key); if (!t) return '<div class="hint">This trade was deleted.</div>';
-    return `<div class="cat-head"><div><h3 class="h3">${esc(t.symbol)} · ${dateLabel(t.date)}</h3><span class="num ${cls(t.pnl)}">${fmt(t.pnl, rOf(t))}</span></div><div class="controls"><span class="saved" id="savedMark"></span><button class="ghost" data-action="preview" data-id="${t.id}">Open trade</button></div></div>${editor('trade', t.id, t.note || '')}`;
-  }
-  if (sel.kind === 'journal') {
-    const ts = tradesByDate()[sel.key] || [], st = dayStats(ts);
-    return `<div class="cat-head"><div><h3 class="h3">${dateLabel(sel.key)}</h3>${ts.length ? `<span class="num ${cls(st.net)}">Net P&amp;L ${priv(money(st.net))}</span>` : ''}</div><div class="controls"><span class="saved" id="savedMark"></span><button class="ghost" data-action="jGo" data-d="${sel.key}">Open day</button></div></div>${ts.length ? dayBody(sel.key, ts) : ''}${editor('journal', sel.key, (S.journal[sel.key] || {}).html || '')}`;
-  }
-  const n = S.notes.find(x => x.id === sel.key); if (!n) return '<div class="hint">This note was deleted.</div>';
-  return `<div class="nb-meta"><input class="fin nb-title" data-keep data-nbf="title" data-key="${n.id}" value="${esc(n.title || '')}" placeholder="Untitled note" aria-label="Note title"><span class="saved" id="savedMark"></span><button class="del${S.armed === 'note-' + n.id ? ' armed' : ''}" data-action="delNote" data-key="${n.id}">${S.armed === 'note-' + n.id ? 'Confirm delete' : 'Delete'}</button></div>
-    <div class="nb-meta"><select class="fin" data-keep data-nbf="folder" data-key="${n.id}" aria-label="Folder" style="max-width:180px"><option value="mine">My notes</option>${S.folders.map(x => `<option value="${x.id}" ${n.folder === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><input class="fin" data-keep data-nbf="tags" data-key="${n.id}" value="${esc((n.tags || []).join(', '))}" placeholder="Tags, separated by commas" aria-label="Tags"></div>
-    ${editor('note', n.id, n.html || '')}`;
-}
 
 /* ---------- reports ---------- */
 const RANGES = [['all', 'All time'], ['month', 'This month'], ['30', 'Last 30 days'], ['90', 'Last 90 days'], ['ytd', 'Year to date'], ['custom', 'Custom dates']];
@@ -4449,6 +4507,400 @@ function usersSettings() {
       </tbody></table></div><div class="hint" style="padding:8px 12px">Deleting a user removes their login and their journal data. Turning an account off keeps the data but blocks sign-in.</div></section>` : ''}`;
 }
 
+
+/* ---------- v34: notebook 2.0 (rich editor, template library, folders, tags, trash) ---------- */
+const NB_COLORS = ['violet', 'blue', 'teal', 'green', 'amber', 'orange', 'red', 'pink', 'slate'];
+const HL = ['violet', 'red', 'green', 'blue', 'amber'];
+const ban = (t, c = 'violet') => `<h3 class="hl-${c}">${t}</h3>`;
+const todo = items => `<ul>${items.map(x => `<li class="todo">${x}</li>`).join('')}</ul>`;
+const tog = (title, body) => `<details open><summary>${title}</summary>${body}</details>`;
+const tbl = (head, rows) => `<table><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((c, i) => i === 0 && head[0] !== '' ? `<td>${c}</td>` : `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+const blank = n => Array.from({ length: n }, () => '<br>');
+const REC_TPL = [
+  { id: 'gameplan', name: 'Daily game plan', desc: 'Bias, levels and if–then plans before the open', html: ban('Daily game plan 🎯') + todo(['Checked the economic calendar', 'Marked higher-timeframe levels', 'Set my max loss for the day']) + tbl(['Market', 'Bias', 'Key levels', 'Plan'], [['ES', ...blank(3)], ['NQ', ...blank(3)], ['Other', ...blank(3)]]) + '<h3>If–then plans</h3><ul><li>If price … then I …</li><li>If price … then I …</li></ul>' },
+  { id: 'allinone', name: 'All-in-one daily', desc: 'Prep, plans per market, check-ins and an end-of-day recap in one note', html: ban('Pre-market checklist ✅') + todo(['Check economic calendar', 'Review yesterday\'s notes', 'Mark key levels']) + ban('Markets 🔮', 'blue') + tog('ES', '<p>[Plan goes here] [chart screenshot]</p>') + tog('NQ', '<p>[Plan goes here] [chart screenshot]</p>') + tog('Others', '<p>[Plan goes here]</p>') + ban('Check-ins ⏰', 'amber') + tog('10 minutes after the open', '<p>What I see, what I\'m waiting for</p>') + tog('After the 10:00 news', '<p>Did the news change my plan?</p>') + tog('Midday', '<p>How am I feeling? Should I stop?</p>') + ban('End of day 🏁', 'green') + todo(['Followed my game plan', 'Stayed under my trade limit', 'Respected every stop']) + tbl(['#', 'What went well', 'What to improve'], [['1', '', ''], ['2', '', ''], ['3', '', '']]) },
+  { id: 'checkin', name: 'Intra-day check-in', desc: 'Short timed notes through the session so the recap writes itself', html: ban('How to use this 💡') + '<p>Stop at fixed times and write two or three lines. It keeps your bias honest, shows how your read changed and makes the end-of-day recap quick.</p>' + todo(['Set the times to match your session (every 15–30 minutes)', 'Write what you see, not what you hope', 'Paste a chart screenshot at each check-in']) + ban('Check-ins ⏰', 'amber') + ['09:40', '10:05', '10:30', '11:00'].map(t => tog(t, '<p><b>What I see:</b> </p><p><b>In a trade? Why:</b> </p><p><b>Focus 1–10:</b> </p>')).join('') },
+  { id: 'premarket', name: 'Pre-market prep', desc: 'Checklist and mindset questions before you trade', html: ban('Pre-market checklist ✅', 'red') + todo(['Check economic calendar', 'Moved or exercised this morning', 'Phone away, charts clean']) + '<p><b>My one goal for today\'s session:</b> </p><p><b>The skill I\'m working on:</b> </p><p><b>Energy and focus (1–10):</b> </p><p><b>The rule I will not break today:</b> </p>' + ban('Futures 🔮', 'red') + tog('ES', '<p></p>') + tog('NQ', '<p></p>') },
+  { id: 'quarter', name: 'Quarterly roadmap', desc: 'One goal for the quarter, broken into monthly focus areas', html: ban('Quarterly roadmap 📈') + '<p><u><b>Goal:</b></u> [goal]</p><p><u><b>Why it matters:</b></u> [reasoning]</p>' + tbl(['Focus', 'How will I get there?'], [['Month 1: mindset', '1)<br>2)<br>3)'], ['Month 2: execution', '1)<br>2)<br>3)'], ['Month 3: risk', '1)<br>2)<br>3)']]) },
+  { id: 'strengths', name: 'Strengths & limitations', desc: 'An honest table of what helps and hurts your trading', html: ban('My current strengths & limitations 💪') + tbl(['', 'Strengths', 'Limitations'], [['Mental', '', ''], ['Technical', '', ''], ['Risk', '', ''], ['Other', '', '']]) },
+  { id: 'emotions', name: 'Becoming aware of emotions', desc: 'Name the feeling, the thought it brings and what you did', html: ban('Noticing my emotions 😤', 'red') + tbl(['Emotion', 'What my mind tells me', 'What I did', 'A better response'], [['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]) },
+  { id: 'weekly', name: 'Weekly recap', desc: 'Best and worst trade of the week and what to change', html: ban('Week of 📅') + '<p><u><b>Thoughts on last week:</b></u></p><ul><li>Text goes here</li></ul>' + tbl(['', 'Best', 'Worst'], [['Symbol', '', ''], ['Setup', '', ''], ['Exit time', '', ''], ['Hold time', '', ''], ['R', '', '']]) + ban('What did I do well? 💪', 'green') + '<ul><li>Text goes here</li></ul>' + ban('What will I fix next week? 🔧', 'amber') + '<ul><li>Text goes here</li></ul>' },
+  { id: 'mtf', name: 'Trade recap: timeframes', desc: 'Review a trade from the higher timeframe down to the entry', html: ban('Trade recap 🔎') + tbl(['Timeframe', 'Bias', 'What I saw'], [['Daily', '', ''], ['1 hour', '', ''], ['15 min', '', ''], ['Entry (1–5 min)', '', '']]) + '<p><b>Did all timeframes agree?</b> </p><p><b>Screenshot:</b> [paste chart]</p><p><b>Grade (A–F):</b> </p>' },
+  { id: 'basic', name: 'Trade recap: basic', desc: 'Overview, setup, entry, size, exit and the lesson', html: ban('Trade review: [symbol] 🔥') + '<p><u><b>Overview:</b></u></p><p>What happened, in a few lines.</p><p><u><b>Setup:</b></u></p><p><b>Entry:</b> </p><p><b>Why:</b> </p><p><u><b>Position size:</b></u></p><ul><li></li></ul><p><u><b>Exit:</b></u></p><ul><li><b>Exit point:</b> </li><li><b>Why I exited:</b> </li></ul><p><u><b>Lesson:</b></u> </p>' }
+];
+const tplById = k => k.startsWith('c:') ? (S.templates.find(t => t.id === k.slice(2)) ? { ...S.templates.find(t => t.id === k.slice(2)), key: k, custom: true } : null) : (REC_TPL.find(t => 'r:' + t.id === k) ? { ...REC_TPL.find(t => 'r:' + t.id === k), key: k } : null);
+S.nbSet = { favTpl: [], recentTpl: [] };
+function saveNbSettings(patch) { S.nbSet = { ...S.nbSet, ...patch }; if (!S.db) return Promise.resolve(); return S.db.doc('settings/notebook').set({ folders: S.folders, favTpl: S.nbSet.favTpl || [], recentTpl: S.nbSet.recentTpl || [] }).catch(writeErr); }
+
+/* ---- sanitising rich text ---- */
+const NB_TAGS = { DETAILS: 1, SUMMARY: 1, B: 1, STRONG: 1, I: 1, EM: 1, U: 1, S: 1, STRIKE: 1, H1: 1, H2: 1, H3: 1, H4: 1, P: 1, DIV: 1, BR: 1, UL: 1, OL: 1, LI: 1, SPAN: 1, A: 1, IMG: 1, TABLE: 1, THEAD: 1, TBODY: 1, TR: 1, TD: 1, TH: 1, BLOCKQUOTE: 1, PRE: 1, CODE: 1, HR: 1, MARK: 1 };
+const NB_CLASS = new Set(['todo', 'done', ...HL.map(c => 'hl-' + c)]);
+const NB_STYLE = { color: 1, 'background-color': 1, 'font-size': 1, 'font-family': 1, 'text-align': 1, 'font-weight': 1, 'font-style': 1, 'text-decoration': 1, 'text-decoration-line': 1 };
+function cleanStyle(st) { return String(st || '').split(';').map(x => x.split(':')).filter(p => p.length === 2 && NB_STYLE[p[0].trim().toLowerCase()] && !/url\(|expression|javascript|[<>]/i.test(p[1])).map(p => p[0].trim().toLowerCase() + ':' + p[1].trim().slice(0, 80)).join(';'); }
+function sanitize(html) {
+  const doc = new DOMParser().parseFromString('<div>' + (html || '') + '</div>', 'text/html');
+  const root = doc.body.firstChild;
+  (function walk(n) {
+    [...n.childNodes].forEach(c => {
+      if (c.nodeType === 1) {
+        if (/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|TEMPLATE|svg|math|INPUT|BUTTON|FORM|TEXTAREA|SELECT)$/i.test(c.tagName)) { c.remove(); return; }
+        if (c.tagName === 'FONT') { const sp = doc.createElement('span'), st = []; if (c.getAttribute('color')) st.push('color:' + c.getAttribute('color')); if (c.getAttribute('face')) st.push('font-family:' + c.getAttribute('face')); sp.setAttribute('style', st.join(';')); sp.append(...c.childNodes); c.replaceWith(sp); walk(sp); return; }
+        walk(c);
+        if (!NB_TAGS[c.tagName]) { c.replaceWith(...c.childNodes); return; }
+        [...c.attributes].forEach(a => {
+          const nm = a.name.toLowerCase(), v = a.value;
+          if (nm === 'class') { const ok = v.split(/\s+/).filter(x => NB_CLASS.has(x)); ok.length ? c.setAttribute('class', ok.join(' ')) : c.removeAttribute('class'); return; }
+          if (nm === 'style') { const s = cleanStyle(v); s ? c.setAttribute('style', s) : c.removeAttribute('style'); return; }
+          if (nm === 'open' && c.tagName === 'DETAILS') return;
+          if (nm === 'href' && c.tagName === 'A' && /^(https?:|mailto:)/i.test(v.trim())) return;
+          if (nm === 'src' && c.tagName === 'IMG' && /^(https:|data:image\/(png|jpe?g|gif|webp);)/i.test(v.trim())) return;
+          if ((nm === 'colspan' || nm === 'rowspan') && /^\d{1,2}$/.test(v)) return;
+          if (nm === 'alt' && c.tagName === 'IMG') return;
+          c.removeAttribute(a.name);
+        });
+        if (c.tagName === 'A') { c.setAttribute('target', '_blank'); c.setAttribute('rel', 'noopener nofollow'); }
+        if (c.tagName === 'IMG' && !c.getAttribute('src')) c.remove();
+      } else if (c.nodeType !== 3) c.remove();
+    });
+  })(root);
+  return root ? root.innerHTML : '';
+}
+
+/* ---- the editor ---- */
+const ED_FONTS = [['', 'Default'], ['Arial, sans-serif', 'Arial'], ['Georgia, serif', 'Georgia'], ['"Courier New", monospace', 'Courier'], ['Verdana, sans-serif', 'Verdana'], ['"Trebuchet MS", sans-serif', 'Trebuchet']];
+const ED_COLORS = ['#111827', '#6b7280', '#dc2626', '#ea580c', '#d97706', '#16a34a', '#0d9488', '#2563eb', '#7c3aed', '#db2777'];
+const ED_HIL = ['transparent', '#fef08a', '#bbf7d0', '#bfdbfe', '#e9d5ff', '#fecaca', '#fed7aa'];
+const EMOJI = ['✅', '❌', '🔥', '🎯', '📈', '📉', '💪', '😤', '😌', '😬', '🤔', '💡', '⏰', '📅', '🔮', '🚀', '⚠️', '🧠', '💰', '🏁', '⭐', '👀', '🔧', '📝'];
+const SLASH = [['p', 'Paragraph', '¶'], ['h1', 'Heading 1', 'H1'], ['h2', 'Heading 2', 'H2'], ['h3', 'Heading 3', 'H3'], ['banner', 'Highlighted heading', '▬'], ['table', 'Table', '▦'], ['ol', 'Numbered list', '1.'], ['ul', 'Bulleted list', '•'], ['todo', 'Check list', '☑'], ['toggle', 'Toggle', '▸'], ['quote', 'Quote', '❝'], ['code', 'Code', '‹›'], ['hr', 'Divider', '—'], ['emoji', 'Emoji', '☺'], ['image', 'Image', '🖼']];
+let EDSEL = null; // { id, range }
+document.addEventListener('selectionchange', () => { const s = getSelection(); if (!s.rangeCount) return; const n = s.anchorNode, ed = n && (n.nodeType === 1 ? n : n.parentElement)?.closest?.('.editor[contenteditable]'); if (ed) EDSEL = { id: ed.id, range: s.getRangeAt(0).cloneRange() }; });
+const edEl = id => $(id || (EDSEL && EDSEL.id) || 'editor');
+function edFocus(id) { const ed = edEl(id); if (!ed) return null; ed.focus(); if (EDSEL && EDSEL.id === ed.id && ed.contains(EDSEL.range.startContainer)) { const s = getSelection(); s.removeAllRanges(); s.addRange(EDSEL.range); } return ed; }
+function edChanged(ed) { if (!ed) return; if (ed.id === 'editor') saveNote(); else if (ed.id === 'tplEd') S.tl.dirty = true; }
+function edTools(id) {
+  const P = S.edPop && S.edPop.id === id ? S.edPop.k : '', B = (k, label, html, extra = '') => `<button type="button" data-action="ed" data-ed="${id}" data-cmd="${k}" aria-label="${label}" title="${label}" ${extra}>${html}</button>`;
+  const dd = (k, label, html) => `<button type="button" class="ed-dd" data-action="edPop" data-ed="${id}" data-v="${k}" aria-label="${label}" title="${label}" aria-expanded="${P === k}">${html}<span class="car">▾</span></button>`;
+  const pop = {
+    block: `<div class="ed-pop">${[['p', 'Paragraph'], ['h1', 'Heading 1'], ['h2', 'Heading 2'], ['h3', 'Heading 3']].map(([k, l]) => `<button data-action="ed" data-ed="${id}" data-cmd="${k}" class="ed-${k}">${l}</button>`).join('')}</div>`,
+    font: `<div class="ed-pop">${ED_FONTS.map(([f, l]) => `<button data-action="ed" data-ed="${id}" data-cmd="font" data-v="${esc(f)}" style="font-family:${esc(f || 'inherit')}">${l}</button>`).join('')}</div>`,
+    color: `<div class="ed-pop sw">${ED_COLORS.map(c => `<button data-action="ed" data-ed="${id}" data-cmd="color" data-v="${c}" style="--sw:${c}" aria-label="Text colour ${c}"></button>`).join('')}</div>`,
+    hl: `<div class="ed-pop sw">${ED_HIL.map(c => `<button data-action="ed" data-ed="${id}" data-cmd="hil" data-v="${c}" style="--sw:${c}" aria-label="${c === 'transparent' ? 'No highlight' : 'Highlight ' + c}">${c === 'transparent' ? '⌀' : ''}</button>`).join('')}</div>`,
+    case: `<div class="ed-pop">${[['upper', 'UPPERCASE'], ['lower', 'lowercase'], ['title', 'Title Case']].map(([k, l]) => `<button data-action="ed" data-ed="${id}" data-cmd="case" data-v="${k}">${l}</button>`).join('')}</div>`,
+    insert: `<div class="ed-pop wide">${SLASH.filter(x => !['p', 'h1', 'h2', 'h3'].includes(x[0])).map(([k, l, ic]) => `<button data-action="ed" data-ed="${id}" data-cmd="${k}"><span class="ic">${ic}</span>${l}</button>`).join('')}<div class="sep"></div><button data-action="ed" data-ed="${id}" data-cmd="rowAdd"><span class="ic">＋</span>Table: add row</button><button data-action="ed" data-ed="${id}" data-cmd="colAdd"><span class="ic">＋</span>Table: add column</button><button data-action="ed" data-ed="${id}" data-cmd="rowDel"><span class="ic">－</span>Table: delete row</button></div>`,
+    align: `<div class="ed-pop">${[['justifyLeft', 'Align left'], ['justifyCenter', 'Center'], ['justifyRight', 'Align right'], ['justifyFull', 'Justify']].map(([k, l]) => `<button data-action="ed" data-ed="${id}" data-cmd="${k}">${l}</button>`).join('')}</div>`,
+    emoji: `<div class="ed-pop emo">${EMOJI.map(x => `<button data-action="ed" data-ed="${id}" data-cmd="emo" data-v="${x}" aria-label="Insert ${x}">${x}</button>`).join('')}</div>`,
+    link: `<div class="ed-pop linkp"><form data-form="edLink" data-ed="${id}"><input id="edLinkIn" placeholder="Paste a link (https://…)" autocomplete="off" aria-label="Link address"><button class="primary sm" type="submit">Add</button></form></div>`,
+    banner: `<div class="ed-pop">${HL.map(c => `<button data-action="ed" data-ed="${id}" data-cmd="bannerC" data-v="${c}"><span class="hl-${c} hl-mini">Heading</span></button>`).join('')}</div>`
+  };
+  const sz = S.edSize || 15, mic = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  return `<div class="etools" role="toolbar" aria-label="Formatting" data-ed="${id}">
+    ${B('undo', 'Undo', '↶')}${B('redo', 'Redo', '↷')}${mic ? B('mic', S.edMic ? 'Stop dictation' : 'Dictate', '🎙', S.edMic ? 'aria-pressed="true" class="on"' : '') : ''}<span class="vsep"></span>
+    <span class="ed-wrap">${dd('block', 'Text style', '¶')}${P === 'block' ? pop.block : ''}</span>
+    <span class="ed-wrap">${dd('font', 'Font', 'T')}${P === 'font' ? pop.font : ''}</span>
+    <span class="ed-size">${B('sizeDown', 'Smaller text', '−')}<span class="num" aria-label="Text size">${sz}</span>${B('sizeUp', 'Bigger text', '+')}</span><span class="vsep"></span>
+    ${B('bold', 'Bold', '<b>B</b>')}${B('italic', 'Italic', '<i>I</i>')}${B('underline', 'Underline', '<u>U</u>')}${B('strikeThrough', 'Strikethrough', '<s>S</s>')}${B('inlineCode', 'Code', '&lt;&gt;')}
+    <span class="ed-wrap">${dd('link', 'Link', '🔗')}${P === 'link' ? pop.link : ''}</span><span class="vsep"></span>
+    <span class="ed-wrap">${dd('color', 'Text colour', '<span class="a-col">A</span>')}${P === 'color' ? pop.color : ''}</span>
+    <span class="ed-wrap">${dd('hl', 'Highlight', '<span class="a-hil">A</span>')}${P === 'hl' ? pop.hl : ''}</span>
+    <span class="ed-wrap">${dd('case', 'Letter case', 'Aa')}${P === 'case' ? pop.case : ''}</span>
+    <span class="ed-wrap">${dd('insert', 'Insert', '＋')}${P === 'insert' ? pop.insert : ''}${P === 'emoji' ? pop.emoji : ''}${P === 'banner' ? pop.banner : ''}</span>
+    <span class="ed-wrap">${dd('align', 'Align', '≡')}${P === 'align' ? pop.align : ''}</span>
+    ${id === 'editor' ? `<span class="vsep"></span>${B('download', 'Download note', '⤓')}` : ''}
+  </div>`;
+}
+function edToolsPaint(id) { const el = document.querySelector(`.etools[data-ed="${id}"]`); if (el) el.outerHTML = edTools(id); if (S.edPop && S.edPop.k === 'link') setTimeout(() => $('edLinkIn')?.focus(), 10); }
+function closeEdPop() { if (!S.edPop) return; const id = S.edPop.id; S.edPop = null; edToolsPaint(id); }
+function editor(kind, key, html) {
+  return `${tplRecentRow(kind, key)}
+  <div class="ed-box">${edTools('editor')}
+  <div class="editor" id="editor" contenteditable="true" data-keep data-kind="${kind}" data-key="${esc(key)}" data-ph="Write something, or press &quot;/&quot; for commands">${sanitize(html)}</div></div>`;
+}
+function insertHtml(html) { document.execCommand('insertHTML', false, html); }
+// insert, then put the caret inside the element marked data-c (select its text when sel is true)
+function insertAt(ed, html, sel) { insertHtml(html); const c = ed.querySelector('[data-c]'); if (!c) return; c.removeAttribute('data-c'); const r = document.createRange(); r.selectNodeContents(c); if (!sel) r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+function curBlock(ed) { const s = getSelection(); let n = s.rangeCount ? s.getRangeAt(0).startContainer : null; while (n && n !== ed && !(n.nodeType === 1 && /^(P|DIV|H1|H2|H3|H4|LI|TD|TH|BLOCKQUOTE|PRE|SUMMARY)$/.test(n.tagName))) n = n.parentNode; return n && n !== ed ? n : null; }
+function inCell() { const s = getSelection(); let n = s.rangeCount ? s.getRangeAt(0).startContainer : null; while (n && !(n.nodeType === 1 && /^(TD|TH)$/.test(n.tagName))) n = n.parentNode; return n; }
+function wrapSize(ed, px) {
+  document.execCommand('styleWithCSS', false, false); document.execCommand('fontSize', false, '7');
+  ed.querySelectorAll('font[size="7"]').forEach(f => { const sp = document.createElement('span'); sp.style.fontSize = px + 'px'; sp.append(...f.childNodes); f.replaceWith(sp); });
+  ed.querySelectorAll('span[style*="xxx-large"]').forEach(sp => { sp.style.fontSize = px + 'px'; });
+}
+function edCmd(id, cmd, v) {
+  if (cmd === 'mic') return edMic(id);
+  const ed = edFocus(id); if (!ed) return;
+  const css = on => document.execCommand('styleWithCSS', false, on);
+  switch (cmd) {
+    case 'undo': case 'redo': case 'bold': case 'italic': case 'underline': case 'strikeThrough': css(false); document.execCommand(cmd); break;
+    case 'justifyLeft': case 'justifyCenter': case 'justifyRight': case 'justifyFull': css(true); document.execCommand(cmd); break;
+    case 'p': document.execCommand('formatBlock', false, 'P'); break;
+    case 'h1': case 'h2': case 'h3': document.execCommand('formatBlock', false, cmd.toUpperCase()); break;
+    case 'quote': document.execCommand('formatBlock', false, 'BLOCKQUOTE'); break;
+    case 'code': document.execCommand('formatBlock', false, 'PRE'); break;
+    case 'inlineCode': { const t = String(getSelection()); insertHtml(`<code>${esc(t || 'code')}</code>&nbsp;`); break; }
+    case 'ul': document.execCommand('insertUnorderedList'); break;
+    case 'ol': document.execCommand('insertOrderedList'); break;
+    case 'todo': { const blk = curBlock(ed), txt = blk && blk.tagName !== 'LI' ? blk.textContent : ''; if (blk && blk.tagName === 'P' && txt.trim()) { const ul = document.createElement('ul'); ul.innerHTML = `<li class="todo">${esc(txt)}</li>`; blk.replaceWith(ul); const r = document.createRange(); r.selectNodeContents(ul.firstChild); r.collapse(false); getSelection().removeAllRanges(); getSelection().addRange(r); } else insertAt(ed, '<ul><li class="todo" data-c="1">To do</li></ul><p><br></p>', true); break; }
+    case 'toggle': insertAt(ed, '<details open><summary data-c="1">Toggle title</summary><p>Hidden content</p></details><p><br></p>', true); break;
+    case 'hr': insertHtml('<hr><p><br></p>'); break;
+    case 'table': insertAt(ed, tbl(['Column 1', 'Column 2', 'Column 3'], [['', '', ''], ['', '', '']]).replace('<td>', '<td data-c="1">') + '<p><br></p>'); break;
+    case 'rowAdd': case 'rowDel': { const c = inCell(); if (!c) { toast('Put the cursor in a table cell first.'); break; } const tr = c.parentNode; if (cmd === 'rowDel') { if (tr.parentNode.children.length > 1) tr.remove(); } else { const n = tr.cloneNode(true); n.querySelectorAll('td,th').forEach(x => { x.innerHTML = '<br>'; }); if (n.firstElementChild && n.firstElementChild.tagName === 'TH') n.innerHTML = n.innerHTML.replace(/<(\/?)th/gi, '<$1td'); (tr.parentNode.tagName === 'THEAD' ? tr.closest('table').querySelector('tbody') || tr.parentNode : tr.parentNode).insertBefore(n, tr.parentNode.tagName === 'THEAD' ? null : tr.nextSibling); } break; }
+    case 'colAdd': { const c = inCell(); if (!c) { toast('Put the cursor in a table cell first.'); break; } const i = [...c.parentNode.children].indexOf(c); c.closest('table').querySelectorAll('tr').forEach(tr => { const ref = tr.children[i], n = document.createElement(ref ? ref.tagName : 'td'); n.innerHTML = '<br>'; ref ? ref.after(n) : tr.appendChild(n); }); break; }
+    case 'banner': S.edPop = { id, k: 'banner' }; edToolsPaint(id); return;
+    case 'bannerC': insertAt(ed, `<h3 class="hl-${HL.includes(v) ? v : 'violet'}" data-c="1">Heading</h3><p><br></p>`, true); break;
+    case 'emoji': S.edPop = { id, k: 'emoji' }; edToolsPaint(id); return;
+    case 'emo': insertHtml(esc(v)); break;
+    case 'image': S.edImgFor = id; $('edImgIn') ? $('edImgIn').click() : null; return;
+    case 'font': if (!v) { css(true); document.execCommand('removeFormat'); break; } css(false); document.execCommand('fontName', false, '__llf'); ed.querySelectorAll('font[face="__llf"]').forEach(f => { const sp = document.createElement('span'); sp.style.fontFamily = v; sp.append(...f.childNodes); f.replaceWith(sp); }); break;
+    case 'sizeUp': case 'sizeDown': S.edSize = Math.max(10, Math.min(40, (S.edSize || 15) + (cmd === 'sizeUp' ? 1 : -1))); if (String(getSelection())) wrapSize(ed, S.edSize); break;
+    case 'color': css(true); document.execCommand('foreColor', false, v); break;
+    case 'hil': css(true); document.execCommand('hiliteColor', false, v); break;
+    case 'case': { const t = String(getSelection()); if (!t) { toast('Select some text first.'); break; } document.execCommand('insertText', false, v === 'upper' ? t.toUpperCase() : v === 'lower' ? t.toLowerCase() : t.toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase())); break; }
+    case 'download': { edDownload(); break; }
+  }
+  S.edPop = null; edToolsPaint(id); edChanged(ed);
+}
+async function edDownload() {
+  const ed = $('editor'); if (!ed) return; const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; if (!dl) return toast("Downloads aren't available in this view.");
+  const title = (document.querySelector('.nbh-title')?.textContent || document.querySelector('.nb-title')?.value || 'note').trim() || 'note';
+  const html = `<!doctype html><meta charset="utf-8"><title>${esc(title)}</title><style>body{font:15px/1.6 system-ui,sans-serif;max-width:760px;margin:32px auto;padding:0 16px}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:6px 10px}${HL.map(c => `.hl-${c}{display:inline-block;padding:2px 8px;color:#fff;background:${{ violet: '#8b5cf6', red: '#dc2626', green: '#16a34a', blue: '#2563eb', amber: '#d97706' }[c]}}`).join('')}</style><h1>${esc(title)}</h1>${sanitize(ed.innerHTML)}`;
+  try { await dl.save({ filename: title.replace(/[^\w\- ]+/g, '').slice(0, 60).trim().replace(/\s+/g, '-') + '.html', data: html }); toast('Note downloaded'); } catch (e) { if (e && e.code !== 'declined') toast("The note couldn't be saved."); }
+}
+let edRec = null;
+function edMic(id) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return toast('Dictation is not supported in this browser.');
+  if (edRec) { edRec.stop(); edRec = null; S.edMic = false; edToolsPaint(id); return; }
+  edRec = new SR(); edRec.continuous = true; edRec.interimResults = false; edRec.lang = navigator.language || 'en-US';
+  edRec.onresult = ev => { for (let i = ev.resultIndex; i < ev.results.length; i++) if (ev.results[i].isFinal) { const ed = edFocus(id); if (ed) { document.execCommand('insertText', false, ev.results[i][0].transcript.trim() + ' '); edChanged(ed); } } };
+  edRec.onend = () => { edRec = null; S.edMic = false; edToolsPaint(id); };
+  edRec.onerror = e => { toast(e.error === 'not-allowed' ? 'Microphone access was blocked.' : 'Dictation stopped.'); };
+  try { edRec.start(); S.edMic = true; edToolsPaint(id); toast('Listening… click the mic again to stop'); } catch (e) { edRec = null; }
+}
+/* slash menu */
+S.slash = null;
+function slashCheck(ed) {
+  const s = getSelection(); if (!s.rangeCount || !s.isCollapsed) return slashClose();
+  const r = s.getRangeAt(0), n = r.startContainer; if (n.nodeType !== 3) return slashClose();
+  const before = n.textContent.slice(0, r.startOffset), m = /(^|\s)\/([\w ]{0,15})$/.exec(before);
+  if (!m) return slashClose();
+  const q = m[2].toLowerCase(), items = SLASH.filter(x => x[1].toLowerCase().includes(q.trim()));
+  if (!items.length) return slashClose();
+  const rect = r.getBoundingClientRect();
+  S.slash = { id: ed.id, node: n, end: r.startOffset, start: r.startOffset - m[2].length - 1, items, i: Math.min(S.slash ? S.slash.i : 0, items.length - 1), x: rect.left, y: rect.bottom };
+  slashPaint();
+}
+function slashPaint() {
+  let el = $('slashMenu'); if (!S.slash) { if (el) el.remove(); return; }
+  if (!el) { el = document.createElement('div'); el.id = 'slashMenu'; el.className = 'slash-menu'; el.setAttribute('role', 'listbox'); document.body.appendChild(el); }
+  const L = S.slash; el.innerHTML = L.items.map(([k, l, ic], i) => `<button type="button" role="option" aria-selected="${i === L.i}" data-action="slashPick" data-v="${k}"><span class="ic">${ic}</span>${l}</button>`).join('');
+  const h = Math.min(320, L.items.length * 34 + 10), below = L.y + h + 8 < innerHeight;
+  el.style.left = Math.max(8, Math.min(innerWidth - 230, L.x)) + 'px'; el.style.top = (below ? L.y + 6 : L.y - h - 26) + 'px';
+  const sel = el.querySelector('[aria-selected="true"]'); if (sel) sel.scrollIntoView({ block: 'nearest' });
+}
+function slashClose() { if (S.slash) { S.slash = null; slashPaint(); } }
+function slashApply(k) {
+  const L = S.slash; if (!L) return; slashClose();
+  const ed = $(L.id); if (!ed) return; ed.focus();
+  try { const r = document.createRange(); r.setStart(L.node, Math.max(0, L.start)); r.setEnd(L.node, Math.min(L.node.textContent.length, L.end)); const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand('delete'); EDSEL = { id: ed.id, range: getSelection().getRangeAt(0).cloneRange() }; } catch (e) {}
+  edCmd(L.id, k === 'banner' ? 'bannerC' : k, k === 'banner' ? 'violet' : undefined);
+}
+document.addEventListener('keydown', e => {
+  if (!S.slash) return; const L = S.slash;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); L.i = (L.i + (e.key === 'ArrowDown' ? 1 : -1) + L.items.length) % L.items.length; slashPaint(); }
+  else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); e.stopPropagation(); slashApply(L.items[L.i][0]); }
+  else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); slashClose(); }
+}, true);
+document.addEventListener('input', e => { const ed = e.target.closest && e.target.closest('.editor[contenteditable]'); if (ed) { slashCheck(ed); if (ed.id === 'tplEd') S.tl.dirty = true; } });
+document.addEventListener('mousedown', e => {
+  if (e.target.closest('.etools button, .slash-menu button, .ed-pop button')) e.preventDefault();
+  if ($('editor') && !e.target.closest('#editor')) saveNote(true);
+  if (S.slash && !e.target.closest('.slash-menu')) slashClose();
+  if (S.edPop && !e.target.closest('.ed-wrap')) closeEdPop();
+  if (S.nbPop && !e.target.closest('.nb-popwrap')) { S.nbPop = null; rerender(); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Tab' && !S.slash) { const c = e.target.closest && e.target.closest('.editor[contenteditable]') && inCell(); if (c) { e.preventDefault(); const cells = [...c.closest('table').querySelectorAll('td,th')], n = cells[cells.indexOf(c) + (e.shiftKey ? -1 : 1)]; if (n) { const r = document.createRange(); r.selectNodeContents(n); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } } } });
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset && el.dataset.nbcheck) { const { L } = nbVisible(); if (el.dataset.nbcheck === '__all') { if (el.checked) L.forEach(i => S.nbChecked.add(i.kind + '|' + i.key)); else S.nbChecked.clear(); } else el.checked ? S.nbChecked.add(el.dataset.nbcheck) : S.nbChecked.delete(el.dataset.nbcheck); S.armed = null; rerender(); return; }
+  if (el.id === 'nbMoveSel' && el.value) { const { L } = nbVisible(), now = new Date().toISOString(); L.filter(i => i.kind === 'note' && S.nbChecked.has('note|' + i.key)).forEach(i => { const n = S.notes.find(x => x.id === i.key); if (n) { n.folder = el.value; n.updatedAt = now; S.db.collection('notes').doc(n.id).update({ folder: n.folder, updatedAt: now }).catch(writeErr); } }); S.nbChecked.clear(); toast('Notes moved'); rerender(); }
+});
+document.addEventListener('change', async e => {
+  if (e.target.id !== 'edImgIn') return; const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  if (!S.assets) return toast("Images can't be added in this view.");
+  try { toast('Adding image…'); const r = await S.assets.upload(f); const id = S.edImgFor || 'editor', ed = edFocus(id); if (!ed) return; insertHtml(`<img src="${esc(r.url)}" alt="${esc(f.name.slice(0, 60))}"><p><br></p>`); edChanged(ed); } catch (err) { toast(err && err.message ? err.message : "That image didn't upload."); }
+});
+document.addEventListener('paste', async e => {
+  const ed = e.target.closest && e.target.closest('.editor[contenteditable]'); if (!ed || !S.assets) return;
+  const img = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/')); if (!img) return;
+  e.preventDefault(); try { toast('Adding image…'); const r = await S.assets.upload(img.getAsFile()); edFocus(ed.id); insertHtml(`<img src="${esc(r.url)}" alt="Pasted image"><p><br></p>`); edChanged(ed); } catch (err) { toast("That image didn't upload."); }
+});
+
+/* ---- recent templates + tags row ---- */
+function tplRecentRow(kind, key) {
+  const rec = (S.nbSet.recentTpl || []).map(tplById).filter(Boolean).slice(0, 3);
+  return `<div class="nb-tplrow"><span class="hint">Recently used templates</span>${rec.map(t => `<button class="tpl" data-action="tlUse" data-v="${t.key}">${esc(t.name)}</button>`).join('')}<button class="tpl add" data-action="tlOpen">+ Add template</button></div>${tagRow(kind, key)}`;
+}
+function noteTags(kind, key) { if (kind === 'trade') return (byId(key) || {}).noteTags || []; if (kind === 'journal') return (S.journal[key] || {}).tags || []; if (kind === 'note') return (S.notes.find(n => n.id === key) || {}).tags || []; return []; }
+function allNoteTags() { const m = {}; S.trades.forEach(t => (t.noteTags || []).forEach(x => m[x] = (m[x] || 0) + 1)); Object.values(S.journal).forEach(j => (j.tags || []).forEach(x => m[x] = (m[x] || 0) + 1)); S.notes.filter(n => !n.deleted).forEach(n => (n.tags || []).forEach(x => m[x] = (m[x] || 0) + 1)); return m; }
+function tagRow(kind, key) {
+  if (!['trade', 'journal', 'note'].includes(kind)) return '';
+  const tags = noteTags(kind, key), open = S.nbPop === 'tag', all = Object.keys(allNoteTags()).filter(t => !tags.includes(t)).sort();
+  return `<div class="nb-tags"><span class="nb-popwrap"><button class="nb-addtag" data-action="nbPop" data-v="tag" aria-expanded="${open}">🏷 Add tag <span class="car">▾</span></button>${open ? `<div class="nb-pop tagpop"><form data-form="nbTag" data-kind="${kind}" data-key="${esc(key)}"><input id="nbTagIn" placeholder="New or existing tag" autocomplete="off" aria-label="Tag name"></form>${all.slice(0, 12).map(t => `<button data-action="nbTagAdd" data-kind="${kind}" data-key="${esc(key)}" data-v="${esc(t)}">${esc(t)}</button>`).join('') || '<p class="hint">Type a tag and press Enter.</p>'}</div>` : ''}</span>
+    ${tags.map(t => `<span class="nb-tag">${esc(t)}<button data-action="nbTagDel" data-kind="${kind}" data-key="${esc(key)}" data-v="${esc(t)}" aria-label="Remove tag ${esc(t)}">×</button></span>`).join('')}</div>`;
+}
+async function setNoteTags(kind, key, tags) {
+  tags = [...new Set(tags.map(x => String(x).trim().slice(0, 40)).filter(Boolean))].slice(0, 20);
+  if (kind === 'trade') { const t = byId(key); if (!t) return; t.noteTags = tags; await S.db.collection('trades').doc(key).update({ noteTags: tags }).catch(writeErr); }
+  else if (kind === 'journal') await saveJournal(key, { tags }).catch(writeErr);
+  else { const n = S.notes.find(x => x.id === key); if (!n) return; n.tags = tags; n.updatedAt = new Date().toISOString(); await S.db.collection('notes').doc(key).update({ tags, updatedAt: n.updatedAt }).catch(writeErr); }
+}
+
+/* ---- template library ---- */
+S.tl = { sel: null, q: '', mode: 'view', title: '', dirty: false, open: { fav: true, rec: true, mine: true } };
+function tlList(group) {
+  const q = S.tl.q.trim().toLowerCase(), m = t => !q || t.name.toLowerCase().includes(q);
+  if (group === 'rec') return REC_TPL.map(t => ({ ...t, key: 'r:' + t.id })).filter(m);
+  if (group === 'mine') return S.templates.map(t => ({ ...t, key: 'c:' + t.id, custom: true })).filter(m);
+  return (S.nbSet.favTpl || []).map(tplById).filter(Boolean).filter(m);
+}
+function tplLibModal() {
+  const T = S.tl, cur = T.sel ? tplById(T.sel) : null, fav = cur && (S.nbSet.favTpl || []).includes(cur.key);
+  const grp = (k, label, ic) => { const L = tlList(k); return `<div class="tl-grp"><button class="tl-gh" data-action="tlGrp" data-v="${k}" aria-expanded="${T.open[k]}"><span>${ic} ${label}</span><span class="car">${T.open[k] ? '▾' : '▸'}</span></button>${T.open[k] ? `<div class="tl-items">${L.map(t => `<button data-action="tlSel" data-v="${t.key}" aria-pressed="${T.sel === t.key && T.mode !== 'new'}">${esc(t.name)}</button>`).join('') || `<p class="hint">${k === 'fav' ? 'Star a template to keep it here.' : k === 'mine' ? 'Templates you make show up here.' : 'No matches.'}</p>`}</div>` : ''}</div>`; };
+  let right;
+  if (T.mode === 'new' || T.mode === 'edit') right = `<div class="tl-head"><input id="tlTitle" class="fin tl-title" placeholder="Template title" value="${esc(T.title)}" aria-label="Template title"><span style="flex:1"></span><button class="secondary" data-action="tlCancel">Cancel</button><button class="primary" data-action="tlSave">Save template</button></div>
+    <div class="ed-box">${edTools('tplEd')}<div class="editor tl-ed" id="tplEd" contenteditable="true" data-keep data-ph="Write the template, or press &quot;/&quot; for commands">${T.mode === 'edit' && cur ? sanitize(cur.html) : ''}</div></div>${T.mode === 'edit' && cur && !cur.custom ? '<p class="hint">Recommended templates can\'t be changed, so saving makes your own copy under My templates.</p>' : ''}`;
+  else if (cur) right = `<div class="tl-head"><h2 class="tl-name">${esc(cur.name)}</h2><button class="icon-btn" data-action="tlEdit" aria-label="Edit template" title="${cur.custom ? 'Edit' : 'Edit a copy'}">✎</button><span style="flex:1"></span><button class="ghost" data-action="tlFav" aria-pressed="${fav}">${fav ? '★ Favourite' : '☆ Add to favourites'}</button><button class="primary" data-action="tlUse" data-v="${cur.key}" ${S.tlTarget ? '' : 'disabled title="Open a note first"'}>Use template</button></div>
+    ${cur.desc ? `<p class="hint">${esc(cur.desc)}</p>` : ''}<div class="tl-preview editor">${sanitize(cur.html)}</div>
+    ${cur.custom ? `<button class="del${S.armed === 'tlDel-' + cur.id ? ' armed' : ''}" data-action="tlDel" data-v="${cur.id}" style="align-self:flex-start">${S.armed === 'tlDel-' + cur.id ? 'Confirm delete' : 'Delete template'}</button>` : ''}`;
+  else right = `<div class="tl-empty"><div class="tl-doc" aria-hidden="true"></div><p>Select a template to view it, or make your own.</p><button class="primary" data-action="tlNew">Create new template</button></div>`;
+  return `<div class="sheet tl-sheet" role="dialog" aria-modal="true" aria-label="Note templates"><aside class="tl-side">
+      <button class="linkish tl-back" data-action="close">⟵ Close &amp; back to notes</button>
+      <input id="tlSearch" class="fin" type="search" placeholder="Search templates" value="${esc(T.q)}" aria-label="Search templates">
+      <button class="secondary" data-action="tlNew" style="width:100%">Create new template</button>
+      ${grp('fav', 'Favourites', '★')}${grp('rec', 'Recommended', '👍')}${grp('mine', 'My templates', '▤')}</aside>
+    <section class="tl-main">${right}</section></div>`;
+}
+function tlOpen() { const ed = $('editor'); S.tlTarget = ed ? { kind: ed.dataset.kind, key: ed.dataset.key } : null; S.tl.mode = 'view'; S.tl.q = ''; if (!S.tl.sel) S.tl.sel = (S.nbSet.recentTpl || [])[0] || 'r:' + REC_TPL[0].id; openModal('tplLib'); }
+async function tlUse(k) {
+  const t = tplById(k); if (!t) return;
+  let ed = $('editor');
+  if (!ed || (S.tlTarget && (ed.dataset.kind !== S.tlTarget.kind || ed.dataset.key !== S.tlTarget.key))) { if (S.modal && S.modal.kind === 'tplLib') { S.prevModal = null; closeModal(); } ed = $('editor'); }
+  if (!ed) return toast('Open a note first, then add a template.');
+  if (S.modal && S.modal.kind === 'tplLib') { S.prevModal = null; closeModal(); }
+  ed = $('editor'); if (!ed) return;
+  const sep = hasText(ed.innerHTML) ? '<p><br></p>' : ''; ed.innerHTML = (hasText(ed.innerHTML) ? ed.innerHTML : '') + sep + sanitize(t.html);
+  saveNote(true); saveNbSettings({ recentTpl: [k, ...(S.nbSet.recentTpl || []).filter(x => x !== k)].slice(0, 6) });
+  toast(`${t.name} added`); rerender();
+}
+
+/* ---- notebook ---- */
+S.nbSort = 'updated'; S.nbChecked = new Set(); S.nbStatsOpen = true; S.nbSide = true; S.nbFocus = false; S.nbTag = ''; S.nbFilter = { kind: 'all', res: 'all' };
+const FIXED_FOLDERS = [{ id: 'all', name: 'All notes', fixed: 1, color: 'violet' }, { id: 'trade', name: 'Trade notes', fixed: 1, color: 'violet' }, { id: 'journal', name: 'Daily journal', fixed: 1, color: 'violet' }, { id: 'recap', name: 'Sessions recap', fixed: 1, color: 'violet' }, { id: 'mine', name: 'My notes', fixed: 1, color: 'slate' }];
+function nbFolders() { return [...FIXED_FOLDERS, ...S.folders]; }
+const fmtMDY = s => { if (!s) return ''; const d = new Date(s); return isNaN(d) ? '' : `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()}`; };
+const fmtStampL = s => { if (!s) return '–'; const d = new Date(s); return isNaN(d) ? '–' : d.toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+const longDate = d => { const [y, m, dd] = d.split('-'); return new Date(+y, +m - 1, +dd).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }); };
+const tradeTitle = t => `${t.symbol} : ${new Date(t.date + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}`;
+function nbItems() {
+  const items = [], fids = S.folders.map(f => f.id), byD = tradesByDate();
+  S.trades.forEach(t => { if (hasText(t.note) || (t.noteTags || []).length) items.push({ kind: 'trade', key: t.id, title: tradeTitle(t), date: t.date, sort: t.noteUpdatedAt || t.date + 'T' + (t.time || ''), folder: 'trade', preview: strip(t.note), tags: t.noteTags || [], pnl: t.pnl, upd: t.noteUpdatedAt || t.createdAt || t.date }); });
+  Object.keys(S.journal).forEach(k => { const j = S.journal[k]; if (hasText(j.html) || j.logged || (j.tags || []).length) { const ts = byD[k] || []; items.push({ kind: 'journal', key: k, title: longDate(k), date: k, sort: j.updatedAt || k, folder: 'journal', preview: strip(j.html), tags: j.tags || [], pnl: ts.length ? ts.reduce((a, t) => a + t.pnl, 0) : null, upd: j.updatedAt || k }); } });
+  S.notes.forEach(n => items.push({ kind: 'note', key: n.id, title: n.title || 'Untitled note', date: (n.createdAt || '').slice(0, 10), sort: n.updatedAt || '', folder: n.folder === 'recap' ? 'recap' : fids.includes(n.folder) ? n.folder : 'mine', preview: strip(n.html), tags: n.tags || [], pnl: null, upd: n.updatedAt, deleted: !!n.deleted, origin: n.origin }));
+  return items;
+}
+function nbVisible() {
+  const all = nbItems(), f = S.nbFolder, q = S.nbQuery.trim().toLowerCase(), F = S.nbFilter;
+  let L = f === 'trash' ? all.filter(i => i.deleted) : all.filter(i => !i.deleted && (f === 'all' || i.folder === f));
+  if (S.nbTag) L = L.filter(i => (i.tags || []).includes(S.nbTag));
+  if (q) L = L.filter(i => (i.title + ' ' + i.preview + ' ' + (i.tags || []).join(' ')).toLowerCase().includes(q));
+  if (F.kind !== 'all') L = L.filter(i => i.kind === F.kind);
+  if (F.res === 'win') L = L.filter(i => i.pnl > 0); else if (F.res === 'loss') L = L.filter(i => i.pnl < 0);
+  const s = S.nbSort;
+  L.sort(s === 'oldest' ? (a, b) => (a.date || '').localeCompare(b.date || '') : s === 'date' ? (a, b) => (b.date || '').localeCompare(a.date || '') : s === 'title' ? (a, b) => a.title.localeCompare(b.title) : (a, b) => String(b.sort).localeCompare(String(a.sort)));
+  return { all, L };
+}
+function nbArea(ts) {
+  const pts = intraday(ts), W = 440, H = 170, P = { l: 46, r: 8, t: 10, b: 22 }, ys = pts.map(p => p[1]), lo = Math.min(0, ...ys), hi = Math.max(0, ...ys), span = hi - lo || 1;
+  const X = i => P.l + i * (W - P.l - P.r) / Math.max(1, pts.length - 1), Y = v => P.t + (hi - v) * (H - P.t - P.b) / span, last = ys[ys.length - 1], col = last >= 0 ? 'var(--gain)' : 'var(--loss)', gid = 'nbg' + (last >= 0 ? 'g' : 'l');
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(''), ticks = [hi, (hi + lo) / 2, lo];
+  return `<svg viewBox="0 0 ${W} ${H}" class="nb-area" role="img" aria-label="Cumulative P&L through the day, ending at ${money(last)}"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".45"/><stop offset="1" stop-color="${col}" stop-opacity=".03"/></linearGradient></defs>
+    ${ticks.map(v => `<line x1="${P.l}" x2="${W - P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${P.l - 6}" y="${Y(v) + 4}" text-anchor="end" font-size="10" fill="var(--muted)">${priv(money(v).replace('.00', ''))}</text>`).join('')}
+    <path d="${line}L${X(pts.length - 1)},${Y(lo)}L${X(0)},${Y(lo)}Z" fill="url(#${gid})"/><path d="${line}" fill="none" stroke="${col}" stroke-width="2"/>
+    ${pts.length > 1 ? `<text x="${X(1)}" y="${H - 6}" font-size="10" fill="var(--muted)">${esc(pts[1][0] || '')}</text><text x="${X(pts.length - 1)}" y="${H - 6}" text-anchor="end" font-size="10" fill="var(--muted)">${esc(pts[pts.length - 1][0] || '')}</text>` : ''}</svg>`;
+}
+function notebookView() {
+  const { all, L } = nbVisible(), f = S.nbFolder, sel = S.nbSel, tags = allNoteTags(), cnt = id => id === 'all' ? all.filter(i => !i.deleted).length : all.filter(i => !i.deleted && i.folder === id).length;
+  const folderRow = x => `<div class="nbf${f === x.id ? ' on' : ''}" style="--fc:var(--c-${x.color || 'violet'})"><button class="nbf-btn" data-action="nbFolder" data-v="${x.id}" aria-pressed="${f === x.id}"><span class="nm">${esc(x.name)}</span><span class="ct">${cnt(x.id)}</span></button>
+    ${x.fixed ? '' : `<span class="nb-popwrap"><button class="icon-btn nbf-more" data-action="nbPop" data-v="f:${x.id}" aria-label="Folder options for ${esc(x.name)}" aria-expanded="${S.nbPop === 'f:' + x.id}">⋯</button>${S.nbPop === 'f:' + x.id ? `<div class="nb-pop"><button data-action="folderEdit" data-v="${x.id}">Rename or recolour</button><button class="danger" data-action="delFolder" data-v="${x.id}">${S.armed === 'folder-' + x.id ? 'Click again to delete' : 'Delete folder'}</button></div>` : ''}</span>`}</div>`;
+  const side = `<aside class="panel nb-side"><div class="nbs-head"><button class="linkish nb-addf" data-action="addFolder">📁 Add folder</button><button class="icon-btn" data-action="nbSide" aria-label="Hide folders">‹</button></div>
+    <div class="label nbs-l">Folders</div><div class="nbfs">${FIXED_FOLDERS.map(folderRow).join('')}${S.folders.length ? '<div class="nbs-sep"></div>' + S.folders.map(folderRow).join('') : ''}</div>
+    <div class="label nbs-l">Tags</div><div class="nb-taglist">${Object.keys(tags).sort().map(t => `<button class="nb-tagf" data-action="nbTagF" data-v="${esc(t)}" aria-pressed="${S.nbTag === t}">${esc(t)} <span>${tags[t]}</span></button>`).join('') || '<p class="hint">Tags you add to notes appear here.</p>'}</div>
+    <button class="nbf-btn nb-trash" data-action="nbFolder" data-v="trash" aria-pressed="${f === 'trash'}"><span class="nm">🗑 Recently deleted</span><span class="ct">${all.filter(i => i.deleted).length}</span></button></aside>`;
+  const isJ = f === 'journal', checked = L.filter(i => S.nbChecked.has(i.kind + '|' + i.key));
+  const list = `<section class="panel nb-list"><div class="nbl-head"><span class="nb-popwrap">${f === 'trash' ? '<span class="hint">Deleted notes are kept for 30 days.</span>' : isJ ? `<button class="linkish" data-action="nbPop" data-v="log" aria-expanded="${S.nbPop === 'log'}">📅 Log day</button>${S.nbPop === 'log' ? `<div class="nb-pop logpop"><form data-form="nbLog"><label class="hint">Day to log<input type="date" id="nbLogD" class="fin" value="${todayIso()}" required></label><button class="primary sm" type="submit">Open</button></form></div>` : ''}` : `<button class="linkish" data-action="newNote">📝 New note</button>`}</span>
+      ${!S.nbSide ? '<button class="icon-btn" data-action="nbSide" aria-label="Show folders">›</button>' : ''}<span class="nb-popwrap"><button class="icon-btn" data-action="nbPop" data-v="sort" aria-label="Sort notes" aria-expanded="${S.nbPop === 'sort'}">⇅</button>${S.nbPop === 'sort' ? `<div class="nb-pop right">${[['updated', 'Last edited'], ['date', 'Date, newest'], ['oldest', 'Date, oldest'], ['title', 'Title A–Z']].map(([k, l]) => `<button data-action="nbSort" data-v="${k}" aria-pressed="${S.nbSort === k}">${S.nbSort === k ? '✓ ' : ''}${l}</button>`).join('')}</div>` : ''}</span></div>
+    <label class="nb-selall"><input type="checkbox" data-nbcheck="__all" ${L.length && checked.length === L.length ? 'checked' : ''}> Select all</label>
+    ${checked.length ? `<div class="nb-bulk"><b>${checked.length} selected</b>${f === 'trash' ? `<button class="ghost sm" data-action="nbBulk" data-v="restore">Restore</button><button class="del" data-action="nbBulk" data-v="purge">${S.armed === 'nbpurge' ? 'Confirm' : 'Delete forever'}</button>` : `${checked.every(i => i.kind === 'note') ? `<select class="fin" id="nbMoveSel" aria-label="Move to folder"><option value="">Move to…</option><option value="mine">My notes</option><option value="recap">Sessions recap</option>${S.folders.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>` : ''}<button class="del" data-action="nbBulk" data-v="del">${S.armed === 'nbdel' ? 'Confirm' : 'Delete'}</button>`}</div>` : ''}
+    <div class="nbl">${L.map(i => { const k = i.kind + '|' + i.key, on = sel && sel.kind === i.kind && sel.key === i.key; return `<div class="nbi${on ? ' on' : ''}"><input type="checkbox" data-nbcheck="${esc(k)}" ${S.nbChecked.has(k) ? 'checked' : ''} aria-label="Select ${esc(i.title)}"><button class="nbi-b" data-action="nbSel" data-kind="${i.kind}" data-key="${esc(i.key)}" aria-pressed="${!!on}"><b>${esc(i.title)}</b>${i.pnl != null ? `<span class="nbi-p ${cls(i.pnl)}">NET P&amp;L: ${priv(money(i.pnl))}</span>` : i.preview ? `<span class="nbi-pv">${esc(i.preview.slice(0, 60))}</span>` : ''}<small>${fmtMDY(i.upd)}${(i.tags || []).length ? ` · ${esc(i.tags.slice(0, 2).join(', '))}` : ''}</small></button></div>`; }).join('') || `<p class="hint" style="padding:10px">${f === 'trash' ? 'Nothing deleted.' : S.nbQuery || S.nbTag ? 'No notes match.' : isJ ? 'Use Log day to write about a trading day.' : f === 'trade' ? 'Notes you write on trades show up here.' : 'No notes here yet.'}</p>`}</div></section>`;
+  const nf = S.nbFilter, filt = S.nbPop === 'filter';
+  return `<div class="nb-top"><input class="search" id="nbSearch" type="search" placeholder="Search notes" value="${esc(S.nbQuery)}" aria-label="Search notes"><span class="nb-popwrap"><button class="icon-btn nb-filt${nf.kind !== 'all' || nf.res !== 'all' || S.nbTag ? ' on' : ''}" data-action="nbPop" data-v="filter" aria-label="Filter notes" aria-expanded="${filt}">⛉</button>${filt ? `<div class="nb-pop right filtpop"><div class="label">Type</div>${[['all', 'All'], ['trade', 'Trade notes'], ['journal', 'Journal days'], ['note', 'My notes']].map(([k, l]) => `<button data-action="nbFilt" data-f="kind" data-v="${k}" aria-pressed="${nf.kind === k}">${nf.kind === k ? '✓ ' : ''}${l}</button>`).join('')}<div class="label">Result</div>${[['all', 'Any'], ['win', 'Winning'], ['loss', 'Losing']].map(([k, l]) => `<button data-action="nbFilt" data-f="res" data-v="${k}" aria-pressed="${nf.res === k}">${nf.res === k ? '✓ ' : ''}${l}</button>`).join('')}${S.nbTag ? `<button data-action="nbTagF" data-v="${esc(S.nbTag)}">✕ Clear tag “${esc(S.nbTag)}”</button>` : ''}</div>` : ''}</span></div>
+    <div class="nb2${S.nbSide && !S.nbFocus ? '' : ' noside'}${S.nbFocus ? ' focus' : ''}">${S.nbSide && !S.nbFocus ? side : ''}${S.nbFocus ? '' : list}<section class="panel nb-ed">${nbEditor(sel)}</section></div>
+    <input type="file" id="edImgIn" accept="image/*" hidden>`;
+}
+function nbHeadBtns(kind, key, title) {
+  return `<span class="nb-popwrap"><button class="icon-btn" data-action="nbPop" data-v="more" aria-label="More note actions" aria-expanded="${S.nbPop === 'more'}">⋯</button>${S.nbPop === 'more' ? `<div class="nb-pop right">${kind === 'note' ? `<div class="label">Move to</div>${[['mine', 'My notes'], ['recap', 'Sessions recap'], ...S.folders.map(x => [x.id, x.name])].map(([k, l]) => `<button data-action="nbMove" data-key="${esc(key)}" data-v="${k}">${esc(l)}</button>`).join('')}<div class="sep"></div>` : ''}${kind === 'trade' ? `<button data-action="open" data-id="${esc(key)}">View trade details</button>` : ''}${kind === 'journal' ? `<button data-action="jGo" data-d="${esc(key)}">Open in daily journal</button>` : ''}<button data-action="ed" data-ed="editor" data-cmd="download">Download note</button><button class="danger" data-action="nbDel" data-kind="${kind}" data-key="${esc(key)}">${S.armed === 'nbd-' + key ? 'Click again to delete' : 'Delete note'}</button></div>` : ''}</span>`;
+}
+function nbEditor(sel) {
+  const focusBtn = `<button class="icon-btn nb-focus" data-action="nbFocus" aria-pressed="${S.nbFocus}" aria-label="${S.nbFocus ? 'Show note list' : 'Focus on this note'}" title="${S.nbFocus ? 'Show note list' : 'Focus mode'}">▢</button>`;
+  if (!sel) return `<div class="empty">${S.nbFocus ? focusBtn : ''}<h3>Pick a note</h3><p>Trade notes and daily journal entries collect here on their own. Use New note for anything else, like weekly reviews or lessons learned, and Add template to start from a layout.</p></div>`;
+  if (!S.db) return '<div class="hint">Saving isn\'t available in this view.</div>';
+  if (sel.kind === 'trade') {
+    const t = byId(sel.key); if (!t) return '<div class="hint">This trade was deleted.</div>';
+    const r = roi(t), gross = t.pnl + (num(t.fees) || 0);
+    return `<div class="nbh">${focusBtn}<h2 class="nbh-title">${esc(tradeTitle(t))}</h2><span class="saved" id="savedMark"></span>${nbHeadBtns('trade', t.id)}</div>
+      <div class="nbh-meta">Created: ${fmtStampL(t.noteCreatedAt || t.createdAt)} &nbsp; Last updated: ${fmtStampL(t.noteUpdatedAt || t.createdAt)}</div>
+      <div class="nb-tcard"><div class="nb-tcard-h"><b class="${cls(t.pnl)}">Net P&amp;L ${priv(money(t.pnl))}</b><button class="primary sm" data-action="open" data-id="${t.id}">View trade details</button></div>
+        <dl>${[['Side', esc(t.side)], ['Contracts traded', t.qty ?? '–'], ['Volume', (t.executions || []).length || t.qty || '–'], ['Commissions', priv(money(-(num(t.fees) || 0)))], ['Net ROI', r == null ? '–' : r.toFixed(2) + '%'], ['Gross P&L', priv(money(gross))]].map(([k, v]) => `<div><dt>${k}</dt><dd class="num">${v}</dd></div>`).join('')}</dl></div>
+      ${editor('trade', t.id, t.note || '')}`;
+  }
+  if (sel.kind === 'journal') {
+    const d = sel.key, j = S.journal[d] || {}, ts = tradesByDate()[d] || [], st = dayStats(ts);
+    const cells = [['Total trades', st.n], ['Winners', st.w], ['Gross P&L', priv(money(st.gross))], ['Commissions', priv(money(st.fees))], ['Win rate', ts.length ? (st.wr * 100).toFixed(0) + '%' : '–'], ['Losers', st.l], ['Volume', st.vol || 0], ['Profit factor', ts.length ? ratioTxt(st.pf) : '–']];
+    return `<div class="nbh">${focusBtn}<h2 class="nbh-title">📅 ${esc(longDate(d))}</h2><span class="saved" id="savedMark"></span>${nbHeadBtns('journal', d)}</div>
+      <div class="nbh-pnl ${cls(st.net)}">Net P&amp;L ${priv(money(st.net))}</div>
+      <div class="nbh-meta">Created: ${fmtStampL(j.createdAt || j.updatedAt)} &nbsp; Last updated: ${fmtStampL(j.updatedAt)}</div>
+      <button class="icon-btn nb-statt" data-action="nbStats" aria-expanded="${S.nbStatsOpen}" aria-label="${S.nbStatsOpen ? 'Hide day stats' : 'Show day stats'}">${S.nbStatsOpen ? '⌄' : '›'}</button>
+      ${S.nbStatsOpen ? `<div class="nb-day">${ts.length ? nbArea(ts) : '<div class="nb-noday hint">No closed P&amp;L on this day</div>'}<dl class="nb-dstats">${cells.map(([k, v]) => `<div><dt>${k}</dt><dd class="num">${v}</dd></div>`).join('')}</dl></div>` : ''}
+      ${editor('journal', d, j.html || '')}`;
+  }
+  const n = S.notes.find(x => x.id === sel.key); if (!n) return '<div class="hint">This note was deleted.</div>';
+  if (n.deleted) return `<div class="nbh">${focusBtn}<h2 class="nbh-title">${esc(n.title || 'Untitled note')}</h2></div><div class="banner"><span>This note is in Recently deleted.</span><button class="secondary sm" data-action="nbRestore" data-key="${n.id}">Restore</button></div><div class="tl-preview editor">${sanitize(n.html)}</div>`;
+  const fo = nbFolders().find(x => x.id === (n.folder || 'mine')) || FIXED_FOLDERS[4];
+  return `<div class="nbh">${focusBtn}<input class="fin nb-title" data-keep data-nbf="title" data-key="${n.id}" value="${esc(n.title || '')}" placeholder="Untitled note" aria-label="Note title"><span class="saved" id="savedMark"></span>${nbHeadBtns('note', n.id)}</div>
+    <div class="nbh-meta">In <b>${esc(fo.name)}</b> · Created: ${fmtStampL(n.createdAt)} &nbsp; Last updated: ${fmtStampL(n.updatedAt)}</div>
+    ${editor('note', n.id, n.html || '')}`;
+}
+async function nbDelete(kind, key) {
+  const now = new Date().toISOString();
+  if (kind === 'note') { const n = S.notes.find(x => x.id === key); if (!n) return; n.deleted = true; n.deletedAt = now; await S.db.collection('notes').doc(key).update({ deleted: true, deletedAt: now }).catch(writeErr); }
+  else if (kind === 'trade') { const t = byId(key); if (!t) return; const id = 'n-' + uid(), doc = { title: tradeTitle(t), html: t.note || '', tags: t.noteTags || [], folder: 'trade', origin: { kind: 'trade', key }, deleted: true, deletedAt: now, createdAt: t.noteCreatedAt || now, updatedAt: now }; S.notes.push({ ...doc, id }); t.note = ''; t.noteTags = []; await Promise.all([S.db.collection('notes').doc(id).set(doc), S.db.collection('trades').doc(key).update({ note: '', noteTags: [] })]).catch(writeErr); }
+  else { const j = S.journal[key] || {}; const id = 'n-' + uid(), doc = { title: longDate(key), html: j.html || '', tags: j.tags || [], folder: 'journal', origin: { kind: 'journal', key }, deleted: true, deletedAt: now, createdAt: j.createdAt || now, updatedAt: now }; S.notes.push({ ...doc, id }); await Promise.all([S.db.collection('notes').doc(id).set(doc), saveJournal(key, { html: '', tags: [], logged: false })]).catch(writeErr); }
+  if (S.nbSel && S.nbSel.key === key) S.nbSel = null;
+}
+async function nbRestore(id) {
+  const n = S.notes.find(x => x.id === id); if (!n) return; const o = n.origin;
+  if (o && o.kind === 'trade') { const t = byId(o.key); if (!t) return toast('That trade no longer exists.'); t.note = (hasText(t.note) ? t.note + '<p><br></p>' : '') + (n.html || ''); t.noteTags = [...new Set([...(t.noteTags || []), ...(n.tags || [])])]; await S.db.collection('trades').doc(o.key).update({ note: t.note, noteTags: t.noteTags }).catch(writeErr); S.notes = S.notes.filter(x => x.id !== id); await S.db.collection('notes').doc(id).delete().catch(writeErr); S.nbSel = { kind: 'trade', key: o.key }; }
+  else if (o && o.kind === 'journal') { const j = S.journal[o.key] || {}; await saveJournal(o.key, { html: (hasText(j.html) ? j.html + '<p><br></p>' : '') + (n.html || ''), tags: [...new Set([...(j.tags || []), ...(n.tags || [])])], logged: true }).catch(writeErr); S.notes = S.notes.filter(x => x.id !== id); await S.db.collection('notes').doc(id).delete().catch(writeErr); S.nbSel = { kind: 'journal', key: o.key }; }
+  else { n.deleted = false; n.deletedAt = null; await S.db.collection('notes').doc(id).update({ deleted: false, deletedAt: null }).catch(writeErr); S.nbSel = { kind: 'note', key: id }; }
+}
+function nbPurgeOld() { if (!S.db || S._purged) return; S._purged = true; const cut = Date.now() - 30 * 864e5; S.notes.filter(n => n.deleted && Date.parse(n.deletedAt || 0) < cut).forEach(n => S.db.collection('notes').doc(n.id).delete().catch(() => {})); }
+function folderModal(id) {
+  const fo = S.folders.find(x => x.id === id), col = (S.folderDraft && S.folderDraft.color) || (fo && fo.color) || 'violet';
+  return `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">${fo ? 'Edit folder' : 'New folder'}</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
+    <form class="form" data-form="folder" data-v="${fo ? fo.id : ''}"><label class="full">Folder name<input id="folderName" required maxlength="40" value="${esc(fo ? fo.name : '')}" placeholder="Weekly recaps"></label>
+    <div class="full"><div class="label" style="margin-bottom:6px">Colour</div><div class="nb-colors">${NB_COLORS.map(c => `<button type="button" data-action="folderColor" data-v="${c}" style="--fc:var(--c-${c})" aria-pressed="${col === c}" aria-label="${c}"></button>`).join('')}</div></div>
+    <div class="full actions"><button type="button" class="secondary" data-action="close">Cancel</button><button class="primary" type="submit">${fo ? 'Save' : 'Add folder'}</button></div></form></div>`;
+}
+
 /* ---------- v33: NinjaTrader live sync ---------- */
 const NT_ADDON = "#region Using declarations\nusing System;\nusing System.Collections.Generic;\nusing System.Globalization;\nusing System.Linq;\nusing System.Net;\nusing System.Text;\nusing System.Threading;\nusing NinjaTrader.Cbi;\nusing NinjaTrader.NinjaScript;\n#endregion\n\n// Ledger Line live sync for NinjaTrader 8.\n// Sends every fill on your trading accounts to your Ledger Line journal as it happens.\n// Install: put this file in Documents\\NinjaTrader 8\\bin\\Custom\\AddOns\\, then open\n// New \u2192 NinjaScript Editor and press F5 (compile). It starts by itself whenever NinjaTrader is open.\n// Messages appear in New \u2192 NinjaScript Output.\nnamespace NinjaTrader.NinjaScript.AddOns\n{\n\tpublic class LedgerLineSync : AddOnBase\n\t{\n\t\t// ---- your settings (filled in by Ledger Line when you download this file) ----\n\t\tprivate const string SyncUrl = \"{{URL}}\";\n\t\tprivate const string SyncKey = \"{{KEY}}\";\n\t\t// Account names to sync, separated by commas. Leave empty to sync every account except Sim/Playback.\n\t\tprivate const string OnlyAccounts = \"\";\n\t\t// ------------------------------------------------------------------------------\n\n\t\tprivate static readonly object Gate = new object();\n\t\tprivate static LedgerLineSync owner;\n\t\tprivate static readonly HashSet<string> Hooked = new HashSet<string>();\n\t\tprivate static readonly List<Account> HookedAccounts = new List<Account>();\n\t\tprivate static readonly Dictionary<string, string> Queue = new Dictionary<string, string>();\n\t\tprivate static readonly HashSet<string> Sent = new HashSet<string>();\n\t\tprivate static System.Threading.Timer timer;\n\t\tprivate static int busy;\n\t\tprivate static DateTime lastPing = DateTime.MinValue;\n\t\tprivate static bool keyRejected;\n\n\t\tprotected override void OnStateChange()\n\t\t{\n\t\t\tif (State == State.SetDefaults)\n\t\t\t{\n\t\t\t\tName = \"LedgerLineSync\";\n\t\t\t\tDescription = \"Sends your fills to your Ledger Line journal.\";\n\t\t\t}\n\t\t\telse if (State == State.Configure || State == State.Active)\n\t\t\t{\n\t\t\t\tStart();\n\t\t\t}\n\t\t\telse if (State == State.Terminated)\n\t\t\t{\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tif (owner != this) return;\n\t\t\t\t\towner = null;\n\t\t\t\t}\n\t\t\t\tAccount.AccountStatusUpdate -= OnAccountStatus;\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tforeach (Account a in HookedAccounts) a.ExecutionUpdate -= OnExecution;\n\t\t\t\t\tHookedAccounts.Clear();\n\t\t\t\t\tHooked.Clear();\n\t\t\t\t}\n\t\t\t\tif (timer != null) { timer.Dispose(); timer = null; }\n\t\t\t\tFlush();\n\t\t\t}\n\t\t}\n\n\t\t// NinjaTrader calls this for every open window, including right after you compile, so the add-on starts without a restart.\n\t\tprotected override void OnWindowCreated(System.Windows.Window window)\n\t\t{\n\t\t\tStart();\n\t\t}\n\n\t\tprivate void Start()\n\t\t{\n\t\t\tlock (Gate)\n\t\t\t{\n\t\t\t\tif (owner != null) return;\n\t\t\t\towner = this;\n\t\t\t}\n\t\t\ttry\n\t\t\t{\n\t\t\t\ttry { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; } catch { }\n\t\t\t\tAccount.AccountStatusUpdate += OnAccountStatus;\n\t\t\t\tList<Account> all;\n\t\t\t\tlock (Account.All) all = Account.All.ToList();\n\t\t\t\tforeach (Account a in all) Hook(a);\n\t\t\t\ttimer = new System.Threading.Timer(_ => Flush(), null, 3000, 10000);\n\t\t\t\tSay(\"started. Sending fills to \" + SyncUrl + (Hooked.Count == 0 ? \" (no live accounts connected yet; connect to Lucid and they're picked up automatically)\" : \"\"));\n\t\t\t}\n\t\t\tcatch (Exception ex) { Say(\"couldn't start: \" + ex.Message); }\n\t\t}\n\n\t\tprivate static bool Wanted(Account a)\n\t\t{\n\t\t\tif (a == null || string.IsNullOrEmpty(a.Name)) return false;\n\t\t\tif (!string.IsNullOrWhiteSpace(OnlyAccounts))\n\t\t\t\treturn OnlyAccounts.Split(',').Any(n => string.Equals(n.Trim(), a.Name, StringComparison.OrdinalIgnoreCase));\n\t\t\tstring n2 = a.Name.ToLowerInvariant();\n\t\t\treturn !(n2.StartsWith(\"sim\") || n2.StartsWith(\"playback\") || n2.StartsWith(\"backtest\"));\n\t\t}\n\n\t\tprivate void Hook(Account a)\n\t\t{\n\t\t\tif (!Wanted(a)) return;\n\t\t\tlock (Gate)\n\t\t\t{\n\t\t\t\tif (Hooked.Contains(a.Name)) return;\n\t\t\t\tHooked.Add(a.Name);\n\t\t\t\tHookedAccounts.Add(a);\n\t\t\t}\n\t\t\ta.ExecutionUpdate += OnExecution;\n\t\t\tList<Execution> past;\n\t\t\tlock (a.Executions) past = a.Executions.ToList();\n\t\t\tforeach (Execution x in past) Add(x);\n\t\t\tSay(\"watching account \" + a.Name + (past.Count > 0 ? \" (\" + past.Count + \" fills from this session)\" : \"\"));\n\t\t}\n\n\t\tprivate void OnAccountStatus(object sender, AccountStatusEventArgs e)\n\t\t{\n\t\t\tif (e.Status == ConnectionStatus.Connected && e.Account != null) Hook(e.Account);\n\t\t}\n\n\t\tprivate static void OnExecution(object sender, ExecutionEventArgs e)\n\t\t{\n\t\t\tif (e.Execution != null) Add(e.Execution);\n\t\t}\n\n\t\tprivate static string Num(double v) { return v.ToString(\"0.##########\", CultureInfo.InvariantCulture); }\n\t\tprivate static string Str(string s)\n\t\t{\n\t\t\tif (s == null) return \"\\\"\\\"\";\n\t\t\tvar b = new StringBuilder(\"\\\"\");\n\t\t\tforeach (char c in s)\n\t\t\t{\n\t\t\t\tif (c == '\"' || c == '\\\\') b.Append('\\\\').Append(c);\n\t\t\t\telse if (c < ' ') b.Append(\"\\\\u\").Append(((int)c).ToString(\"x4\"));\n\t\t\t\telse b.Append(c);\n\t\t\t}\n\t\t\treturn b.Append('\"').ToString();\n\t\t}\n\n\t\tprivate static void Add(Execution x)\n\t\t{\n\t\t\ttry\n\t\t\t{\n\t\t\t\tif (x == null || x.Instrument == null || x.Account == null || x.Quantity == 0) return;\n\t\t\t\tvar mi = x.Instrument.MasterInstrument;\n\t\t\t\tstring json = \"{\"\n\t\t\t\t\t+ \"\\\"id\\\":\" + Str(x.ExecutionId)\n\t\t\t\t\t+ \",\\\"orderId\\\":\" + Str(x.OrderId)\n\t\t\t\t\t+ \",\\\"account\\\":\" + Str(x.Account.Name)\n\t\t\t\t\t+ \",\\\"instrument\\\":\" + Str(x.Instrument.FullName)\n\t\t\t\t\t+ \",\\\"root\\\":\" + Str(mi.Name)\n\t\t\t\t\t+ \",\\\"side\\\":\" + Str(x.MarketPosition == MarketPosition.Long ? \"Buy\" : \"Sell\")\n\t\t\t\t\t+ \",\\\"qty\\\":\" + x.Quantity.ToString(CultureInfo.InvariantCulture)\n\t\t\t\t\t+ \",\\\"price\\\":\" + Num(x.Price)\n\t\t\t\t\t+ \",\\\"time\\\":\" + Str(x.Time.ToString(\"yyyy-MM-ddTHH:mm:ss.fff\", CultureInfo.InvariantCulture))\n\t\t\t\t\t+ \",\\\"commission\\\":\" + Num(x.Commission)\n\t\t\t\t\t+ \",\\\"pointValue\\\":\" + Num(mi.PointValue)\n\t\t\t\t\t+ \",\\\"tickSize\\\":\" + Num(mi.TickSize)\n\t\t\t\t\t+ \"}\";\n\t\t\t\tstring key = x.Account.Name + \"|\" + x.ExecutionId + \"|\" + x.Quantity + \"|\" + Num(x.Price);\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tif (Sent.Contains(key)) return;\n\t\t\t\t\tQueue[key] = json;\n\t\t\t\t}\n\t\t\t}\n\t\t\tcatch (Exception ex) { Say(\"couldn't read a fill: \" + ex.Message); }\n\t\t}\n\n\t\tprivate static void Flush()\n\t\t{\n\t\t\tif (Interlocked.Exchange(ref busy, 1) == 1) return;\n\t\t\ttry\n\t\t\t{\n\t\t\t\tList<KeyValuePair<string, string>> batch;\n\t\t\t\tstring[] names;\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tbatch = Queue.Take(300).ToList();\n\t\t\t\t\tnames = Hooked.ToArray();\n\t\t\t\t}\n\t\t\t\tbool ping = (DateTime.Now - lastPing).TotalMinutes >= 5;\n\t\t\t\tif (batch.Count == 0 && !ping) return;\n\t\t\t\tif (keyRejected && batch.Count == 0) return;\n\t\t\t\tstring body = \"{\\\"client\\\":\\\"NinjaTrader 8\\\",\\\"accounts\\\":[\" + string.Join(\",\", names.Select(Str))\n\t\t\t\t\t+ \"],\\\"executions\\\":[\" + string.Join(\",\", batch.Select(p => p.Value)) + \"]}\";\n\t\t\t\tusing (var wc = new WebClient())\n\t\t\t\t{\n\t\t\t\t\twc.Encoding = Encoding.UTF8;\n\t\t\t\t\twc.Headers[HttpRequestHeader.ContentType] = \"application/json\";\n\t\t\t\t\twc.Headers[\"x-ledgerline-sync\"] = SyncKey;\n\t\t\t\t\twc.UploadString(SyncUrl, \"POST\", body);\n\t\t\t\t}\n\t\t\t\tlastPing = DateTime.Now;\n\t\t\t\tkeyRejected = false;\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tforeach (var p in batch) { Queue.Remove(p.Key); Sent.Add(p.Key); }\n\t\t\t\t}\n\t\t\t\tif (batch.Count > 0) Say(\"sent \" + batch.Count + \" fill(s)\");\n\t\t\t}\n\t\t\tcatch (WebException we)\n\t\t\t{\n\t\t\t\tvar r = we.Response as HttpWebResponse;\n\t\t\t\tif (r != null && r.StatusCode == HttpStatusCode.Unauthorized)\n\t\t\t\t{\n\t\t\t\t\tif (!keyRejected) Say(\"the sync key was rejected. Download the add-on again from Ledger Line \u2192 Settings \u2192 Accounts.\");\n\t\t\t\t\tkeyRejected = true;\n\t\t\t\t}\n\t\t\t\telse Say(\"couldn't reach Ledger Line (\" + we.Message + \"). Will retry.\");\n\t\t\t\tlastPing = DateTime.Now;\n\t\t\t}\n\t\t\tcatch (Exception ex) { Say(\"error: \" + ex.Message); }\n\t\t\tfinally { Interlocked.Exchange(ref busy, 0); }\n\t\t}\n\n\t\tprivate static void Say(string m)\n\t\t{\n\t\t\ttry { NinjaTrader.Code.Output.Process(\"Ledger Line: \" + m, PrintTo.OutputTab1); } catch { }\n\t\t}\n\t}\n}\n";
 S.syncCfg = null; S.syncStat = null; S.syncKeyShown = '';
@@ -4606,8 +5058,8 @@ function _renderModal() {
   else if (m.kind === 'propTx') box.innerHTML = propTxModal();
   else if (m.kind === 'tplSave') { box.innerHTML = tplSaveModal(); setTimeout(() => $('tplName')?.focus(), 30); }
   if (S.tagMenu && m.kind === 'preview') { const i = $('tagSearch'); if (i) { i.focus(); i.value = S.tagQuery; filterTagMenu(); } }
-  else if (m.kind === 'folder') { box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">New folder</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
-      <form class="form" data-form="folder"><label class="full">Name<input id="folderName" required placeholder="Weekly reviews"></label><div class="full actions"><button type="button" class="secondary" data-action="close">Cancel</button><button class="primary" type="submit">Add folder</button></div></form></div>`; setTimeout(() => $('folderName')?.focus(), 30); }
+  else if (m.kind === 'tplLib') { box.innerHTML = tplLibModal(); box.className = 'scrim tl-scrim'; if (S.tl.mode !== 'view') setTimeout(() => (S.tl.mode === 'new' ? $('tlTitle') : $('tplEd'))?.focus(), 30); }
+  else if (m.kind === 'folder') { box.innerHTML = folderModal(m.arg); setTimeout(() => $('folderName')?.focus(), 30); }
   else if (m.kind === 'dlog') {
     const d = m.arg, ts = tradesByDate()[d] || [], st = dayStats(ts);
     box.innerHTML = `<div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><div><h3 id="mTitle">Daily log</h3><div class="hint">${dateLabel(d)}${ts.length ? ` · <span class="num ${cls(st.net)}">Net P&amp;L ${priv(money(st.net))}</span>` : ''}${(S.journal[d] || {}).startedAt ? ` · started ${esc(S.journal[d].startedAt)}` : ''}</div></div>
@@ -4655,9 +5107,9 @@ function saveNote(immediate) {
     const html = sanitize(ed.innerHTML), kind = ed.dataset.kind, key = ed.dataset.key;
     const mark = $('savedMark');
     let p;
-    if (kind === 'trade') { const t = byId(key); if (!t || t.note === html) return; t.note = html; p = S.db.collection('trades').doc(key).update({ note: html }); }
+    if (kind === 'trade') { const t = byId(key); if (!t || t.note === html) return; const now = new Date().toISOString(); t.note = html; t.noteUpdatedAt = now; const up = { note: html, noteUpdatedAt: now }; if (!t.noteCreatedAt) up.noteCreatedAt = t.noteCreatedAt = now; p = S.db.collection('trades').doc(key).update(up); }
     else if (kind === 'note') { const n = S.notes.find(x => x.id === key); if (!n || n.html === html) return; n.html = html; n.updatedAt = new Date().toISOString(); p = S.db.collection('notes').doc(key).update({ html, updatedAt: n.updatedAt }); }
-    else { if ((S.journal[key] || {}).html === html) return; p = saveJournal(key, { html, updatedAt: new Date().toISOString() }); }
+    else { const j = S.journal[key] || {}; if (j.html === html) return; const now = new Date().toISOString(); p = saveJournal(key, { html, updatedAt: now, createdAt: j.createdAt || now, logged: true }); }
     if (mark) mark.textContent = 'Saving…';
     p.then(() => { const m = $('savedMark'); if (m) m.textContent = 'Saved'; }).catch(writeErr);
   };
@@ -4699,10 +5151,43 @@ document.addEventListener('click', async e => {
   if (!b) { if ((S.accMenu || S.dashMenu || S.repMenu) && !e.target.closest('.ddwrap')) { S.accMenu = false; S.dashMenu = false; S.repMenu = false; rerender(); } if (e.target === $('modal')) { saveNote(true); S.prevModal = null; closeModal(); } if (S.tagMenu && !e.target.closest('.menu')) { S.tagMenu = null; render(); } return; }
   const a = b.dataset.action, id = b.dataset.id;
   if (a !== 'fmt' && a !== 'tpl' && $('editor')) saveNote(true);
-  if (!['del', 'delTrade', 'clearSamples', 'bulkDelete', 'delPb', 'delCat', 'delNote', 'delFolder', 'acctDel', 'undoImport', 'tplDel', 'econDel', 'propDel', 'propTxDel', 'dashDelete', 'resetTracker', 'caDel', 'acctUnlink', 'vidDel', 'userDel', 'ntOff'].includes(a)) S.armed = null;
+  if (!['del', 'delTrade', 'clearSamples', 'bulkDelete', 'delPb', 'delCat', 'delNote', 'delFolder', 'acctDel', 'undoImport', 'tplDel', 'econDel', 'propDel', 'propTxDel', 'dashDelete', 'resetTracker', 'caDel', 'acctUnlink', 'vidDel', 'userDel', 'ntOff', 'nbDel', 'nbBulk', 'tlDel'].includes(a)) S.armed = null;
   if (a === 'sel' || a === 'selAll' || a === 'toggleRev') e.stopPropagation();
   switch (a) {
     case 'add': if (!needDb()) return; return openModal('add', b.dataset.d);
+    case 'ed': edCmd(b.dataset.ed, b.dataset.cmd, b.dataset.v); return;
+    case 'edPop': { const k = b.dataset.v, eid = b.dataset.ed; S.edPop = S.edPop && S.edPop.k === k && S.edPop.id === eid ? null : { id: eid, k }; edToolsPaint(eid); return; }
+    case 'slashPick': slashApply(b.dataset.v); return;
+    case 'tlOpen': saveNote(true); tlOpen(); return;
+    case 'tlUse': await tlUse(b.dataset.v); return;
+    case 'tlSel': S.tl.sel = b.dataset.v; S.tl.mode = 'view'; S.armed = null; renderModal(); return;
+    case 'tlGrp': S.tl.open[b.dataset.v] = !S.tl.open[b.dataset.v]; renderModal(); return;
+    case 'tlNew': S.tl.mode = 'new'; S.tl.title = ''; S.tl.dirty = false; renderModal(); return;
+    case 'tlEdit': { const c = tplById(S.tl.sel); if (!c) return; S.tl.mode = 'edit'; S.tl.title = c.custom ? c.name : c.name + ' (my copy)'; S.tl.dirty = false; renderModal(); return; }
+    case 'tlCancel': S.tl.mode = 'view'; renderModal(); return;
+    case 'tlSave': { if (!needDb()) return; const title = (($('tlTitle') || {}).value || '').trim().slice(0, 80) || 'Untitled template', html = sanitize(($('tplEd') || {}).innerHTML || ''); if (!hasText(html)) return toast('Write something in the template first.');
+      const c = S.tl.mode === 'edit' ? tplById(S.tl.sel) : null, tid = c && c.custom ? c.id : 't-' + uid();
+      try { await S.db.collection('templates').doc(tid).set({ name: title, html }); S.templates = [...S.templates.filter(x => x.id !== tid), { id: tid, name: title, html }]; S.tl.sel = 'c:' + tid; S.tl.mode = 'view'; S.tl.open.mine = true; renderModal(); toast('Template saved'); } catch (err) { writeErr(err); } return; }
+    case 'tlFav': { const k = S.tl.sel; if (!k) return; const f = S.nbSet.favTpl || []; saveNbSettings({ favTpl: f.includes(k) ? f.filter(x => x !== k) : [...f, k] }); renderModal(); return; }
+    case 'tlDel': { const k = b.dataset.v; if (S.armed !== 'tlDel-' + k) { S.armed = 'tlDel-' + k; renderModal(); return; } S.armed = null; S.templates = S.templates.filter(x => x.id !== k); S.db.collection('templates').doc(k).delete().catch(writeErr); saveNbSettings({ favTpl: (S.nbSet.favTpl || []).filter(x => x !== 'c:' + k), recentTpl: (S.nbSet.recentTpl || []).filter(x => x !== 'c:' + k) }); S.tl.sel = null; renderModal(); toast('Template deleted'); return; }
+    case 'nbPop': S.nbPop = S.nbPop === b.dataset.v ? null : b.dataset.v; rerender(); if (S.nbPop === 'tag') setTimeout(() => $('nbTagIn')?.focus(), 20); return;
+    case 'nbSort': S.nbSort = b.dataset.v; S.nbPop = null; break;
+    case 'nbFilt': S.nbFilter = { ...S.nbFilter, [b.dataset.f]: b.dataset.v }; break;
+    case 'nbTagF': S.nbTag = S.nbTag === b.dataset.v ? '' : b.dataset.v; S.nbPop = null; break;
+    case 'nbSide': S.nbSide = !S.nbSide; break;
+    case 'nbFocus': S.nbFocus = !S.nbFocus; break;
+    case 'nbStats': S.nbStatsOpen = !S.nbStatsOpen; break;
+    case 'nbTagAdd': await setNoteTags(b.dataset.kind, b.dataset.key, [...noteTags(b.dataset.kind, b.dataset.key), b.dataset.v]); S.nbPop = null; break;
+    case 'nbTagDel': await setNoteTags(b.dataset.kind, b.dataset.key, noteTags(b.dataset.kind, b.dataset.key).filter(x => x !== b.dataset.v)); break;
+    case 'nbMove': { const n = S.notes.find(x => x.id === b.dataset.key); if (!n) return; n.folder = b.dataset.v; n.updatedAt = new Date().toISOString(); S.db.collection('notes').doc(n.id).update({ folder: n.folder, updatedAt: n.updatedAt }).catch(writeErr); S.nbPop = null; toast('Note moved'); break; }
+    case 'nbDel': { const k = b.dataset.key; if (S.armed !== 'nbd-' + k) { S.armed = 'nbd-' + k; break; } S.armed = null; S.nbPop = null; await nbDelete(b.dataset.kind, k); toast('Moved to Recently deleted'); break; }
+    case 'nbRestore': await nbRestore(b.dataset.key); toast('Note restored'); break;
+    case 'nbBulk': { const v = b.dataset.v, { L } = nbVisible(), picked = L.filter(i => S.nbChecked.has(i.kind + '|' + i.key));
+      if ((v === 'del' || v === 'purge') && S.armed !== 'nb' + v) { S.armed = 'nb' + v; break; } S.armed = null;
+      for (const i of picked) { if (v === 'del') await nbDelete(i.kind, i.key); else if (v === 'restore') await nbRestore(i.key); else { S.notes = S.notes.filter(x => x.id !== i.key); S.db.collection('notes').doc(i.key).delete().catch(writeErr); } }
+      S.nbChecked.clear(); toast(v === 'del' ? `${picked.length} note(s) moved to Recently deleted` : v === 'restore' ? `${picked.length} note(s) restored` : `${picked.length} note(s) deleted`); break; }
+    case 'folderEdit': S.folderDraft = null; S.nbPop = null; return openModal('folder', b.dataset.v);
+    case 'folderColor': S.folderDraft = { color: b.dataset.v }; { const nm = $('folderName') ? $('folderName').value : null; renderModal(); if (nm != null && $('folderName')) $('folderName').value = nm; } return;
     case 'ntKey': await ntMakeKey(); return;
     case 'ntDownload': await ntDownload(); return;
     case 'ntCopy': { try { await navigator.clipboard.writeText(S.syncKeyShown); toast('Key copied'); } catch (e) { toast('Select the key and copy it.'); } return; }
@@ -4803,26 +5288,26 @@ document.addEventListener('click', async e => {
       else aiReview('Current rules analysis', `Analyze my current trading rules and how well I follow them.\n${rs}\nAre these rules realistic and useful given my results? Suggest which to tighten, loosen, add or drop, with reasons tied to my data.`, null);
       return;
     }
-    case 'nbFolder': S.nbFolder = b.dataset.v; S.nbSel = null; break;
+    case 'nbFolder': S.nbFolder = b.dataset.v; S.nbSel = null; S.nbChecked.clear(); S.nbPop = null; break;
     case 'nbSel': S.nbSel = { kind: b.dataset.kind, key: b.dataset.key }; break;
     case 'nbOpen': { const k = b.dataset.kind; S.view = 'notebook'; S.nbFolder = k === 'trade' ? 'trade' : k === 'journal' ? 'journal' : 'all'; S.nbSel = { kind: k, key: b.dataset.key }; closeModal(); window.scrollTo(0, 0); break; }
     case 'newNote': {
       if (!needDb()) return;
-      const folder = S.folders.some(f => f.id === S.nbFolder) ? S.nbFolder : 'mine', id = 'n-' + uid(), now = new Date().toISOString();
+      const folder = S.folders.some(f => f.id === S.nbFolder) || S.nbFolder === 'recap' ? S.nbFolder : 'mine', id = 'n-' + uid(), now = new Date().toISOString();
       const n = { title: '', folder, html: '', tags: [], createdAt: now, updatedAt: now };
       S.notes.unshift({ ...n, id }); S.db.collection('notes').doc(id).set(n).catch(writeErr);
-      if (S.nbFolder === 'trade' || S.nbFolder === 'journal') S.nbFolder = 'mine';
+      if (['trade', 'journal', 'trash'].includes(S.nbFolder)) S.nbFolder = 'mine';
       S.nbSel = { kind: 'note', key: id }; render(); setTimeout(() => document.querySelector('.nb-title')?.focus(), 30); return;
     }
     case 'delNote': {
       const k = b.dataset.key; if (S.armed !== 'note-' + k) { S.armed = 'note-' + k; break; }
       S.armed = null; S.notes = S.notes.filter(n => n.id !== k); S.nbSel = null; S.db.collection('notes').doc(k).delete().catch(writeErr); toast('Note deleted'); break;
     }
-    case 'addFolder': if (!needDb()) return; return openModal('folder');
+    case 'addFolder': if (!needDb()) return; S.folderDraft = null; return openModal('folder');
     case 'delFolder': {
       const k = b.dataset.v; if (S.armed !== 'folder-' + k) { S.armed = 'folder-' + k; break; }
       S.armed = null; S.folders = S.folders.filter(f => f.id !== k); if (S.nbFolder === k) S.nbFolder = 'all';
-      S.db.doc('settings/notebook').set({ folders: S.folders }).catch(writeErr); toast('Folder deleted. Its notes moved to My notes.'); break;
+      S.nbPop = null; saveNbSettings({}); toast('Folder deleted. Its notes moved to My notes.'); break;
     }
     case 'addFlow': if (!needDb()) return; S.imp = { step: 'pick', src: null, accountId: (S.accSel && S.accSel[0]) || allAccounts()[0].id, dateFmt: 'MDY', text: '' }; return openModal('import');
     case 'impSrc': S.imp.src = b.dataset.v; S.imp.map = null; S.imp.header = null; renderModal(); return;
@@ -5121,6 +5606,8 @@ document.addEventListener('input', e => {
   if (el.id === 'rpScrub') { rpStop(); S.rp.t = +el.value; rpPaint(); return; }
   if (el.id === 'impAccName' && S.imp) { S.imp.newAcc = el.value; return; }
   if (el.dataset.fx && S.fltEdit) { S.fltEdit[el.dataset.fx] = el.value; return; }
+  if (el.id === 'tlSearch') { S.tl.q = el.value; const pos = el.selectionStart; renderModal(); const n = $('tlSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
+  if (el.id === 'tlTitle') { S.tl.title = el.value; return; }
   if (el.id === 'nbSearch') { S.nbQuery = el.value; clearTimeout(S._nt); S._nt = setTimeout(() => { const pos = el.selectionStart; render(); const n = $('nbSearch'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }, 250); return; }
   if (el.dataset.rf && S.rulesEdit) { S.rulesEdit[el.dataset.rf] = el.value; return; }
   if (el.dataset.rm != null && S.rulesEdit) { S.rulesEdit.manual[+el.dataset.rm].text = el.value; return; }
@@ -5224,6 +5711,9 @@ document.addEventListener('submit', async e => {
     const fired = runCustomOnTrade(t); fired.forEach(a => { if (a.tag && a.tag.cat && a.tag.tag) { ensureTagInCat(a.tag.cat, a.tag.tag); t.tags = { ...t.tags, [a.tag.cat]: [...new Set([...(t.tags[a.tag.cat] || []), a.tag.tag])] }; } });
     try { const ref = await S.db.collection('trades').add(t); closeModal(); toast(fired.length ? `Trade saved · ⚑ ${fired.map(a => a.name).join(', ')}` : 'Trade saved'); S.view = 'trade'; S.tradeId = ref.id; S.tab = 'stats'; const [y, m] = t.date.split('-'); S.month = new Date(+y, +m - 1, 1); render(); } catch (err) { writeErr(err); }
   }
+  if (f.dataset.form === 'edLink') { let u = ($('edLinkIn').value || '').trim(); if (!u) return; if (!/^(https?:|mailto:)/i.test(u)) u = 'https://' + u; const eid = f.dataset.ed, ed = edFocus(eid); if (!ed) return; if (getSelection().isCollapsed) insertHtml(`<a href="${esc(u)}">${esc(u)}</a>&nbsp;`); else document.execCommand('createLink', false, u); ed.querySelectorAll('a').forEach(a => { a.target = '_blank'; a.rel = 'noopener nofollow'; }); S.edPop = null; edToolsPaint(eid); edChanged(ed); return; }
+  if (f.dataset.form === 'nbTag') { const v = $('nbTagIn').value.trim(); if (!v) return; await setNoteTags(f.dataset.kind, f.dataset.key, [...noteTags(f.dataset.kind, f.dataset.key), v]); S.nbPop = null; rerender(); return; }
+  if (f.dataset.form === 'nbLog') { const d = $('nbLogD').value; if (!d || !needDb()) return; const j = S.journal[d] || {}, now = new Date().toISOString(); await saveJournal(d, { logged: true, createdAt: j.createdAt || now, updatedAt: j.updatedAt || now }).catch(writeErr); S.nbSel = { kind: 'journal', key: d }; S.nbPop = null; render(); setTimeout(() => $('editor')?.focus(), 30); return; }
   if (f.dataset.form === 'tvSym') { const v = $('tvSymIn').value.trim().toUpperCase().slice(0, 40); if (!v) return; S.tvSym = v; try { localStorage.setItem('ll-tvsym', v); } catch (e) {} rerender(); return; }
   if (f.dataset.form === 'bal') {
     const v = parseFloat($('balInput').value); if (isNaN(v) || v < 0) return toast('Enter a starting balance of 0 or more.');
@@ -5287,9 +5777,10 @@ document.addEventListener('submit', async e => {
     try { await S.db.collection('cash').add(c); toast(c.amount > 0 ? 'Deposit added' : 'Withdrawal added'); } catch (err) { writeErr(err); }
   }
   if (f.dataset.form === 'folder') {
-    const name = $('folderName').value.trim(); if (!name) return;
-    const fo = { id: 'f-' + uid(), name: name.slice(0, 40) }; S.folders = [...S.folders, fo]; S.nbFolder = fo.id; S.nbSel = null;
-    try { await S.db.doc('settings/notebook').set({ folders: S.folders }); closeModal(); render(); toast('Folder added'); } catch (err) { writeErr(err); }
+    const name = $('folderName').value.trim(); if (!name) return; const eid = f.dataset.v, color = (S.folderDraft && S.folderDraft.color) || ((S.folders.find(x => x.id === eid) || {}).color) || 'violet';
+    if (eid) S.folders = S.folders.map(x => x.id === eid ? { ...x, name: name.slice(0, 40), color } : x);
+    else { const fo = { id: 'f-' + uid(), name: name.slice(0, 40), color }; S.folders = [...S.folders, fo]; S.nbFolder = fo.id; S.nbSel = null; }
+    S.folderDraft = null; await saveNbSettings({}); closeModal(); render(); toast(eid ? 'Folder saved' : 'Folder added');
   }
   if (f.dataset.form === 'cat') {
     const name = $('catName').value.trim(); if (!name) return;
@@ -5329,7 +5820,8 @@ render();
   db.collection('videos').onSnapshot(snap => { S.videos = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
   db.doc('settings/learn').onSnapshot(sn => { if (sn.exists) { S.learn = sn.data(); safeRender(); } }, () => {});
   db.collection('notes').onSnapshot(snap => { S.notes = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
-  db.doc('settings/notebook').onSnapshot(s => { S.folders = s.exists ? (s.data().folders || []) : []; safeRender(); }, () => {});
+  db.doc('settings/notebook').onSnapshot(s => { const x = s.exists ? s.data() : {}; S.folders = x.folders || []; S.nbSet = { favTpl: x.favTpl || [], recentTpl: x.recentTpl || [] }; safeRender(); }, () => {});
+  setTimeout(nbPurgeOld, 8000);
   db.doc('settings/account').onSnapshot(s => { if (s.exists) { const d = s.data(); S.settings = { ...S.settings, ...d }; if (d.theme && THEMES.some(x => x[0] === d.theme) && d.theme !== getTheme()) { try { localStorage.setItem('ll-theme', d.theme); } catch (e) {} applyTheme(d.theme); } safeRender(); renderProfile(); } }, () => {});
 })();
 })();
