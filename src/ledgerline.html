@@ -1120,6 +1120,38 @@ tr.acct-arch td{opacity:.6}
 .gb-acc .ddmenu{right:0;left:auto}
 @media (max-width:1100px){.gb-lbl{max-width:150px}.gb-acc .acc-lbl{max-width:140px}}
 @media (max-width:820px){.appbar{flex-wrap:wrap}.gbar{order:3;flex-basis:100%;justify-content:flex-start}.gb{flex-wrap:wrap;width:100%}.gb-seg{flex:1 1 auto}.gb-btn{width:100%;justify-content:center;min-height:38px}.gb-btn span:not(.car):not(.gb-coin):not(.gb-n){max-width:110px;overflow:hidden;text-overflow:ellipsis}}
+
+.dv-top{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:16px;margin-bottom:16px}
+.dv-datew{position:relative}.dv-date{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-weight:600;color:var(--ink);font-size:14.5px}
+.dc-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:60;width:300px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.25);padding:14px;display:grid;gap:8px}
+.dc-h{display:flex;justify-content:space-between;align-items:center}.dc-h b{font-size:15px}
+.dc-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}.dc-dow{font-size:11.5px;color:var(--muted);padding:4px 0}
+.dc-d{position:relative;height:36px;border:0;background:none;border-radius:50%;color:var(--ink);font-size:13.5px}.dc-d:hover{background:var(--surface-2)}
+.dc-d.on{background:var(--accent-fill,var(--accent));color:#fff;font-weight:700}.dc-d.today:not(.on){box-shadow:inset 0 0 0 1px var(--ink)}
+.dc-d i{position:absolute;left:50%;bottom:4px;width:5px;height:5px;border-radius:50%;transform:translateX(-50%)}.dc-d i.g{background:var(--gain)}.dc-d i.l{background:var(--loss)}.dc-d.on i{background:#fff}
+.dv-steps{display:flex;align-items:center;justify-content:center;gap:8px;list-style:none;margin:0;padding:0;flex-wrap:wrap}
+.dv-steps button{display:inline-flex;align-items:center;gap:10px;border:0;background:none;color:var(--muted);font-size:14.5px;padding:4px 6px;border-radius:999px}
+.dv-steps button.on{color:var(--ink);font-weight:700}.dv-steps button.done{color:var(--ink)}
+.dv-n{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:700}
+.dv-steps button.on .dv-n{background:var(--accent-fill,var(--accent));border-color:transparent;color:#fff;box-shadow:0 4px 12px color-mix(in srgb,var(--accent) 40%,transparent)}
+.dv-steps button.done .dv-n{border-color:var(--gain);color:var(--gain)}
+.dv-line{width:40px;height:1px;background:var(--line)}
+.dv-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}.dv-stat{padding:16px 20px;display:grid;gap:4px}.dv-stat span{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}.dv-stat b{font-size:20px}
+.dv-3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);gap:12px;margin-bottom:12px;align-items:start}.dv-col{display:grid;gap:12px}
+.dv-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:12px;align-items:start}
+.dv-card{padding:16px 18px}.dv-card h3{margin:0 0 10px;font-size:16px}.dv-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}.dv-h h3{margin:0}
+.dv-rules{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:8px}.dv-rules li{display:flex;align-items:center;gap:10px;font-size:14px}.dv-rules label{display:flex;align-items:center;gap:10px;cursor:pointer}.dv-rules input{width:17px;height:17px;accent-color:var(--gain)}
+.dv-tt td,.dv-tt th{padding:10px 8px}.dv-notes{margin-bottom:12px}
+.dv-tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.dv-tc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:6px;background:var(--surface)}
+.dv-tch{display:flex;justify-content:space-between;font-size:15px}
+.dv-tags{display:flex;flex-wrap:wrap;gap:6px}.dv-tag{--tc:var(--c-slate);display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:12px;border:1px solid color-mix(in srgb,var(--tc) 40%,var(--line));background:color-mix(in srgb,var(--tc) 10%,var(--surface));color:var(--ink)}
+.dv-tag.sug{border-style:dashed;background:none;color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,transparent)}.dv-tag.sug:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.dv-apply{justify-self:start;font-size:12.5px}
+.dv-imp{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.dv-icard{padding:18px;display:grid;gap:6px;justify-items:start}.dv-iic{font-size:22px}.dv-icard p{margin:0}
+.dv-next{display:flex;justify-content:flex-end;margin-top:14px}
+@media (max-width:1100px){.dv-3{grid-template-columns:1fr}.dv-3>:nth-child(2){order:-1}}
+@media (max-width:820px){.dv-top{grid-template-columns:1fr}.dv-line{display:none}.dv-3,.dv-2,.dv-imp,.dv-stats{grid-template-columns:1fr}.dv-steps{justify-content:flex-start}}
 </style>
 
 <div class="app">
@@ -1143,6 +1175,7 @@ tr.acct-arch td{opacity:.6}
         <button data-action="view" data-view="home" id="nav-home" data-nav="home"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 7.2L8 2.5l6 4.7V14H9.8v-3.6H6.2V14H2z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Home</button>
         <button data-action="view" data-view="dashboard" id="nav-dashboard" data-nav="dashboard"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Dashboard</button>
         <button data-action="view" data-view="journal" id="nav-journal" data-nav="journal"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5 5h6M5 8h6M5 11h3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Daily journal</button>
+        <button data-action="viewDay" id="nav-day" data-nav="day"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5c2.5 0 4 1.5 4 4L8.5 11.5 4.5 7.5z"/><path d="M4.5 7.5L2 8l1.5-3 3-.5M8.5 11.5L8 14l3-1.5.5-3"/><circle cx="10.2" cy="5.8" r="1"/></svg>View my day</button>
         <button data-action="view" data-view="log" id="nav-log" data-nav="log"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12M2 8h12M2 12.5h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Trade log</button>
         <button data-action="view" data-view="chart" id="nav-chart" data-nav="chart"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2.5v11M12 2.5v11M8 1.5v13"/><rect x="2.5" y="5" width="3" height="5" rx=".5"/><rect x="6.5" y="3.5" width="3" height="5.5" rx=".5"/><rect x="10.5" y="6" width="3" height="4.5" rx=".5"/></svg>Live chart</button>
         <button data-action="view" data-view="notebook" id="nav-notebook" data-nav="notebook"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="1.5" width="10.5" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 4.5h3M1.5 8h3M1.5 11.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Notebook</button>
@@ -1511,7 +1544,8 @@ const isDark = () => { const t = getTheme(); return t === 'dark' || (t === 'syst
 function render() {
   navPaint();
   let html = '';
-  if (S.view === 'dashboard') html = topbar(hour(), 'Stats for ' + (S.scope === 'all' ? 'all time' : `${MONTHS[S.month.getMonth()]} ${S.month.getFullYear()}`), true, (S.db && !S.dashEdit ? startBtn() : '') + (S.dashEdit ? '' : dashTplMenu())) + banner() + (S.dashEdit ? '' : importLine()) + dashboard();
+  if (S.view === 'dashboard') html = topbar(hour(), 'Stats for ' + (S.scope === 'all' ? 'all time' : `${MONTHS[S.month.getMonth()]} ${S.month.getFullYear()}`), true, '<button class="primary dv-cta" data-action="viewDay">🚀 View my day</button>' + (S.db && !S.dashEdit ? startBtn() : '') + (S.dashEdit ? '' : dashTplMenu())) + banner() + (S.dashEdit ? '' : importLine()) + dashboard();
+  else if (S.view === 'day') html = dayView();
   else if (S.view === 'chart') html = topbar('Live chart', 'Real-time price chart for any symbol you trade') + chartPageView();
   else if (S.view === 'log') html = topbar('Trade log', S.trades.length + ' trades recorded') + banner() + logView();
   else if (S.view === 'trade') html = tradeView();
@@ -4496,7 +4530,7 @@ function symbolsSettings() {
 const AI_LENS = { short: 'Keep the answer under 120 words.', medium: 'Keep the answer under 300 words.', detailed: 'Give a thorough answer with headings; up to 600 words.' };
 try { S.aiLen = localStorage.getItem('ll-ailen') || 'medium'; } catch (e) { S.aiLen = 'medium'; }
 try { S.chatHist = JSON.parse(localStorage.getItem('ll-chats') || '[]'); } catch (e) { S.chatHist = []; }
-const VIEW_NAMES = { home: 'Home', dashboard: 'Dashboard', journal: 'Daily journal', log: 'Trade log', trade: 'Trade', chart: 'Live chart', notebook: 'Notebook', reports: 'Reports', playbooks: 'Strategies', replay: 'Replay', progress: 'Progress tracker', resources: 'Resources', agents: 'Agents', props: 'Prop firms', settings: 'Settings', learn: 'Education' };
+const VIEW_NAMES = { home: 'Home', dashboard: 'Dashboard', journal: 'Daily journal', log: 'Trade log', trade: 'Trade', day: 'Day view', chart: 'Live chart', notebook: 'Notebook', reports: 'Reports', playbooks: 'Strategies', replay: 'Replay', progress: 'Progress tracker', resources: 'Resources', agents: 'Agents', props: 'Prop firms', settings: 'Settings', learn: 'Education' };
 function aiContext() {
   const v = S.view, t = v === 'trade' ? byId(S.tradeId) : null;
   const L = {
@@ -4847,6 +4881,7 @@ document.addEventListener('mousedown', e => {
   if (S.slash && !e.target.closest('.slash-menu')) slashClose();
   if (S.edPop && !e.target.closest('.ed-wrap')) closeEdPop();
   if (S.nbPop && !e.target.closest('.nb-popwrap')) { S.nbPop = null; rerender(); }
+  if (S.dayCal && !e.target.closest('.dv-datew')) { S.dayCal = false; rerender(); }
   if (S.drpG && !e.target.closest('.gb-date')) { S.drpG = false; S.drp = null; rerender(); }
   if (S.unitMenu && !e.target.closest('.gb-unit') && !e.target.closest('.gb-menu')) { S.unitMenu = false; rerender(); }
 });
@@ -5333,7 +5368,7 @@ const GB_ICO = { filter: '<path d="M2.5 3h11l-4.2 5.3v4.4l-2.6 1.3V8.3z"/>', cal
 const gIco = k => `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${GB_ICO[k]}</svg>`;
 function renderGbar() {
   const el = $('gbar'); if (!el) return;
-  const hideAll = ['settings'].includes(S.view), noFilters = ['home', 'settings', 'playbooks', 'replay', 'resources', 'agents', 'props', 'learn', 'chart'].includes(S.view);
+  const hideAll = ['settings'].includes(S.view), noFilters = ['home', 'settings', 'playbooks', 'replay', 'resources', 'agents', 'props', 'learn', 'chart', 'day'].includes(S.view);
   if (hideAll) { el.innerHTML = ''; el.hidden = true; return; } el.hidden = false;
   const u = GB_UNITS.find(x => x[0] === S.unit) || GB_UNITS[0], n = fltCount(), dr = S.dateRange;
   const unit = `<div class="ddwrap gb-seg"><button class="gb-btn gb-unit" data-action="unitMenu" aria-expanded="${!!S.unitMenu}" aria-label="Show values as: ${u[1]}" title="Show values as"><span class="gb-coin">${u[2]}</span><span class="car">▾</span></button>${S.unitMenu ? `<div class="ddmenu gb-menu" role="menu">${GB_UNITS.map(([v, l, ic]) => `<button class="gb-mi${S.unit === v ? ' on' : ''}" role="menuitemradio" aria-checked="${S.unit === v}" data-action="unit" data-v="${v}"><span class="gb-coin sm">${ic}</span>${l}${S.unit === v ? '<span class="gb-ck">✓</span>' : ''}</button>`).join('')}</div>` : ''}</div>`;
@@ -5342,6 +5377,74 @@ function renderGbar() {
   const date = `<div class="gb-seg gb-date"><button class="gb-btn${dr ? ' on' : ''}" data-action="gDate" aria-expanded="${!!S.drpG}" ${S.drpG ? 'data-drp-anchor' : ''}>${gIco('cal')}<span class="gb-lbl">${dr ? `${fmtShort(dr.from)} - ${fmtShort(dr.to)}` : 'All dates'}</span><span class="car">▾</span></button>${dr ? '<button class="gb-x" data-action="gDateClear" aria-label="Clear date range" title="Clear dates">✕</button>' : ''}${S.drpG ? drpHtml() : ''}</div>`;
   el.innerHTML = `<div class="gb">${unit}${filt}${date}<div class="gb-seg gb-acc">${acctBtn()}</div></div>`;
   placeDrp();
+}
+
+/* ---------- v45: Day view (Planning → Trading → Import → Review) ---------- */
+S.dayStep = 0; S.dayD = null; S.dayCal = false;
+const DAY_STEPS = [['Planning', 1], ['Trading', 2], ['Import trades', 3], ['Trade review', 4]];
+function dayDefaultStep(d) { const has = (tradesByDate()[d] || []).length; if (has) return 4; if (d < todayIso()) return 3; return new Date().getHours() < 9 ? 1 : 2; }
+function openDay(d) { S.dayD = d || todayIso(); S.dayStep = dayDefaultStep(S.dayD); S.view = 'day'; S.dayCal = false; closeModal(); window.scrollTo(0, 0); }
+function dayCalHtml() {
+  const d = S.dayD, m = S.dayCalM || d.slice(0, 7), [y, mo] = m.split('-').map(Number), first = new Date(y, mo - 1, 1).getDay(), last = new Date(y, mo, 0).getDate(), byD = tradesByDate(), td = todayIso();
+  let cells = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(x => `<span class="dc-dow">${x}</span>`).join('') + '<span></span>'.repeat(first);
+  for (let i = 1; i <= last; i++) { const k = `${y}-${pad(mo)}-${pad(i)}`, ts = byD[k] || [], net = ts.reduce((a, t) => a + t.pnl, 0); cells += `<button class="dc-d${k === d ? ' on' : ''}${k === td ? ' today' : ''}" data-action="dayPick" data-d="${k}" aria-label="${dateLabel(k)}${ts.length ? ', ' + ts.length + ' trades, ' + money(net) : ''}">${i}${ts.length ? `<i class="${net >= 0 ? 'g' : 'l'}"></i>` : ''}</button>`; }
+  return `<div class="dc-pop" role="dialog" aria-label="Pick a day"><div class="dc-h"><b>${MONTHS[mo - 1]} ${y}</b><span><button class="icon-btn" data-action="dayCalNav" data-v="-1" aria-label="Previous month">‹</button><button class="icon-btn" data-action="dayCalNav" data-v="1" aria-label="Next month">›</button></span></div><div class="dc-g">${cells}</div><button class="linkish" data-action="dayPick" data-d="${td}">Today</button></div>`;
+}
+function dayGamePlan(d, ts) {
+  const rules = rulesList(d).map(r => ({ r, e: evalRule(r, d, ts) }));
+  if (!rules.length) return `<p class="hint">${(S.rules.days || DEFAULT_RULES.days).includes(dowOf(d)) ? 'No rules yet.' : 'This isn\'t one of your trading days, so no rules apply.'}</p><button class="ghost sm" data-action="view" data-view="progress">Set up rules</button>`;
+  return `<div class="label">Your trading rules</div><ul class="dv-rules">${rules.map(({ r, e }) => r.manual ? `<li><label><input type="checkbox" data-action="manualCheck" data-d="${d}" data-mid="${r.mid}" ${e.pass ? 'checked' : ''}><span>${esc(r.name)}</span></label></li>` : `<li>${ruleIcon(e)}<span>${esc(r.id === 'start' ? 'Start my day by ' + (rulesAt(d).startBy || '') : r.name)}</span></li>`).join('')}</ul>`;
+}
+function dayTradesTable(ts) {
+  if (!ts.length) return '<p class="hint" style="padding:12px 0">No trades on this day yet.</p>';
+  return `<div class="table-scroll"><table class="rtable dv-tt"><thead><tr><th>Symbol</th><th>Time</th><th>Status</th><th class="r">Entry</th><th class="r">Exit</th><th class="r">Net P&amp;L</th><th class="r">Net ROI</th></tr></thead><tbody>${ts.map(t => { const r = roi(t); return `<tr class="row" data-action="preview" data-id="${t.id}"><td>${symChip(t.symbol)}</td><td class="num">${esc(t.time || '–')}</td><td><b class="${t.pnl > 0 ? 'gain' : t.pnl < 0 ? 'loss' : ''}" style="font-size:12px;letter-spacing:.05em">${t.pnl > 0 ? 'WIN' : t.pnl < 0 ? 'LOSS' : 'EVEN'}</b></td><td class="r num">${t.entry ?? '–'}</td><td class="r num">${t.exit ?? '–'}</td><td class="r num ${cls(t.pnl)}">${priv(money(t.pnl))}</td><td class="r num ${cls(t.pnl)}">${r == null ? '–' : r.toFixed(2) + '%'}</td></tr>`; }).join('')}</tbody></table></div>`;
+}
+/* auto-tagger suggestions, worked out from the trade data itself */
+function suggestTags(t, ts) {
+  const out = [], m = t.time ? toMin(t.time.slice(0, 5)) : null, h = durMin(t), i = ts.indexOf(t), prev = i > 0 ? ts[i - 1] : null;
+  if (m != null) out.push(m < 570 ? 'pre-market' : m < 690 ? 'ny-morning' : m < 840 ? 'midday' : 'afternoon');
+  if (h != null) out.push(h < 1 ? 'scalp-under-1m' : h < 5 ? '1-5-minutes' : h < 15 ? '5-15-minutes' : h < 60 ? '15-60-minutes' : 'over-1-hour');
+  if (riskOf(t)) { const r = rOf(t); if (r >= 2) out.push('big-winner'); else if (r <= -1.2) out.push('loss-over-1R'); else if (r > 0 && r < .5) out.push('small-win'); }
+  else out.push('no-stop-set');
+  if (prev && prev.pnl < 0) { if (prev.exitTime && t.time && toMin(t.time.slice(0, 5)) - toMin(prev.exitTime.slice(0, 5)) <= 5) out.push('quick-reentry-after-loss'); if ((num(t.qty) || 0) > (num(prev.qty) || 0)) out.push('size-up-after-loss'); }
+  if (i >= 2 && ts.slice(0, i).filter(x => x.pnl < 0).length >= 2) out.push('after-2-losses');
+  const have = new Set(Object.values(t.tags || {}).flat()); return out.filter(x => !have.has(x));
+}
+async function ensureAutoCat() { let c = catById('auto'); if (!c) { c = { id: 'auto', name: 'Auto-tags', color: 'violet', order: 99, tags: [] }; S.cats = [...S.cats, c]; await saveCat(c); } return c; }
+async function applyAutoTags(t, tags) { if (!tags.length || !needDb()) return; const c = await ensureAutoCat(); tags.forEach(x => ensureTagInCat(c.id, x)); const cur = (t.tags && t.tags.auto) || []; await patchTrade(t.id, { tags: { ...(t.tags || {}), auto: [...new Set([...cur, ...tags])] } }); }
+function dayTagger(ts) {
+  if (!ts.length) return '';
+  const cards = ts.map(t => { const sug = suggestTags(t, ts), tags = Object.entries(t.tags || {}).flatMap(([c, l]) => (l || []).map(x => [c, x])); return `<div class="dv-tc"><div class="dv-tch"><b>${esc(t.symbol)}</b><span class="num ${cls(t.pnl)}">${priv(money(t.pnl))}</span></div><div class="hint"><b class="${t.pnl > 0 ? 'gain' : t.pnl < 0 ? 'loss' : ''}" style="font-size:11px;letter-spacing:.05em">${t.pnl > 0 ? 'WIN' : t.pnl < 0 ? 'LOSS' : 'EVEN'}</b> · ${t.entry ?? '–'} → ${t.exit ?? '–'}${t.time ? ' · ' + esc(t.time) : ''}</div>
+      <div class="dv-tags">${tags.map(([c, x]) => `<span class="dv-tag" style="--tc:var(--c-${(catById(c) || {}).color || 'slate'})">🏷 ${esc(x)}</span>`).join('')}${sug.map(x => `<button class="dv-tag sug" data-action="dayTag" data-id="${t.id}" data-v="${esc(x)}" title="Add this tag">+ ${esc(x)}</button>`).join('')}${!tags.length && !sug.length ? '<span class="hint">No suggestions</span>' : ''}</div>
+      ${sug.length ? `<button class="linkish dv-apply" data-action="dayTagAll" data-id="${t.id}">Apply ${sug.length} suggestion${sug.length === 1 ? '' : 's'}</button>` : ''}</div>`; }).join('');
+  const total = ts.reduce((a, t) => a + suggestTags(t, ts).length, 0);
+  return `<section class="panel dv-card"><div class="dv-h"><h3>🤖 Trade auto-tagger <span class="tchip violet">Smart</span></h3><span style="flex:1"></span>${total ? `<button class="primary sm" data-action="dayTagDay">Apply all ${total}</button>` : '<span class="tchip green">All tagged</span>'}</div>
+    <p class="hint" style="margin:-4px 0 12px">Suggested tags come from each trade's own data: session, hold time, R-multiple, and how it followed the trade before it. Click a dashed tag to add it, or apply them all.</p><div class="dv-tgrid">${cards}</div></section>`;
+}
+async function aiDayNote(d) {
+  const sample = await getSample(); if (!sample) return toast("Writing with AI isn't available in this view.");
+  const ts = (tradesByDate()[d] || []), ed = $('editor'); if (!ed) return;
+  S.dayAiBusy = true; rerender();
+  try { const r = await sample(`${AI_INSTR}\n\nWrite a short end-of-day review for ${dateLabel(d)} in the trader's own voice: what went well, what to fix, and one rule for tomorrow. Use short headings and bullets. Keep it under 180 words.\nTrades:\n${tradeLines(ts) || 'No trades.'}\nRules today: ${rulesList(d).map(r => r.name).join('; ') || 'none'}`); const html = sanitize(md(r.text || '')); const e2 = $('editor'); if (e2) { e2.innerHTML = (hasText(e2.innerHTML) ? e2.innerHTML + '<p><br></p>' : '') + html; saveNote(true); } toast('Review written. Edit it to make it yours.'); }
+  catch (e) { toast(aiErr(e)); }
+  S.dayAiBusy = false; rerender();
+}
+function dayView() {
+  const d = S.dayD || todayIso(), ts = (tradesByDate()[d] || []).slice().sort((a, b) => (a.time || '').localeCompare(b.time || '')), st = dayStats(ts), step = S.dayStep || dayDefaultStep(d);
+  const head = `<div class="dv-top"><span class="dv-datew"><button class="dv-date" data-action="dayCal" aria-expanded="${S.dayCal}">${new Date(d + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} <span class="car">▾</span></button>${S.dayCal ? dayCalHtml() : ''}</span>
+    <ol class="dv-steps">${DAY_STEPS.map(([l, n]) => `<li><button data-action="dayStep" data-v="${n}" class="${step === n ? 'on' : step > n ? 'done' : ''}" aria-current="${step === n ? 'step' : 'false'}"><span class="dv-n">${step > n ? '✓' : n}</span>${l}</button></li>`).join('<li class="dv-line" aria-hidden="true"></li>')}</ol></div>`;
+  const statCards = `<div class="dv-stats">${[['Net P&L', `<b class="num ${cls(st.net)}">${st.net > 0 ? '+' : ''}${priv(money(st.net))}</b>`], ['Win rate', `<b class="num ${st.n ? (st.wr >= .5 ? 'gain' : 'loss') : ''}">${st.n ? (st.wr * 100).toFixed(0) + '%' : '–'}</b>`], ['Trades', `<b class="num">${st.n}</b>`]].map(([k, v]) => `<div class="panel dv-stat"><span>${k}</span>${v}</div>`).join('')}</div>`;
+  let cum = 0; const run = ts.length ? lineChart([['Start', 0], ...ts.map((t, i) => [`Trade ${i + 1}`, cum += t.pnl])], { w: 380, h: 240, axis: true, dots: true, label: x => x, aria: 'Running P&L trade by trade' }) : '<div class="hint" style="padding:30px 0;text-align:center">Your running P&amp;L shows here after your first trade.</div>';
+  const notes = `<section class="panel dv-card dv-notes"><div class="dv-h"><h3>${step === 1 ? 'Game plan &amp; pre-market notes' : 'Notes'}</h3><span style="flex:1"></span><span class="saved" id="savedMark"></span>${step === 4 ? `<button class="ghost sm" data-action="dayAi" ${S.dayAiBusy ? 'disabled' : ''}>${S.dayAiBusy ? 'Writing…' : '✦ Write with AI'}</button>` : ''}</div>${S.db ? editor('journal', d, (S.journal[d] || {}).html || '') : '<p class="hint">Saving isn\'t available in this view.</p>'}</section>`;
+  let body = '';
+  if (step === 1) body = `<div class="dv-2"><section class="panel dv-card"><div class="dv-h"><h3>Today's game plan</h3><span style="flex:1"></span><button class="ghost sm" data-action="view" data-view="progress">Progress tracker</button></div>${dayGamePlan(d, ts)}</section>${notes}</div>
+    <div class="dv-next"><button class="primary" data-action="dayStep" data-v="2">I'm ready to trade →</button></div>`;
+  else if (step === 2) body = `${statCards}<div class="dv-3"><div class="dv-col"><section class="panel dv-card"><h3>Running P&amp;L</h3>${run}</section><section class="panel dv-card"><div class="dv-h"><h3>Rules check</h3></div>${dayGamePlan(d, ts)}</section></div><section class="panel dv-card"><div class="dv-h"><h3>Trades so far</h3><span style="flex:1"></span><button class="ghost sm" data-action="add" data-d="${d}">+ Add trade</button><button class="ghost sm" data-action="view" data-view="chart">Live chart</button></div>${dayTradesTable(ts)}</section></div>
+    <p class="hint">Tip: pause every 15–30 minutes and write a line in your notes (Planning step) about what you see. ${S.syncCfg && !S.syncCfg.off ? 'NinjaTrader live sync is on, so closed trades appear here by themselves.' : ''}</p><div class="dv-next"><button class="primary" data-action="dayStep" data-v="${ts.length ? 4 : 3}">${ts.length ? 'Done trading → review' : 'Done trading → import trades'}</button></div>`;
+  else if (step === 3) { const live = S.syncCfg && !S.syncCfg.off; body = `<div class="dv-imp">${[[live ? '⚡' : '🔌', 'NinjaTrader live sync', live ? (ntLive() ? 'Connected. Your closed trades arrive by themselves.' : 'Set up. Open NinjaTrader and your fills will sync.') : 'Sync every fill from NinjaTrader 8 automatically.', live ? 'Open settings' : 'Set it up', 'data-action="settings" data-v="accounts"'], ['⬆', 'Upload a file', 'Import a CSV export from your broker, prop firm or platform.', 'Import file', 'data-action="addFlow"'], ['✎', 'Add manually', 'Type in a trade: symbol, side, prices and size.', 'Add trade', `data-action="add" data-d="${d}"`]].map(([ic, t, s, b, a]) => `<div class="panel dv-icard"><span class="dv-iic">${ic}</span><b>${t}</b><p class="hint">${s}</p><button class="secondary sm" ${a}>${b}</button></div>`).join('')}</div>
+    <div class="panel dv-card" style="margin-top:12px"><div class="dv-h"><h3>Trades on this day</h3><span class="tchip ${ts.length ? 'green' : 'slate'}">${ts.length} imported</span></div>${dayTradesTable(ts)}</div><div class="dv-next"><button class="primary" data-action="dayStep" data-v="4">Review my day →</button></div>`; }
+  else body = `${statCards}<div class="dv-3"><div class="dv-col"><section class="panel dv-card"><h3>Running P&amp;L</h3>${run}</section><section class="panel dv-card"><div class="dv-h"><h3>Today's game plan</h3><span style="flex:1"></span><button class="linkish" data-action="view" data-view="progress" style="font-size:12.5px">Progress tracker →</button></div>${dayGamePlan(d, ts)}</section></div><section class="panel dv-card"><div class="dv-h"><h3>Your trades</h3></div>${dayTradesTable(ts)}</section></div>${notes}${dayTagger(ts)}`;
+  return head + body;
 }
 
 /* ---------- v33: NinjaTrader live sync ---------- */
@@ -5660,6 +5763,15 @@ document.addEventListener('click', async e => {
     case 'folderIcon': { S.folderDraft = { ...(S.folderDraft || {}), icon: b.dataset.v }; const nm = $('folderName') ? $('folderName').value : null, st = document.querySelector('.ip-wrap') ? document.querySelector('.ip-wrap').scrollTop : 0; renderModal(); if (nm != null && $('folderName')) $('folderName').value = nm; const w = document.querySelector('.ip-wrap'); if (w) w.scrollTop = st; return; }
     case 'folderReset': { const fx = { ...(S.nbSet.fixed || {}) }; delete fx[b.dataset.v]; S.nbPop = null; await saveNbSettings({ fixed: fx }); toast('Folder reset'); break; }
     case 'folderColor': S.folderDraft = { ...(S.folderDraft || {}), color: b.dataset.v }; { const nm = $('folderName') ? $('folderName').value : null; renderModal(); if (nm != null && $('folderName')) $('folderName').value = nm; } return;
+    case 'viewDay': openDay(b.dataset.d); break;
+    case 'dayStep': S.dayStep = +b.dataset.v; window.scrollTo(0, 0); break;
+    case 'dayCal': S.dayCal = !S.dayCal; S.dayCalM = (S.dayD || todayIso()).slice(0, 7); break;
+    case 'dayCalNav': S.dayCalM = ymAdd(S.dayCalM || S.dayD.slice(0, 7), +b.dataset.v); break;
+    case 'dayPick': S.dayD = b.dataset.d; S.dayCal = false; S.dayStep = dayDefaultStep(S.dayD); break;
+    case 'dayTag': { const t = byId(id); if (t) await applyAutoTags(t, [b.dataset.v]); break; }
+    case 'dayTagAll': { const t = byId(id), ts = (tradesByDate()[t.date] || []).slice().sort((a, c) => (a.time || '').localeCompare(c.time || '')); await applyAutoTags(t, suggestTags(t, ts)); toast('Tags added'); break; }
+    case 'dayTagDay': { const ts = (tradesByDate()[S.dayD] || []).slice().sort((a, c) => (a.time || '').localeCompare(c.time || '')); const plan = ts.map(t => [t, suggestTags(t, ts)]); for (const [t, sg] of plan) await applyAutoTags(t, sg); toast(`Tagged ${plan.filter(x => x[1].length).length} trades`); break; }
+    case 'dayAi': aiDayNote(S.dayD); return;
     case 'unitMenu': S.unitMenu = !S.unitMenu; S.accMenu = false; break;
     case 'gDate': if (S.drpG) { S.drpG = false; S.drp = null; } else { drpOpen(S.dateRange || {}); S.drp.mode = 'global'; S.drpG = true; S.accMenu = false; S.unitMenu = false; } break;
     case 'gDateClear': S.dateRange = null; S.drpG = false; S.drp = null; try { localStorage.removeItem('ll-dr'); } catch (e) {} applyFilters(); break;
@@ -5737,7 +5849,7 @@ document.addEventListener('click', async e => {
     case 'jPick': { const d = b.dataset.d; if (journalDays().includes(d)) { S.jCollapsed.delete(d); S.scrollTo = 'jd-' + d; break; } return openModal('dlog', d); }
     case 'dlog': return openModal('dlog', b.dataset.d);
     case 'startDay': { if (!needDb()) return; const t = nowHM(); saveJournal(todayIso(), { startedAt: t }).catch(writeErr); toast('Day started at ' + t); if (S.agents.brief.on) runBrief(); if (S.agents.review.on) { const ld = [...new Set(S.trades.map(x => x.date))].filter(x => x < todayIso()).sort().pop(); if (ld && !/Session review/.test((S.journal[ld] || {}).html || '')) runReview(ld); } break; }
-    case 'manualCheck': { if (!needDb()) return; const td = todayIso(), j = S.journal[td] || {}, mid = b.dataset.mid; saveJournal(td, { manual: { ...(j.manual || {}), [mid]: !(j.manual && j.manual[mid]) } }).catch(writeErr); break; }
+    case 'manualCheck': { if (!needDb()) return; const td = b.dataset.d || todayIso(), j = S.journal[td] || {}, mid = b.dataset.mid; saveJournal(td, { manual: { ...(j.manual || {}), [mid]: !(j.manual && j.manual[mid]) } }).catch(writeErr); break; }
     case 'editRules': if (!needDb()) return; S.rulesEdit = JSON.parse(JSON.stringify({ ...DEFAULT_RULES, ...S.rules, on: { ...DEFAULT_RULES.on, ...S.rules.on } })); S.rulesEdit.manual = S.rulesEdit.manual || []; S.armed = null; return openModal('rules');
     case 'ruleAddManual': S.rulesEdit.manual.push({ id: uid(), text: '' }); renderModal(); return;
     case 'ruleDelManual': S.rulesEdit.manual.splice(+b.dataset.i, 1); renderModal(); return;
