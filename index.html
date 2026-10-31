@@ -1166,6 +1166,13 @@ tr.acct-arch td{opacity:.6}
 .dv-next{display:flex;justify-content:flex-end;margin-top:14px}
 @media (max-width:1100px){.dv-3{grid-template-columns:1fr}.dv-3>:nth-child(2){order:-1}}
 @media (max-width:820px){.dv-top{grid-template-columns:1fr}.dv-line{display:none}.dv-3,.dv-2,.dv-imp,.dv-stats{grid-template-columns:1fr}.dv-steps{justify-content:flex-start}}
+
+.sr{margin-bottom:12px}.sr-sec{margin-bottom:14px}.sr-sec .label{margin-bottom:6px}
+.sr-body{line-height:1.65;font-size:14.5px}.sr-body p{margin:0 0 8px}.sr-body ul{margin:0;padding-left:20px;display:grid;gap:6px}.sr-body strong{color:var(--ink)}
+.sr-gw{position:relative}.sr-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:40;min-width:200px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;display:grid}
+.sr-pop button{border:0;background:none;text-align:left;padding:7px 10px;border-radius:7px;color:var(--ink)}.sr-pop button:hover{background:var(--surface-2)}.sr-pop .label{margin:4px 8px}
+.sr-skel{display:grid;gap:10px;padding:6px 0}.sr-skel span{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--surface-2),color-mix(in srgb,var(--accent) 18%,var(--surface-2)),var(--surface-2));background-size:200% 100%;animation:srsh 1.4s linear infinite}
+@keyframes srsh{to{background-position:-200% 0}}@media (prefers-reduced-motion:reduce){.sr-skel span{animation:none}}
 </style>
 
 <div class="app">
@@ -4895,6 +4902,7 @@ document.addEventListener('mousedown', e => {
   if (S.slash && !e.target.closest('.slash-menu')) slashClose();
   if (S.edPop && !e.target.closest('.ed-wrap')) closeEdPop();
   if (S.nbPop && !e.target.closest('.nb-popwrap')) { S.nbPop = null; rerender(); }
+  if (S.srGear && !e.target.closest('.sr-gw')) { S.srGear = false; rerender(); }
   if (S.dayCal && !e.target.closest('.dv-datew')) { S.dayCal = false; rerender(); }
   if (S.drpG && !e.target.closest('.gb-date')) { S.drpG = false; S.drp = null; rerender(); }
   if (S.unitMenu && !e.target.closest('.gb-unit') && !e.target.closest('.gb-menu')) { S.unitMenu = false; rerender(); }
@@ -5457,8 +5465,49 @@ function dayView() {
     <p class="hint">Tip: pause every 15–30 minutes and write a line in your notes (Planning step) about what you see. ${S.syncCfg && !S.syncCfg.off ? 'NinjaTrader live sync is on, so closed trades appear here by themselves.' : ''}</p><div class="dv-next"><button class="primary" data-action="dayStep" data-v="${ts.length ? 4 : 3}">${ts.length ? 'Done trading → review' : 'Done trading → import trades'}</button></div>`;
   else if (step === 3) { const live = S.syncCfg && !S.syncCfg.off; body = `<div class="dv-imp">${[[live ? '⚡' : '🔌', 'NinjaTrader live sync', live ? (ntLive() ? 'Connected. Your closed trades arrive by themselves.' : 'Set up. Open NinjaTrader and your fills will sync.') : 'Sync every fill from NinjaTrader 8 automatically.', live ? 'Open settings' : 'Set it up', 'data-action="settings" data-v="accounts"'], ['⬆', 'Upload a file', 'Import a CSV export from your broker, prop firm or platform.', 'Import file', 'data-action="addFlow"'], ['✎', 'Add manually', 'Type in a trade: symbol, side, prices and size.', 'Add trade', `data-action="add" data-d="${d}"`]].map(([ic, t, s, b, a]) => `<div class="panel dv-icard"><span class="dv-iic">${ic}</span><b>${t}</b><p class="hint">${s}</p><button class="secondary sm" ${a}>${b}</button></div>`).join('')}</div>
     <div class="panel dv-card" style="margin-top:12px"><div class="dv-h"><h3>Trades on this day</h3><span class="tchip ${ts.length ? 'green' : 'slate'}">${ts.length} imported</span></div>${dayTradesTable(ts)}</div><div class="dv-next"><button class="primary" data-action="dayStep" data-v="4">Review my day →</button></div>`; }
-  else body = `${statCards}<div class="dv-3"><div class="dv-col"><section class="panel dv-card"><h3>Running P&amp;L</h3>${run}</section><section class="panel dv-card"><div class="dv-h"><h3>Today's game plan</h3><span style="flex:1"></span><button class="linkish" data-action="view" data-view="progress" style="font-size:12.5px">Progress tracker →</button></div>${dayGamePlan(d, ts)}</section></div><section class="panel dv-card"><div class="dv-h"><h3>Your trades</h3></div>${dayTradesTable(ts)}</section></div>${notes}${dayTagger(ts)}`;
+  else body = `${statCards}<div class="dv-3"><div class="dv-col"><section class="panel dv-card"><h3>Running P&amp;L</h3>${run}</section><section class="panel dv-card"><div class="dv-h"><h3>Today's game plan</h3><span style="flex:1"></span><button class="linkish" data-action="view" data-view="progress" style="font-size:12.5px">Progress tracker →</button></div>${dayGamePlan(d, ts)}</section></div><section class="panel dv-card"><div class="dv-h"><h3>Your trades</h3></div>${dayTradesTable(ts)}</section></div>${notes}${sessionReviewCard(d)}${dayTagger(ts)}`;
   return head + body;
+}
+
+/* ---------- v46: AI session review ---------- */
+try { S.srTone = localStorage.getItem('ll-srtone') || 'direct'; } catch (e) { S.srTone = 'direct'; }
+function sessionFacts(d) {
+  const ts = (tradesByDate()[d] || []).slice().sort((a, b) => (a.time || '').localeCompare(b.time || '')), st = dayStats(ts), j = S.journal[d] || {};
+  const rules = rulesList(d).map(r => { const e = evalRule(r, d, ts); return `- ${r.name}${r.cond ? ` (target: ${r.cond})` : ''}: ${!e.applies ? 'not applicable yet' : e.pass ? 'FOLLOWED' : 'MISSED'}${e.label ? ` [${e.label}]` : ''}`; }).join('\n') || 'No rules set for this day.';
+  const pbs = S.playbooks.filter(p => !p.archived).map(p => { const used = ts.filter(t => t.playbookId === p.id); return `- ${p.name}: ${used.length} trade(s) today. Rules: ${p.groups.flatMap(g => g.rules.map(r => r.text)).join('; ') || 'none'}`; }).join('\n') || 'No playbooks defined.';
+  const lines = ts.map((t, i) => { const pb = S.playbooks.find(p => p.id === t.playbookId), n = pb ? pb.groups.reduce((a, g) => a + g.rules.length, 0) : 0, tags = Object.values(t.tags || {}).flat(); return `${i + 1}. ${t.time || '?'}${t.exitTime ? '-' + t.exitTime : ''} ${t.symbol} ${t.side} qty ${t.qty ?? '?'} entry ${t.entry ?? '?'} exit ${t.exit ?? '?'} stop ${t.stop ?? 'none'} P&L ${money(t.pnl)}${riskOf(t) ? ` (${rOf(t).toFixed(2)}R)` : ''} playbook: ${pb ? `${pb.name} (${(t.rulesChecked || []).length}/${n} rules checked)` : 'none'}${tags.length ? ' tags: ' + tags.join(', ') : ''}${hasText(t.note) ? ' note: ' + strip(t.note).slice(0, 160) : ''}`; }).join('\n') || 'No trades.';
+  return `Date: ${dateLabel(d)}\nSummary: ${st.n} trades, ${st.w} wins, ${st.l} losses, net ${money(st.net)}, gross ${money(st.gross)}, fees ${money(st.fees)}, win rate ${(st.wr * 100).toFixed(0)}%, profit factor ${ratioTxt(st.pf)}.\nRules and how they were measured:\n${rules}\nPlaybooks:\n${pbs}\nTrades in order:\n${lines}\nTrader's own notes for the day (pre-market plan and review):\n${strip(j.html || '').slice(0, 2500) || 'none written'}`;
+}
+async function runSessionReview(d) {
+  const sample = await getSample(); if (!sample) return toast("The AI review isn't available in this view.");
+  if (!(tradesByDate()[d] || []).length) return toast('There are no trades on this day to review yet.');
+  S.srBusy = true; rerender();
+  const tone = S.srTone === 'supportive' ? 'Be warm and encouraging, but still honest about mistakes.' : 'Be direct and specific, like a strict trading coach. No fluff.';
+  const prompt = `${AI_INSTR}\n\nWrite a session review of this trading day. ${tone} Use only the facts below; quote real times, numbers and rule names. Write in second person ("you").
+Return Markdown with exactly these three sections and headings:
+### Session narrative
+One paragraph that starts with "**Overall grade: X**" (A to F) and explains the day: what the plan was (from the notes, if any), what happened trade by trade at the key moments, where it went right or wrong, and the turning point.
+### Rule adherence
+One bullet per rule, starting with ✅ or ❌, then the rule name in bold, an em dash, and the evidence with numbers. If a rule was not applicable, start with ➖.
+### Playbook compliance
+Three to five bullets on whether trades matched the playbooks (or why none were linked), deviations from the pre-market plan, and the single most important fix for tomorrow (start that bullet with **Key fix:**).
+
+<facts>
+${sessionFacts(d)}
+</facts>`;
+  try { const r = await sample(prompt); const text = String(r.text || '').trim(); if (!text) throw new Error('empty'); await saveJournal(d, { review: { md: text, at: new Date().toISOString(), tone: S.srTone } }); toast('Session review ready'); }
+  catch (e) { toast(e && e.message === 'empty' ? 'The AI returned an empty review. Try again.' : aiErr(e)); }
+  S.srBusy = false; rerender();
+}
+function sessionReviewCard(d) {
+  const R = (S.journal[d] || {}).review, busy = S.srBusy, has = (tradesByDate()[d] || []).length;
+  const status = busy ? '<span class="tchip slate">Writing…</span>' : R ? '<span class="tchip green">Complete</span>' : '<span class="tchip violet">Ready</span>';
+  const secs = R ? R.md.split(/^###\s+/m).filter(x => x.trim()).map(x => { const i = x.indexOf('\n'); return [x.slice(0, i).trim(), x.slice(i + 1).trim()]; }) : [];
+  const gear = S.srGear ? `<div class="sr-pop"><div class="label">Coaching tone</div>${[['direct', 'Direct and strict'], ['supportive', 'Supportive']].map(([k, l]) => `<button data-action="srTone" data-v="${k}" aria-pressed="${S.srTone === k}">${S.srTone === k ? '✓ ' : ''}${l}</button>`).join('')}</div>` : '';
+  return `<section class="panel dv-card sr"><div class="dv-h"><h3>🧠 Session review <span class="tchip violet">AI</span></h3><span style="flex:1"></span><span class="sr-gw"><button class="icon-btn" data-action="srGear" aria-expanded="${!!S.srGear}" aria-label="Review settings" title="Settings">⚙</button>${gear}</span>${status}</div>
+    <p class="hint" style="margin:-2px 0 12px">A written reflection on your day: rule adherence, playbook fit, and where you drifted from your pre-market plan.</p>
+    ${busy ? '<div class="sr-skel"><span></span><span></span><span></span><span style="width:60%"></span></div>' : R ? secs.map(([h, body]) => `<div class="sr-sec"><div class="label">${esc(h)}</div><div class="sr-body">${md(body)}</div></div>`).join('') + `<div class="hint" style="margin-top:6px">Written ${fmtStampL(R.at)}${R.tone === 'supportive' ? ' · supportive tone' : ''}</div>` : `<div class="sr-empty"><p class="hint">${has ? 'Generate a review once you\'re done trading. It reads your trades, rules, playbooks and notes for this day.' : 'Add or import the day\'s trades first.'}</p></div>`}
+    <div class="actions" style="justify-content:flex-start;margin-top:10px">${R ? `<button class="secondary sm" data-action="srRun" ${busy ? 'disabled' : ''}>↻ Refresh</button><button class="secondary sm" data-action="srSave" ${busy ? 'disabled' : ''}>Save to notes</button>` : `<button class="primary sm" data-action="srRun" ${busy || !has ? 'disabled' : ''}>✦ Review my session</button>`}</div></section>`;
 }
 
 /* ---------- v33: NinjaTrader live sync ---------- */
@@ -5786,6 +5835,10 @@ document.addEventListener('click', async e => {
     case 'dayTagAll': { const t = byId(id), ts = (tradesByDate()[t.date] || []).slice().sort((a, c) => (a.time || '').localeCompare(c.time || '')); await applyAutoTags(t, suggestTags(t, ts)); toast('Tags added'); break; }
     case 'dayTagDay': { const ts = (tradesByDate()[S.dayD] || []).slice().sort((a, c) => (a.time || '').localeCompare(c.time || '')); const plan = ts.map(t => [t, suggestTags(t, ts)]); for (const [t, sg] of plan) await applyAutoTags(t, sg); toast(`Tagged ${plan.filter(x => x[1].length).length} trades`); break; }
     case 'dayAi': aiDayNote(S.dayD); return;
+    case 'srRun': runSessionReview(S.dayD); return;
+    case 'srGear': S.srGear = !S.srGear; break;
+    case 'srTone': S.srTone = b.dataset.v; S.srGear = false; try { localStorage.setItem('ll-srtone', S.srTone); } catch (_) {} break;
+    case 'srSave': { const R = (S.journal[S.dayD] || {}).review, ed = $('editor'); if (!R || !ed) return; ed.innerHTML = (hasText(ed.innerHTML) ? ed.innerHTML + '<p><br></p>' : '') + '<h3 class="hl-violet">Session review 🧠</h3>' + sanitize(md(R.md.replace(/^###\s+(.*)$/gm, '**$1**'))); saveNote(true); toast('Saved to your notes'); return; }
     case 'unitMenu': S.unitMenu = !S.unitMenu; S.accMenu = false; break;
     case 'gDate': if (S.drpG) { S.drpG = false; S.drp = null; } else { drpOpen(S.dateRange || {}); S.drp.mode = 'global'; S.drpG = true; S.accMenu = false; S.unitMenu = false; } break;
     case 'gDateClear': S.dateRange = null; S.drpG = false; S.drp = null; try { localStorage.removeItem('ll-dr'); } catch (e) {} applyFilters(); break;
