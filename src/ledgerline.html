@@ -1066,6 +1066,12 @@ a.focus-item{text-decoration:none;color:inherit}
 @media (max-width:640px){.nt-head .tchip{display:none}.nt-mrow{grid-template-columns:1fr;gap:4px}.nt-mrow .hint{display:none}}
 .acct-table td{white-space:nowrap}.acct-table td:first-child{white-space:normal}
 .acct-type.linkish{color:var(--ink);text-decoration:none}.acct-table th,.acct-table td{padding-left:8px;padding-right:8px}
+
+.xtab td.xc{padding:0}.xc-b{width:100%;height:100%;min-height:30px;border:0;background:none;color:inherit;font:inherit;font-weight:inherit;padding:6px 8px;text-align:right;cursor:pointer;border-radius:inherit}
+.xc-b:hover{outline:2px solid var(--accent);outline-offset:-2px}.xc-b:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tlist .tl-sum{display:flex;flex-wrap:wrap;gap:10px}.tlist .tl-sum div{flex:1;min-width:110px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;display:grid;gap:2px}.tlist .tl-sum span{font-size:12px;color:var(--muted)}
+.tlist .table-scroll{max-height:55vh;overflow:auto}.tlist tr.row{cursor:pointer}
+.tlist th .linkish{font:inherit;text-transform:inherit;letter-spacing:inherit;text-decoration:none}
 </style>
 
 <div class="app">
@@ -3368,10 +3374,11 @@ function crossAnalysis(ts, sub) {
   const paint = (good, f) => { const pct = Math.round(30 + 70 * Math.min(1, f)); return `background:color-mix(in srgb,${good ? 'var(--gain)' : 'var(--loss)'} ${pct}%,var(--surface));color:${pct >= 60 ? '#fff' : 'var(--ink)'};font-weight:600`; };
   const bg = (v, l) => { if (v == null) return ''; if (cv === 'trades') { const net = (l || []).reduce((a, t) => a + t.pnl, 0); return v ? (net === 0 ? `background:var(--surface-2);font-weight:600` : paint(net > 0, v / mx)) : ''; } if (cv === 'wr') return paint(v >= 50, Math.abs(v - 50) / 50); return v === 0 ? '' : paint(v > 0, Math.abs(v) / mx); };
   const txt = v => v == null ? '<span class="muted">–</span>' : cv === 'trades' ? v : cv === 'wr' ? v.toFixed(0) + '%' : priv(shortMoney(v));
+  S.xcells = [];
   return `<section class="panel log"><div class="toolbar"><h3 class="h3">Cross analysis</h3><div class="left"><select class="fin" style="width:auto" data-rep="cross" aria-label="Columns">${crossDims().filter(([k]) => k !== sub).map(([k, l]) => `<option value="${k}" ${k === cd ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>
       <div class="seg" role="group" aria-label="Show"><button data-action="repCval" data-v="wr" aria-pressed="${cv === 'wr'}">Win rate</button><button data-action="repCval" data-v="pnl" aria-pressed="${cv === 'pnl'}">P&amp;L</button><button data-action="repCval" data-v="trades" aria-pressed="${cv === 'trades'}">Trades</button></div></div></div>
     <div class="table-scroll"><table class="xtab"><thead><tr><th></th>${cols.map(c => `<th class="r">${esc(c)}</th>`).join('')}</tr></thead><tbody>
-      ${rows.map(r => `<tr><td><b>${esc(r)}</b></td>${cols.map(c => { const l = cell[r + '\u0001' + c], v = val(l); return `<td class="r num" style="${bg(v, l)}" ${l ? `data-tip="${esc(r)} × ${esc(c)}: ${l.length} trade${l.length === 1 ? '' : 's'}, ${priv(money(l.reduce((a, t) => a + t.pnl, 0)))}"` : ''}>${txt(v)}</td>`; }).join('')}</tr>`).join('') || '<tr><td class="empty">No trades in this range.</td></tr>'}
+      ${rows.map(r => `<tr><td><b>${esc(r)}</b></td>${cols.map(c => { const l = cell[r + '\u0001' + c], v = val(l); if (!l) return `<td class="r num">${txt(v)}</td>`; const xi = S.xcells.push({ title: `${r} × ${c}`, ids: l.map(t => t.id) }) - 1; return `<td class="r num xc" style="${bg(v, l)}"><button class="xc-b" data-action="xcell" data-v="${xi}" title="${esc(r)} × ${esc(c)}: ${l.length} trade${l.length === 1 ? '' : 's'}, ${priv(money(l.reduce((a, t) => a + t.pnl, 0)))}. Click to see the trades" aria-label="${esc(r)} × ${esc(c)}: ${l.length} trades. Show trades">${txt(v)}</button></td>`; }).join('')}</tr>`).join('') || '<tr><td class="empty">No trades in this range.</td></tr>'}
     </tbody></table></div></section>`;
 }
 function dimReport(ts) {
@@ -5374,6 +5381,16 @@ function _renderModal() {
   else if (m.kind === 'propTx') box.innerHTML = propTxModal();
   else if (m.kind === 'tplSave') { box.innerHTML = tplSaveModal(); setTimeout(() => $('tplName')?.focus(), 30); }
   if (S.tagMenu && m.kind === 'preview') { const i = $('tagSearch'); if (i) { i.focus(); i.value = S.tagQuery; filterTagMenu(); } }
+  else if (m.kind === 'tlist') {
+    const T = S.tlist, ts = T.ids.map(byId).filter(Boolean), st = dayStats(ts), srt = T.sort;
+    ts.sort(srt === 'pnl' ? (a, b) => b.pnl - a.pnl : srt === 'pnlA' ? (a, b) => a.pnl - b.pnl : (a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
+    const th = (k, l, cl = '') => `<th class="${cl}"><button class="linkish" data-action="tlSort" data-v="${k === 'pnl' && srt === 'pnl' ? 'pnlA' : k}" style="color:inherit">${l}${srt === k || (k === 'pnl' && srt === 'pnlA') ? (srt === 'pnlA' ? ' ▲' : ' ▼') : ''}</button></th>`;
+    box.innerHTML = `<div class="sheet wide tlist" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><div><div class="hint">Cross analysis</div><h3 id="mTitle">${esc(T.title)}</h3></div><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
+      <div class="tl-sum">${[['Net P&L', `<b class="${cls(st.net)}">${priv(money(st.net))}</b>`], ['Trades', st.n], ['Win rate', (st.wr * 100).toFixed(0) + '%'], ['Winners / losers', `${st.w} / ${st.l}`], ['Profit factor', ratioTxt(st.pf)], ['Avg trade', `<span class="${cls(st.n ? st.net / st.n : 0)}">${priv(money(st.n ? st.net / st.n : 0))}</span>`]].map(([k, v]) => `<div><span>${k}</span>${v}</div>`).join('')}</div>
+      <div class="table-scroll"><table class="rtable"><thead><tr>${th('date', 'Date')}<th>Time</th><th>Symbol</th><th>Side</th><th class="r">Qty</th>${th('pnl', 'Net P&amp;L', 'r')}<th class="r">R</th><th>Setup</th></tr></thead><tbody>
+      ${ts.map(t => `<tr class="row" data-action="preview" data-id="${t.id}" tabindex="0"><td class="num">${shortDate(t.date)}</td><td class="num">${esc(t.time || '–')}</td><td>${symChip(t.symbol)}</td><td><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span></td><td class="r num">${t.qty ?? '–'}</td><td class="r num ${cls(t.pnl)}">${priv(money(t.pnl))}</td><td class="r num">${riskOf(t) ? rOf(t).toFixed(2) + 'R' : '–'}</td><td>${esc(tagsOf(t, 'setups').join(', ')) || '–'}</td></tr>`).join('')}</tbody></table></div>
+      <p class="hint" style="margin:0">Click a trade to open it. Close the trade to come back to this list.</p></div>`;
+  }
   else if (m.kind === 'tplLib') { box.innerHTML = tplLibModal(); box.className = 'scrim tl-scrim'; if (S.tl.mode !== 'view') setTimeout(() => (S.tl.mode === 'new' ? $('tlTitle') : $('tplEd'))?.focus(), 30); }
   else if (m.kind === 'folder') { box.innerHTML = folderModal(m.arg); }
   else if (m.kind === 'dlog') {
@@ -5667,7 +5684,9 @@ document.addEventListener('click', async e => {
       renderModal(); return;
     }
     case 'impRun': importRun(); return;
-    case 'preview': if (!id) return; S.tagMenu = null; S.ptab = S.ptab || 'stats'; return openModal('preview', id);
+    case 'preview': if (!id) return; S.tagMenu = null; S.ptab = S.ptab || 'stats'; if (S.modal && S.modal.kind === 'tlist') { S.prevModal = S.modal; S.modal = null; } return openModal('preview', id);
+    case 'xcell': { const x = (S.xcells || [])[+b.dataset.v]; if (!x) return; S.tlist = { title: x.title, ids: x.ids, sort: 'date' }; return openModal('tlist'); }
+    case 'tlSort': S.tlist.sort = b.dataset.v; renderModal(); return;
     case 'ptab': S.ptab = b.dataset.v; S.tagMenu = null; break;
     case 'rtab': saveNote(true); S.rtab = b.dataset.v; break;
     case 'shareTrade': { const t = byId(id); if (!t) return; const r = roi(t); const txt = `${t.symbol} ${t.side} · ${dateLabel(t.date)}${t.time ? ' ' + t.time : ''}${t.exitTime ? '–' + t.exitTime : ''}\nNet P&L ${money(t.pnl)}${r != null ? ' · ROI ' + r.toFixed(2) + '%' : ''}${riskOf(t) ? ' · ' + rOf(t).toFixed(2) + 'R' : ''}\nEntry ${t.entry ?? '–'} → Exit ${t.exit ?? '–'} · Qty ${t.qty ?? '–'}`; try { await navigator.clipboard.writeText(txt); toast('Trade summary copied. Paste it anywhere to share.'); } catch (_) { toast('Copying isn’t allowed here.'); } return; }
