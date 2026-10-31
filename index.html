@@ -888,6 +888,8 @@ a.focus-item{text-decoration:none;color:inherit}
 .tv-foot{margin-top:8px}@media (max-width:700px){.tv-symform{width:100%}.tv-symform .fin{flex:1;width:auto}}
 .nt-steps{margin:4px 0 0;padding-left:20px;display:grid;gap:12px}.nt-steps li>div{margin-top:4px}.nt-steps code{font-size:12px;background:var(--surface-2);padding:1px 5px;border-radius:4px;word-break:break-all}
 .nt-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}.nt-map label{display:grid;gap:4px;font-size:13px;align-content:end}
+.blogo{position:relative;overflow:hidden}.blogo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:18%;box-sizing:border-box;background:#fff;border-radius:inherit}
+.blogo.has-ic{border-color:var(--line)!important}
 </style>
 
 <div class="app">
@@ -3877,7 +3879,10 @@ const BROKERS = [
 ];
 const brokerById = id => BROKERS.find(x => x.id === id);
 const brokerByName = n => BROKERS.find(x => x.name.toLowerCase() === String(n || '').toLowerCase());
-const blogo = (x, size = 40) => { const b = typeof x === 'string' ? (brokerByName(x) || { name: x, ab: (x || '?').slice(0, 1).toUpperCase(), c: 'slate' }) : x; return `<span class="blogo" style="--bc:var(--c-${b.c});width:${size}px;height:${size}px;font-size:${Math.round(size * (b.ab.length > 2 ? .3 : .38))}px" aria-hidden="true">${esc(b.ab)}</span>`; };
+const BROKER_SITES = { mt5: 'metatrader5.com', mt4: 'metatrader4.com', ctrader: 'ctrader.com', tradovate: 'tradovate.com', tradelocker: 'tradelocker.com', ninjatrader: 'ninjatrader.com', topstepx: 'topstep.com', thinkorswim: 'schwab.com', rithmic: 'rithmic.com', dxtrade: 'dx.trade', matchtrader: 'match-trader.com', tradingview: 'tradingview.com', ibkr: 'interactivebrokers.com', schwab: 'schwab.com', webull: 'webull.com', robinhood: 'robinhood.com', binance: 'binance.com', bybit: 'bybit.com', icmarkets: 'icmarkets.com', pepperstone: 'pepperstone.com', blueberry: 'blueberrymarkets.com', exness: 'exness.com', oanda: 'oanda.com', amp: 'ampfutures.com', ftmo: 'ftmo.com', the5ers: 'the5ers.com', fundednext: 'fundednext.com', fundingpips: 'fundingpips.com', apex: 'apextraderfunding.com', topstep: 'topstep.com', tpt: 'takeprofittrader.com', mff: 'myfundedfutures.com', lucid: 'lucidtrading.com' };
+// Each company's own site icon, loaded live from the web; the letter badge stays underneath and shows if it can't load.
+const brokerIcon = b => { const d = b && BROKER_SITES[b.id]; return d ? `<img src="https://www.google.com/s2/favicons?domain=${d}&sz=64" alt="" loading="lazy" referrerpolicy="no-referrer" onload="if(this.naturalWidth<20)this.remove();else this.parentNode.classList.add('has-ic')" onerror="this.remove()">` : ''; };
+const blogo = (x, size = 40) => { const b = typeof x === 'string' ? (brokerByName(x) || { name: x, ab: (x || '?').slice(0, 1).toUpperCase(), c: 'slate' }) : x; return `<span class="blogo" style="--bc:var(--c-${b.c});width:${size}px;height:${size}px;font-size:${Math.round(size * (b.ab.length > 2 ? .3 : .38))}px" aria-hidden="true">${esc(b.ab)}${brokerIcon(b)}</span>`; };
 const hasBrokerApi = () => !!(window.__llLocal && window.__llLocal.broker && window.__llLocal.mode === 'server');
 
 function addStepPick() {
