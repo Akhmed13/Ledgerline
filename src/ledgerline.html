@@ -1083,6 +1083,24 @@ a.focus-item{text-decoration:none;color:inherit}
 .acc-arch .acc-row{color:var(--muted)}.acc-arch .acc-row.on{color:var(--ink)}
 .acc-manage{display:block;width:100%;text-align:left;padding:8px 10px;margin-top:4px;border-top:1px solid var(--line)!important;border-radius:0}
 tr.acct-arch td{opacity:.6}
+
+.fx-scrim{background:rgba(10,12,20,.25)!important;backdrop-filter:none!important}
+.fx-sheet{position:fixed;width:min(640px,calc(100vw - 16px));max-width:none;padding:0;display:flex;flex-direction:column;max-height:min(560px,calc(100vh - 80px));overflow:hidden;border-radius:14px}
+.fx-grid{display:grid;grid-template-columns:200px minmax(0,1fr);min-height:0;flex:1}
+.fx-left{padding:12px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--line);background:var(--surface-2)}
+.fx-cat{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-align:left;font-weight:500}
+.fx-cat:hover{border-color:var(--accent)}
+.fx-cat.on{background:linear-gradient(135deg,var(--accent-fill,var(--accent)),color-mix(in srgb,var(--accent) 70%,#000));border-color:transparent;color:#fff;box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 35%,transparent)}
+.fx-ic{display:grid;place-items:center;width:26px;height:26px;border-radius:7px;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}.fx-cat.on .fx-ic{background:rgba(255,255,255,.18);color:#fff}
+.fx-cl{flex:1}.fx-car{font-size:10px;opacity:.7}.fx-n{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}.fx-cat.on .fx-n{background:#fff;color:var(--accent)}
+.fx-right{overflow:auto;padding:8px 14px}
+.fx-item{border-bottom:1px solid var(--line)}.fx-item:last-child{border-bottom:0}
+.fx-row{display:flex;align-items:center;gap:12px;padding:10px 4px;cursor:pointer;font-size:14px}.fx-row input{width:16px;height:16px;accent-color:var(--accent);margin:0}
+.fx-row span:first-of-type{flex:1}.fx-dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.fx-item.exp .fx-row{font-weight:600}.fx-ctl{padding:0 4px 12px 32px;display:grid;gap:6px}.fx-ctl select{max-width:240px}
+.fx-range{display:flex;align-items:center;gap:8px}.fx-range input{max-width:140px}.fx-range span{color:var(--muted)}
+.fx-foot{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface)}
+@media (max-width:719px){.fx-sheet{left:8px!important;right:8px;top:70px!important;width:auto}.fx-grid{grid-template-columns:1fr}.fx-left{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}.fx-cat{flex:none}.fx-car{display:none}}
 </style>
 
 <div class="app">
@@ -2164,7 +2182,7 @@ const archivedAccounts = () => allAccounts().filter(a => a.archived);
 const selAccounts = () => { const all = allAccounts(); return S.accSel ? all.filter(a => S.accSel.includes(a.id)) : all; };
 function startBal() { return selAccounts().reduce((a, x) => a + (+x.startingBalance || 0), 0); }
 const cashSel = () => S.cash.filter(c => !S.accSel || S.accSel.includes(c.accountId || 'main'));
-const EMPTY_FLT = () => ({ symbols: [], side: '', status: '', minRating: 0, reviewed: '', rMin: '', rMax: '', weekdays: [], hFrom: '', hTo: '', playbooks: [], tagsIn: [], tagsOut: [] });
+const EMPTY_FLT = () => ({ symbols: [], side: '', status: '', minRating: 0, reviewed: '', rMin: '', rMax: '', weekdays: [], hFrom: '', hTo: '', playbooks: [], tagsIn: [], tagsOut: [], roots: [], intraday: '', open: '', pxEnMin: '', pxEnMax: '', pxExMin: '', pxExMax: '', qtyMin: '', qtyMax: '', pnlMin: '', pnlMax: '', months: [], holdMin: '', holdMax: '', hasStop: '', rules: '' });
 S.flt = EMPTY_FLT();
 try { const f = JSON.parse(localStorage.getItem('ll-flt') || 'null'); if (f) S.flt = { ...EMPTY_FLT(), ...f }; const a = JSON.parse(localStorage.getItem('ll-acc') || 'null'); if (Array.isArray(a)) S.accSel = a; } catch (e) {}
 const dowOf = d => { const [y, m, dd] = d.split('-'); return new Date(+y, +m - 1, +dd).getDay(); };
@@ -2186,9 +2204,21 @@ function passFilter(t, f = S.flt) {
   const has = k => { const i = k.indexOf('::'); return tagsOf(t, k.slice(0, i)).includes(k.slice(i + 2)); };
   if (f.tagsIn.length && !f.tagsIn.some(has)) return false;
   if (f.tagsOut.length && f.tagsOut.some(has)) return false;
+  const rg = (v, a, b) => (a === '' || a == null || (v != null && v >= +a)) && (b === '' || b == null || (v != null && v <= +b));
+  if (f.roots && f.roots.length && !f.roots.includes(rootOf(t.symbol))) return false;
+  if (f.intraday === 'intra' && t.exitDate && t.exitDate !== t.date) return false;
+  if (f.intraday === 'multi' && !(t.exitDate && t.exitDate !== t.date)) return false;
+  if (f.open === 'open' && !isOpen(t)) return false;
+  if (f.open === 'closed' && isOpen(t)) return false;
+  if (!rg(num(t.entry), f.pxEnMin, f.pxEnMax) || !rg(num(t.exit), f.pxExMin, f.pxExMax) || !rg(num(t.qty), f.qtyMin, f.qtyMax) || !rg(t.pnl, f.pnlMin, f.pnlMax)) return false;
+  if (f.months && f.months.length && !f.months.includes(+t.date.slice(5, 7))) return false;
+  if ((f.holdMin !== '' && f.holdMin != null) || (f.holdMax !== '' && f.holdMax != null)) { if (!rg(durMin(t), f.holdMin, f.holdMax)) return false; }
+  if (f.hasStop === 'yes' && num(t.stop) == null) return false;
+  if (f.hasStop === 'no' && num(t.stop) != null) return false;
+  if (f.rules) { const pb = S.playbooks.find(p => p.id === t.playbookId), n = pb ? pb.groups.reduce((a, g) => a + g.rules.length, 0) : 0, k = (t.rulesChecked || []).length; if (!pb || !n) return false; if (f.rules === 'all' ? k < n : k >= n) return false; }
   return true;
 }
-function fltCount(f = S.flt) { let n = 0; ['symbols', 'weekdays', 'playbooks', 'tagsIn', 'tagsOut'].forEach(k => { if (f[k].length) n++; }); ['side', 'status', 'reviewed', 'rMin', 'rMax', 'hFrom', 'hTo'].forEach(k => { if (f[k] !== '') n++; }); if (f.minRating) n++; return n; }
+function fltCount(f = S.flt) { f = { ...EMPTY_FLT(), ...f }; let n = 0; ['symbols', 'weekdays', 'playbooks', 'tagsIn', 'tagsOut', 'roots', 'months'].forEach(k => { if (f[k].length) n++; }); ['side', 'status', 'reviewed', 'intraday', 'open', 'hasStop', 'rules'].forEach(k => { if (f[k] !== '') n++; }); Object.values({ r: ['rMin', 'rMax'], h: ['hFrom', 'hTo'], px: ['pxEnMin', 'pxEnMax'], pxx: ['pxExMin', 'pxExMax'], q: ['qtyMin', 'qtyMax'], p: ['pnlMin', 'pnlMax'], hd: ['holdMin', 'holdMax'] }).forEach(([a, b]) => { if (f[a] !== '' || f[b] !== '') n++; }); if (f.minRating) n++; return n; }
 function applyFilters() { const sel = S.accSel, arch = new Set(archivedAccounts().map(a => a.id)); S.trades = S.allTrades.filter(t => (sel ? sel.includes(acctOf(t)) : !arch.has(acctOf(t))) && passFilter(t)); }
 function saveFilterPrefs() { try { localStorage.setItem('ll-flt', JSON.stringify(S.flt)); localStorage.setItem('ll-acc', JSON.stringify(S.accSel)); } catch (e) {} }
 function acctFilterBar() {
@@ -2202,26 +2232,6 @@ function acctFilterBar() {
     <button class="linkish acc-manage" data-action="settings" data-v="accounts">⚙ Manage accounts</button></div>` : '';
   return `<div class="ddwrap"><button class="ghost acc-btn" data-action="accMenu" aria-expanded="${!!S.accMenu}"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5A1.5 1.5 0 014 3h8v2.5"/><rect x="2.5" y="5" width="11" height="8" rx="1.5"/><path d="M10.5 9h3"/></svg><span class="acc-lbl">${esc(label)}</span><span class="car">${S.accMenu ? '▴' : '▾'}</span></button>${menu}</div>
     <button class="ghost${n ? ' on' : ''}" data-action="filters">Filters${n ? ` <span class="chip">${n}</span>` : ''}</button>${n ? '<button class="icon-btn" data-action="clearFilters" aria-label="Clear all filters" title="Clear filters">✕</button>' : ''}`;
-}
-function filterModal() {
-  const f = S.fltEdit, tab = S.fltTab || 'general', chip = (k, v, label, on) => `<button class="fchip${on ? ' on' : ''}" data-action="fx" data-k="${k}" data-v="${esc(String(v))}" aria-pressed="${on}">${esc(label)}</button>`;
-  const syms = [...new Set(S.allTrades.map(t => t.symbol))].sort();
-  let body = '';
-  if (tab === 'general') body = `<div class="fsec"><div class="label">Symbol</div><div class="fchips">${syms.map(s => chip('symbols', s, s, f.symbols.includes(s))).join('') || '<span class="hint">No symbols yet</span>'}</div></div>
-    <div class="fsec"><div class="label">Side</div><div class="fchips">${chip('side', '', 'Any', !f.side)}${chip('side', 'Long', 'Long', f.side === 'Long')}${chip('side', 'Short', 'Short', f.side === 'Short')}</div></div>
-    <div class="fsec"><div class="label">Status</div><div class="fchips">${[['', 'Any'], ['win', 'Wins'], ['loss', 'Losses'], ['even', 'Break-even']].map(([v, l]) => chip('status', v, l, f.status === v)).join('')}</div></div>
-    <div class="fsec"><div class="label">Review</div><div class="fchips">${[['', 'Any'], ['yes', 'Reviewed'], ['no', 'Not reviewed']].map(([v, l]) => chip('reviewed', v, l, f.reviewed === v)).join('')}</div></div>
-    <div class="fsec"><div class="label">Minimum trade rating</div><div class="fchips">${[0, 1, 2, 3, 4, 5].map(v => chip('minRating', v, v ? '★'.repeat(v) + '+' : 'Any', f.minRating === v)).join('')}</div></div>
-    <div class="fsec"><div class="label">Realized R-multiple</div><div class="pb-row"><input class="fin" type="number" step="any" data-fx="rMin" value="${esc(f.rMin)}" placeholder="From" aria-label="Minimum R"><input class="fin" type="number" step="any" data-fx="rMax" value="${esc(f.rMax)}" placeholder="To" aria-label="Maximum R"></div></div>`;
-  else if (tab === 'tags') body = `<div class="hint">Click a tag once to only show trades that have it, twice to leave those trades out (they won't count), and a third time to clear it.</div>` +
-    (S.cats.map(c => `<div class="fsec"><div class="label">${esc(c.name)}</div><div class="fchips">${(c.tags || []).map(tg => { const k = c.id + '::' + tg, st = f.tagsIn.includes(k) ? 'in' : f.tagsOut.includes(k) ? 'out' : ''; return `<button class="fchip ${st}" data-action="ftag" data-v="${esc(k)}">${st === 'out' ? '⊘ ' : ''}${esc(tg)}</button>`; }).join('') || '<span class="hint">No tags</span>'}</div></div>`).join('') || '<div class="hint">No tag categories yet.</div>');
-  else if (tab === 'time') body = `<div class="fsec"><div class="label">Day of week</div><div class="fchips">${DOW.map((d, i) => chip('weekdays', i, d, f.weekdays.includes(i))).join('')}</div></div>
-    <div class="fsec"><div class="label">Entry time between</div><div class="pb-row"><input class="fin" type="time" data-fx="hFrom" value="${esc(f.hFrom)}" aria-label="From time"><input class="fin" type="time" data-fx="hTo" value="${esc(f.hTo)}" aria-label="To time"></div></div>`;
-  else body = `<div class="fsec"><div class="label">Playbook</div><div class="fchips">${chip('playbooks', '', 'No playbook', f.playbooks.includes(''))}${S.playbooks.map(p => chip('playbooks', p.id, p.name, f.playbooks.includes(p.id))).join('')}</div></div>`;
-  const tabs = [['general', 'General'], ['tags', 'Tags'], ['time', 'Day & time'], ['playbook', 'Playbook']];
-  return `<div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">Filters</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
-    <div class="fgrid"><div class="ftabs">${tabs.map(([k, l]) => `<button data-action="fltTab" data-v="${k}" aria-pressed="${tab === k}">${l}</button>`).join('')}</div><div class="fbody">${body}</div></div>
-    <div class="actions" style="justify-content:space-between"><button class="linkish" data-action="fltReset">Reset all</button><span><button class="secondary" data-action="close">Cancel</button> <button class="primary" data-action="fltApply">Apply filters</button></span></div></div>`;
 }
 
 /* ---------- instruments & commissions ---------- */
@@ -4821,6 +4831,8 @@ document.addEventListener('mousedown', e => {
 document.addEventListener('keydown', e => { if (e.key === 'Tab' && !S.slash) { const c = e.target.closest && e.target.closest('.editor[contenteditable]') && inCell(); if (c) { e.preventDefault(); const cells = [...c.closest('table').querySelectorAll('td,th')], n = cells[cells.indexOf(c) + (e.shiftKey ? -1 : 1)]; if (n) { const r = document.createRange(); r.selectNodeContents(n); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } } } });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.dataset && el.dataset.fxtoggle != null && S.fltEdit) { const k = el.dataset.fxtoggle, o = S.fltOpen || (S.fltOpen = new Set()); if (el.checked) o.add(k); else { o.delete(k); fxClear(S.fltEdit, k); } renderModal(); return; }
+  if (el.dataset && el.dataset.fx === 'open' && S.fltEdit) { S.fltEdit.open = el.value; renderModal(); return; }
   if (el.id === 'ovBasis') { S.rep.pnlBasis = el.value; rerender(); return; }
   if (el.id === 'nbQF') { S.nbQFolder = el.value; rerender(); return; }
   if (el.id === 'nbQT') { S.nbTag = el.value; rerender(); return; }
@@ -5233,6 +5245,64 @@ function overviewView(ts) {
       <div class="ov-cols">${tbl(left)}${tbl(right)}</div>` : '<div class="empty"><h3>No closed trades in this range</h3><p>Pick another date range or clear filters to see your stats.</p></div>'}</section>`;
 }
 
+/* ---------- v43: filter panel (categories + checkbox filters) ---------- */
+const FX_ICON = { general: '<circle cx="8" cy="5.5" r="2.8"/><path d="M2.5 14c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/>', tags: '<path d="M2.5 2.5h5.3l5.7 5.7-5.3 5.3-5.7-5.7z"/><circle cx="5.3" cy="5.3" r=".9"/>', time: '<rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/>', strategy: '<path d="M2.5 3.5c2-.8 3.8-.6 5.5.6 1.7-1.2 3.5-1.4 5.5-.6v9.5c-2-.8-3.8-.6-5.5.6-1.7-1.2-3.5-1.4-5.5-.6zM8 4.1v9.5"/>' };
+const FX_CATS = [['general', 'General'], ['tags', 'Tags'], ['time', 'Day & time'], ['strategy', 'Strategy']];
+const FX_RANGE = { px: ['pxEnMin', 'pxEnMax'], pxx: ['pxExMin', 'pxExMax'], r: ['rMin', 'rMax'], qty: ['qtyMin', 'qtyMax'], pnl: ['pnlMin', 'pnlMax'], hours: ['hFrom', 'hTo'], hold: ['holdMin', 'holdMax'] };
+function fxItems() {
+  const f = S.fltEdit;
+  return {
+    general: [['roots', 'Instrument'], ['intraday', 'Intraday/Multiday'], ['open', 'Open/Closed'], ['reviewed', 'Reviewed/Unreviewed'], ['side', 'Side'], ['symbols', 'Symbol'], ['status', 'Status'], ['minRating', 'Trade rating'], ['px', 'Entry price'], ['pxx', 'Exit price'], ['r', 'R-Multiple'], ['qty', 'Position size'], ['pnl', 'Net P&L']],
+    tags: S.cats.map(c => ['tag:' + c.id, c.name]),
+    time: [['weekdays', 'Day of week'], ['months', 'Month'], ['hours', 'Entry time'], ['hold', 'Trade duration']],
+    strategy: [['playbooks', 'Playbook'], ['hasStop', 'Stop loss'], ['rules', 'Playbook rules']]
+  };
+}
+function fxActive(f, k) {
+  if (k.startsWith('tag:')) { const c = k.slice(4) + '::'; return [...f.tagsIn, ...f.tagsOut].some(x => x.startsWith(c)); }
+  if (FX_RANGE[k]) return FX_RANGE[k].some(x => f[x] !== '' && f[x] != null);
+  const v = f[k]; return Array.isArray(v) ? v.length > 0 : !!v;
+}
+function fxClear(f, k) {
+  if (k.startsWith('tag:')) { const c = k.slice(4) + '::'; f.tagsIn = f.tagsIn.filter(x => !x.startsWith(c)); f.tagsOut = f.tagsOut.filter(x => !x.startsWith(c)); return; }
+  if (FX_RANGE[k]) { FX_RANGE[k].forEach(x => { f[x] = ''; }); return; }
+  f[k] = Array.isArray(f[k]) ? [] : k === 'minRating' ? 0 : '';
+}
+function fxControl(k) {
+  const f = S.fltEdit, chip = (key, v, label, on) => `<button class="fchip${on ? ' on' : ''}" data-action="fx" data-k="${key}" data-v="${esc(String(v))}" aria-pressed="${on}">${esc(label)}</button>`;
+  const one = (key, opts) => opts.map(([v, l]) => chip(key, v, l, f[key] === v)).join(''), many = (key, opts) => opts.map(([v, l]) => chip(key, v, l, f[key].includes(v))).join('');
+  const range = (a, b, type = 'number', ph = ['From', 'To']) => `<div class="fx-range"><input class="fin" type="${type}" step="any" data-fx="${a}" value="${esc(f[a] ?? '')}" placeholder="${ph[0]}" aria-label="${ph[0]}"><span>–</span><input class="fin" type="${type}" step="any" data-fx="${b}" value="${esc(f[b] ?? '')}" placeholder="${ph[1]}" aria-label="${ph[1]}"></div>`;
+  if (k.startsWith('tag:')) { const c = S.cats.find(x => x.id === k.slice(4)); return `<div class="fchips">${(c && c.tags || []).map(tg => { const kk = c.id + '::' + tg, st = f.tagsIn.includes(kk) ? 'in' : f.tagsOut.includes(kk) ? 'out' : ''; return `<button class="fchip ${st}" data-action="ftag" data-v="${esc(kk)}" title="Click: include · again: exclude · again: clear">${st === 'out' ? '⊘ ' : st === 'in' ? '✓ ' : ''}${esc(tg)}</button>`; }).join('') || '<span class="hint">No tags in this category</span>'}</div><div class="hint">Click once to include, twice to exclude.</div>`; }
+  switch (k) {
+    case 'roots': return `<div class="fchips">${[...new Set(S.allTrades.map(t => rootOf(t.symbol)))].sort().map(r => chip('roots', r, r, f.roots.includes(r))).join('') || '<span class="hint">No instruments yet</span>'}</div>`;
+    case 'symbols': return `<div class="fchips">${[...new Set(S.allTrades.map(t => t.symbol))].sort().map(s => chip('symbols', s, s, f.symbols.includes(s))).join('') || '<span class="hint">No symbols yet</span>'}</div>`;
+    case 'intraday': return `<div class="fchips">${one('intraday', [['intra', 'Intraday'], ['multi', 'Multiday']])}</div>`;
+    case 'open': return `<select class="fin" data-fx="open" aria-label="Open or closed"><option value="">Choose…</option><option value="closed" ${f.open === 'closed' ? 'selected' : ''}>Closed</option><option value="open" ${f.open === 'open' ? 'selected' : ''}>Open</option></select>`;
+    case 'reviewed': return `<div class="fchips">${one('reviewed', [['yes', 'Reviewed'], ['no', 'Unreviewed']])}</div>`;
+    case 'side': return `<div class="fchips">${one('side', [['Long', 'Long'], ['Short', 'Short']])}</div>`;
+    case 'status': return `<div class="fchips">${one('status', [['win', 'Win'], ['loss', 'Loss'], ['even', 'Break-even']])}</div>`;
+    case 'minRating': return `<div class="fchips">${[1, 2, 3, 4, 5].map(v => chip('minRating', v, '★'.repeat(v) + '+', f.minRating === v)).join('')}</div>`;
+    case 'weekdays': return `<div class="fchips">${DOW.map((d, i) => chip('weekdays', i, d, f.weekdays.includes(i))).join('')}</div>`;
+    case 'months': return `<div class="fchips">${MONTHS.map((m, i) => chip('months', i + 1, m.slice(0, 3), f.months.includes(i + 1))).join('')}</div>`;
+    case 'hours': return range('hFrom', 'hTo', 'time');
+    case 'hold': return range('holdMin', 'holdMax', 'number', ['Min minutes', 'Max minutes']);
+    case 'playbooks': return `<div class="fchips">${chip('playbooks', '', 'No playbook', f.playbooks.includes(''))}${S.playbooks.map(p => chip('playbooks', p.id, p.name, f.playbooks.includes(p.id))).join('')}</div>`;
+    case 'hasStop': return `<div class="fchips">${one('hasStop', [['yes', 'With a stop'], ['no', 'Without a stop']])}</div>`;
+    case 'rules': return `<div class="fchips">${one('rules', [['all', 'All rules followed'], ['missed', 'Some rules missed']])}</div>`;
+    default: return FX_RANGE[k] ? range(...FX_RANGE[k]) : '';
+  }
+}
+function filterModal() {
+  const f = S.fltEdit, tab = S.fltTab || 'general', items = fxItems(), open = S.fltOpen || (S.fltOpen = new Set());
+  const cnt = c => items[c].filter(([k]) => fxActive(f, k)).length;
+  const left = FX_CATS.map(([c, l]) => `<button class="fx-cat${tab === c ? ' on' : ''}" data-action="fltTab" data-v="${c}" aria-pressed="${tab === c}"><span class="fx-ic"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${FX_ICON[c]}</svg></span><span class="fx-cl">${l}</span>${cnt(c) ? `<span class="fx-n">${cnt(c)}</span>` : ''}<span class="fx-car">${tab === c ? '▸' : '▾'}</span></button>`).join('');
+  const rows = items[tab].map(([k, l]) => { const act = fxActive(f, k), exp = act || open.has(k); return `<div class="fx-item${exp ? ' exp' : ''}"><label class="fx-row"><input type="checkbox" data-fxtoggle="${esc(k)}" ${act || exp ? 'checked' : ''}><span>${esc(l)}</span>${act ? '<span class="fx-dot" aria-label="active"></span>' : ''}</label>${exp ? `<div class="fx-ctl">${fxControl(k)}</div>` : ''}</div>`; }).join('') || `<p class="hint" style="padding:10px">${tab === 'tags' ? 'No tag categories yet.' : 'Nothing to filter here yet.'}</p>`;
+  const total = Object.keys(items).reduce((a, c) => a + cnt(c), 0);
+  return `<div class="sheet fx-sheet" role="dialog" aria-modal="true" aria-label="Filters"><div class="fx-grid"><div class="fx-left">${left}</div><div class="fx-right" id="fxRight">${rows}</div></div>
+    <div class="fx-foot"><button class="linkish" data-action="fltReset">Reset all</button><span class="hint">${total ? total + ' filter' + (total === 1 ? '' : 's') + ' on' : ''}</span><span style="flex:1"></span><button class="secondary" data-action="close">Cancel</button><button class="primary" data-action="fltApply">Apply filters</button></div></div>`;
+}
+function placeFx() { const s = document.querySelector('.fx-sheet'), b = document.querySelector('[data-action="filters"]'); if (!s || !b || innerWidth < 720) return; const r = b.getBoundingClientRect(), w = s.offsetWidth; s.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w + 40)) + 'px'; s.style.top = Math.min(r.bottom + 6, innerHeight - s.offsetHeight - 8) + 'px'; }
+
 /* ---------- v33: NinjaTrader live sync ---------- */
 const NT_ADDON = "#region Using declarations\nusing System;\nusing System.Collections.Generic;\nusing System.Globalization;\nusing System.Linq;\nusing System.Net;\nusing System.Text;\nusing System.Threading;\nusing NinjaTrader.Cbi;\nusing NinjaTrader.NinjaScript;\n#endregion\n\n// Ledger Line live sync for NinjaTrader 8.\n// Sends every fill on your trading accounts to your Ledger Line journal as it happens.\n// Install: put this file in Documents\\NinjaTrader 8\\bin\\Custom\\AddOns\\, then open\n// New \u2192 NinjaScript Editor and press F5 (compile). It starts by itself whenever NinjaTrader is open.\n// Messages appear in New \u2192 NinjaScript Output.\nnamespace NinjaTrader.NinjaScript.AddOns\n{\n\tpublic class LedgerLineSync : AddOnBase\n\t{\n\t\t// ---- your settings (filled in by Ledger Line when you download this file) ----\n\t\tprivate const string SyncUrl = \"{{URL}}\";\n\t\tprivate const string SyncKey = \"{{KEY}}\";\n\t\t// Account names to sync, separated by commas. Leave empty to sync every account except Sim/Playback.\n\t\tprivate const string OnlyAccounts = \"\";\n\t\t// ------------------------------------------------------------------------------\n\n\t\tprivate static readonly object Gate = new object();\n\t\tprivate static LedgerLineSync owner;\n\t\tprivate static readonly HashSet<string> Hooked = new HashSet<string>();\n\t\tprivate static readonly List<Account> HookedAccounts = new List<Account>();\n\t\tprivate static readonly Dictionary<string, string> Queue = new Dictionary<string, string>();\n\t\tprivate static readonly HashSet<string> Sent = new HashSet<string>();\n\t\tprivate static System.Threading.Timer timer;\n\t\tprivate static int busy;\n\t\tprivate static DateTime lastPing = DateTime.MinValue;\n\t\tprivate static bool keyRejected;\n\n\t\tprotected override void OnStateChange()\n\t\t{\n\t\t\tif (State == State.SetDefaults)\n\t\t\t{\n\t\t\t\tName = \"LedgerLineSync\";\n\t\t\t\tDescription = \"Sends your fills to your Ledger Line journal.\";\n\t\t\t}\n\t\t\telse if (State == State.Configure || State == State.Active)\n\t\t\t{\n\t\t\t\tStart();\n\t\t\t}\n\t\t\telse if (State == State.Terminated)\n\t\t\t{\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tif (owner != this) return;\n\t\t\t\t\towner = null;\n\t\t\t\t}\n\t\t\t\tAccount.AccountStatusUpdate -= OnAccountStatus;\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tforeach (Account a in HookedAccounts) a.ExecutionUpdate -= OnExecution;\n\t\t\t\t\tHookedAccounts.Clear();\n\t\t\t\t\tHooked.Clear();\n\t\t\t\t}\n\t\t\t\tif (timer != null) { timer.Dispose(); timer = null; }\n\t\t\t\tFlush();\n\t\t\t}\n\t\t}\n\n\t\t// NinjaTrader calls this for every open window, including right after you compile, so the add-on starts without a restart.\n\t\tprotected override void OnWindowCreated(System.Windows.Window window)\n\t\t{\n\t\t\tStart();\n\t\t}\n\n\t\tprivate void Start()\n\t\t{\n\t\t\tlock (Gate)\n\t\t\t{\n\t\t\t\tif (owner != null) return;\n\t\t\t\towner = this;\n\t\t\t}\n\t\t\ttry\n\t\t\t{\n\t\t\t\ttry { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; } catch { }\n\t\t\t\tAccount.AccountStatusUpdate += OnAccountStatus;\n\t\t\t\tList<Account> all;\n\t\t\t\tlock (Account.All) all = Account.All.ToList();\n\t\t\t\tforeach (Account a in all) Hook(a);\n\t\t\t\ttimer = new System.Threading.Timer(_ => Flush(), null, 3000, 10000);\n\t\t\t\tSay(\"started. Sending fills to \" + SyncUrl + (Hooked.Count == 0 ? \" (no live accounts connected yet; connect to Lucid and they're picked up automatically)\" : \"\"));\n\t\t\t}\n\t\t\tcatch (Exception ex) { Say(\"couldn't start: \" + ex.Message); }\n\t\t}\n\n\t\tprivate static bool Wanted(Account a)\n\t\t{\n\t\t\tif (a == null || string.IsNullOrEmpty(a.Name)) return false;\n\t\t\tif (!string.IsNullOrWhiteSpace(OnlyAccounts))\n\t\t\t\treturn OnlyAccounts.Split(',').Any(n => string.Equals(n.Trim(), a.Name, StringComparison.OrdinalIgnoreCase));\n\t\t\tstring n2 = a.Name.ToLowerInvariant();\n\t\t\treturn !(n2.StartsWith(\"sim\") || n2.StartsWith(\"playback\") || n2.StartsWith(\"backtest\"));\n\t\t}\n\n\t\tprivate void Hook(Account a)\n\t\t{\n\t\t\tif (!Wanted(a)) return;\n\t\t\tlock (Gate)\n\t\t\t{\n\t\t\t\tif (Hooked.Contains(a.Name)) return;\n\t\t\t\tHooked.Add(a.Name);\n\t\t\t\tHookedAccounts.Add(a);\n\t\t\t}\n\t\t\ta.ExecutionUpdate += OnExecution;\n\t\t\tList<Execution> past;\n\t\t\tlock (a.Executions) past = a.Executions.ToList();\n\t\t\tforeach (Execution x in past) Add(x);\n\t\t\tSay(\"watching account \" + a.Name + (past.Count > 0 ? \" (\" + past.Count + \" fills from this session)\" : \"\"));\n\t\t}\n\n\t\tprivate void OnAccountStatus(object sender, AccountStatusEventArgs e)\n\t\t{\n\t\t\tif (e.Status == ConnectionStatus.Connected && e.Account != null) Hook(e.Account);\n\t\t}\n\n\t\tprivate static void OnExecution(object sender, ExecutionEventArgs e)\n\t\t{\n\t\t\tif (e.Execution != null) Add(e.Execution);\n\t\t}\n\n\t\tprivate static string Num(double v) { return v.ToString(\"0.##########\", CultureInfo.InvariantCulture); }\n\t\tprivate static string Str(string s)\n\t\t{\n\t\t\tif (s == null) return \"\\\"\\\"\";\n\t\t\tvar b = new StringBuilder(\"\\\"\");\n\t\t\tforeach (char c in s)\n\t\t\t{\n\t\t\t\tif (c == '\"' || c == '\\\\') b.Append('\\\\').Append(c);\n\t\t\t\telse if (c < ' ') b.Append(\"\\\\u\").Append(((int)c).ToString(\"x4\"));\n\t\t\t\telse b.Append(c);\n\t\t\t}\n\t\t\treturn b.Append('\"').ToString();\n\t\t}\n\n\t\tprivate static void Add(Execution x)\n\t\t{\n\t\t\ttry\n\t\t\t{\n\t\t\t\tif (x == null || x.Instrument == null || x.Account == null || x.Quantity == 0) return;\n\t\t\t\tvar mi = x.Instrument.MasterInstrument;\n\t\t\t\tstring json = \"{\"\n\t\t\t\t\t+ \"\\\"id\\\":\" + Str(x.ExecutionId)\n\t\t\t\t\t+ \",\\\"orderId\\\":\" + Str(x.OrderId)\n\t\t\t\t\t+ \",\\\"account\\\":\" + Str(x.Account.Name)\n\t\t\t\t\t+ \",\\\"instrument\\\":\" + Str(x.Instrument.FullName)\n\t\t\t\t\t+ \",\\\"root\\\":\" + Str(mi.Name)\n\t\t\t\t\t+ \",\\\"side\\\":\" + Str(x.MarketPosition == MarketPosition.Long ? \"Buy\" : \"Sell\")\n\t\t\t\t\t+ \",\\\"qty\\\":\" + x.Quantity.ToString(CultureInfo.InvariantCulture)\n\t\t\t\t\t+ \",\\\"price\\\":\" + Num(x.Price)\n\t\t\t\t\t+ \",\\\"time\\\":\" + Str(x.Time.ToString(\"yyyy-MM-ddTHH:mm:ss.fff\", CultureInfo.InvariantCulture))\n\t\t\t\t\t+ \",\\\"commission\\\":\" + Num(x.Commission)\n\t\t\t\t\t+ \",\\\"pointValue\\\":\" + Num(mi.PointValue)\n\t\t\t\t\t+ \",\\\"tickSize\\\":\" + Num(mi.TickSize)\n\t\t\t\t\t+ \"}\";\n\t\t\t\tstring key = x.Account.Name + \"|\" + x.ExecutionId + \"|\" + x.Quantity + \"|\" + Num(x.Price);\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tif (Sent.Contains(key)) return;\n\t\t\t\t\tQueue[key] = json;\n\t\t\t\t}\n\t\t\t}\n\t\t\tcatch (Exception ex) { Say(\"couldn't read a fill: \" + ex.Message); }\n\t\t}\n\n\t\tprivate static void Flush()\n\t\t{\n\t\t\tif (Interlocked.Exchange(ref busy, 1) == 1) return;\n\t\t\ttry\n\t\t\t{\n\t\t\t\tList<KeyValuePair<string, string>> batch;\n\t\t\t\tstring[] names;\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tbatch = Queue.Take(300).ToList();\n\t\t\t\t\tnames = Hooked.ToArray();\n\t\t\t\t}\n\t\t\t\tbool ping = (DateTime.Now - lastPing).TotalMinutes >= 5;\n\t\t\t\tif (batch.Count == 0 && !ping) return;\n\t\t\t\tif (keyRejected && batch.Count == 0) return;\n\t\t\t\tstring body = \"{\\\"client\\\":\\\"NinjaTrader 8\\\",\\\"accounts\\\":[\" + string.Join(\",\", names.Select(Str))\n\t\t\t\t\t+ \"],\\\"executions\\\":[\" + string.Join(\",\", batch.Select(p => p.Value)) + \"]}\";\n\t\t\t\tusing (var wc = new WebClient())\n\t\t\t\t{\n\t\t\t\t\twc.Encoding = Encoding.UTF8;\n\t\t\t\t\twc.Headers[HttpRequestHeader.ContentType] = \"application/json\";\n\t\t\t\t\twc.Headers[\"x-ledgerline-sync\"] = SyncKey;\n\t\t\t\t\twc.UploadString(SyncUrl, \"POST\", body);\n\t\t\t\t}\n\t\t\t\tlastPing = DateTime.Now;\n\t\t\t\tkeyRejected = false;\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tforeach (var p in batch) { Queue.Remove(p.Key); Sent.Add(p.Key); }\n\t\t\t\t}\n\t\t\t\tif (batch.Count > 0) Say(\"sent \" + batch.Count + \" fill(s)\");\n\t\t\t}\n\t\t\tcatch (WebException we)\n\t\t\t{\n\t\t\t\tvar r = we.Response as HttpWebResponse;\n\t\t\t\tif (r != null && r.StatusCode == HttpStatusCode.Unauthorized)\n\t\t\t\t{\n\t\t\t\t\tif (!keyRejected) Say(\"the sync key was rejected. Download the add-on again from Ledger Line \u2192 Settings \u2192 Accounts.\");\n\t\t\t\t\tkeyRejected = true;\n\t\t\t\t}\n\t\t\t\telse Say(\"couldn't reach Ledger Line (\" + we.Message + \"). Will retry.\");\n\t\t\t\tlastPing = DateTime.Now;\n\t\t\t}\n\t\t\tcatch (Exception ex) { Say(\"error: \" + ex.Message); }\n\t\t\tfinally { Interlocked.Exchange(ref busy, 0); }\n\t\t}\n\n\t\tprivate static void Say(string m)\n\t\t{\n\t\t\ttry { NinjaTrader.Code.Output.Process(\"Ledger Line: \" + m, PrintTo.OutputTab1); } catch { }\n\t\t}\n\t}\n}\n";
 S.syncCfg = null; S.syncStat = null; S.syncKeyShown = '';
@@ -5382,7 +5452,7 @@ function _renderModal() {
   else if (m.kind === 'rules') box.innerHTML = rulesEditor();
   else if (m.kind === 'cash') box.innerHTML = cashModal();
   else if (m.kind === 'preview') box.innerHTML = previewSheet();
-  else if (m.kind === 'filters') box.innerHTML = filterModal();
+  else if (m.kind === 'filters') { const st = $('fxRight') ? $('fxRight').scrollTop : 0; box.innerHTML = filterModal(); box.className = 'scrim fx-scrim'; placeFx(); const r = $('fxRight'); if (r) r.scrollTop = st; }
   else if (m.kind === 'import') box.innerHTML = importModal();
   else if (m.kind === 'ai') box.innerHTML = aiModal();
   else if (m.kind === 'pickTrade' || m.kind === 'pickDay') box.innerHTML = pickModal(m.kind);
@@ -5713,17 +5783,17 @@ document.addEventListener('click', async e => {
       else { let cur = S.accSel ? [...S.accSel] : [...all]; cur = cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v]; if (!cur.length) { toast('Keep at least one account selected.'); return; } S.accSel = cur.length === all.length && cur.every(x => all.includes(x)) ? null : cur; }
       applyFilters(); saveFilterPrefs(); break;
     }
-    case 'filters': S.fltEdit = JSON.parse(JSON.stringify(S.flt)); S.fltTab = 'general'; return openModal('filters');
+    case 'filters': S.fltEdit = { ...EMPTY_FLT(), ...JSON.parse(JSON.stringify(S.flt)) }; S.fltTab = S.fltTab || 'general'; S.fltOpen = new Set(); return openModal('filters');
     case 'fltTab': S.fltTab = b.dataset.v; renderModal(); return;
     case 'fx': {
       const k = b.dataset.k, f = S.fltEdit; let v = b.dataset.v;
-      if (k === 'weekdays') v = +v; if (k === 'minRating') v = +v;
-      if (Array.isArray(f[k])) f[k] = f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v]; else f[k] = v;
+      if (k === 'weekdays' || k === 'months' || k === 'minRating') v = +v;
+      if (Array.isArray(f[k])) f[k] = f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v]; else f[k] = f[k] === v ? (k === 'minRating' ? 0 : '') : v;
       renderModal(); return;
     }
     case 'ftag': { const k = b.dataset.v, f = S.fltEdit; if (f.tagsIn.includes(k)) { f.tagsIn = f.tagsIn.filter(x => x !== k); f.tagsOut.push(k); } else if (f.tagsOut.includes(k)) f.tagsOut = f.tagsOut.filter(x => x !== k); else f.tagsIn.push(k); renderModal(); return; }
     case 'fltApply': S.flt = S.fltEdit; applyFilters(); saveFilterPrefs(); closeModal(); toast(fltCount() ? `${S.trades.length} trades match your filters` : 'Filters cleared'); break;
-    case 'fltReset': S.fltEdit = EMPTY_FLT(); renderModal(); return;
+    case 'fltReset': S.fltEdit = EMPTY_FLT(); S.fltOpen = new Set(); renderModal(); return;
     case 'clearFilters': S.flt = EMPTY_FLT(); applyFilters(); saveFilterPrefs(); break;
     case 'settings': S.view = 'settings'; S.setTab = b.dataset.v; S.accMenu = false; S.profMenu = false; window.scrollTo(0, 0); closeModal(); rpStop(); break;
     case 'acctEdit': if (!needDb()) return; return openModal('acct', b.dataset.v);
