@@ -993,6 +993,25 @@ a.focus-item{text-decoration:none;color:inherit}
 .tl-doc{width:90px;height:110px;border:2px solid var(--line);border-radius:8px;background:linear-gradient(var(--line),var(--line)) 14px 26px/60px 10px no-repeat,linear-gradient(var(--line),var(--line)) 14px 48px/40px 6px no-repeat,var(--surface)}
 @media (max-width:1100px){.nb2{grid-template-columns:240px minmax(0,1fr)}.nb2 .nb-side{display:none}.nb-day{grid-template-columns:1fr}}
 @media (max-width:760px){.nb2,.nb2.noside{grid-template-columns:1fr}.nb-side,.nb-list{position:static;max-height:none}.nb-dstats{grid-template-columns:repeat(2,1fr)}.tl-sheet{grid-template-columns:1fr;height:auto}.tl-side{border-right:0;border-bottom:1px solid var(--line)}.tl-scrim{padding:8px}}
+
+.nb-search{flex:1;position:relative;display:flex}.nb-search .search{flex:1;width:auto;padding-right:34px}
+.nb-qx{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:0;background:var(--muted);color:var(--surface);font-size:11px;line-height:1}
+.nb-scope{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-4px 0 12px}.nb-scope select{max-width:220px;border-radius:999px}
+.nb-shared{font-size:12px}.nb-sharedbtn{color:var(--gain)}
+.nbh-rangew{flex:1;min-width:0}.nbh-range{display:flex;align-items:center;gap:10px;border:0;background:none;padding:2px 0;border-bottom:2px solid var(--line);font-size:22px;color:var(--ink);text-align:left;max-width:100%}
+.nbh-range:hover{border-color:var(--accent)}.nbh-range .nbh-title{font-size:24px}
+.nb-pop.drp{position:fixed;flex-direction:row;padding:0;min-width:0;max-height:none;overflow:visible;z-index:120}
+.nb-search input::-webkit-search-cancel-button{display:none;-webkit-appearance:none}
+.drp-main{padding:12px 14px}.drp-top{display:flex;justify-content:space-around;gap:10px;padding:4px 0 10px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13.5px}.drp-top .on{color:var(--ink);font-weight:700}
+.drp-ms{display:flex;gap:18px;padding-top:8px}.drp-m{width:238px}
+.drp-mh{display:grid;grid-template-columns:28px 1fr 1fr 28px;gap:4px;align-items:center;margin-bottom:6px}.drp-mh select{padding:3px 4px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);font-weight:600}
+.drp-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px 0}.drp-g .dow{font-size:11px;color:var(--muted);text-align:center;padding:4px 0}
+.drp-d{border:0;background:none;height:32px;font-size:13px;color:var(--ink);padding:0;border-radius:0}.drp-d.out{color:var(--muted);opacity:.55}
+.drp-d.in{background:color-mix(in srgb,var(--accent) 14%,transparent)}.drp-d.edge{background:var(--accent-fill,var(--accent));color:#fff;border-radius:50%;font-weight:700}
+.drp-d.today:not(.edge){box-shadow:inset 0 0 0 1px var(--ink);border-radius:50%}.drp-d:hover:not(.edge){background:var(--surface-2);border-radius:50%}
+.drp-pre{border-left:1px solid var(--line);padding:10px 6px;display:flex;flex-direction:column;gap:2px;min-width:170px}
+.drp-pre button{text-align:left}
+@media (max-width:900px){.nb-pop.drp{flex-direction:column;position:fixed;left:8px!important;right:8px;top:80px;max-height:80vh;overflow:auto}.drp-ms{flex-direction:column}.drp-m{width:auto}.drp-pre{border-left:0;border-top:1px solid var(--line);flex-direction:row;flex-wrap:wrap}}
 </style>
 
 <div class="app">
@@ -1225,6 +1244,7 @@ a.focus-item{text-decoration:none;color:inherit}
     copyOld: async () => { const old = window.__llLocal._old; if (!old || !old.size) return 0; await Promise.all([...old].map(([k, v]) => write(k, v))); await idbClear(); window.__llLocal.oldCount = 0; window.__llLocal._old = null; return old.size; },
     dropOld: async () => { await idbClear(); window.__llLocal.oldCount = 0; window.__llLocal._old = null; },
     signOut: () => { lsSet(KEY, ''); location.reload(); }, user: null,
+    call: async (url, body) => { let r; try { r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: JSON.stringify(body), cache: 'no-store' }); } catch (e) { throw new Error("Can't reach the server. Check your connection."); } let j = {}; try { j = await r.json(); } catch (e) {} if (!r.ok) throw new Error(j.error || `Server error ${r.status}`); return j; },
     auth: async body => { let r; try { r = await fetch(AUTH, { method: 'POST', headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: JSON.stringify(body), cache: 'no-store' }); } catch (e) { throw new Error("Can't reach the server. Check your connection."); } let j = {}; try { j = await r.json(); } catch (e) {} if (!r.ok) throw new Error(j.error || `Server error ${r.status}`); if (j.token) { apiKey = j.token; lsSet(KEY, apiKey); } return j; },
     broker: async body => { let r; try { r = await fetch(API.replace('docs', 'broker'), { method: 'POST', headers: { 'content-type': 'application/json', 'x-ledgerline-key': apiKey }, body: JSON.stringify(body), cache: 'no-store' }); } catch (e) { throw new Error("Can't reach the server. Check your connection."); } let j = {}; try { j = await r.json(); } catch (e) {} if (!r.ok) throw new Error(j.error || `Server error ${r.status}`); return j; }
   };
@@ -4723,6 +4743,9 @@ document.addEventListener('mousedown', e => {
 document.addEventListener('keydown', e => { if (e.key === 'Tab' && !S.slash) { const c = e.target.closest && e.target.closest('.editor[contenteditable]') && inCell(); if (c) { e.preventDefault(); const cells = [...c.closest('table').querySelectorAll('td,th')], n = cells[cells.indexOf(c) + (e.shiftKey ? -1 : 1)]; if (n) { const r = document.createRange(); r.selectNodeContents(n); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } } } });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.id === 'nbQF') { S.nbQFolder = el.value; rerender(); return; }
+  if (el.id === 'nbQT') { S.nbTag = el.value; rerender(); return; }
+  if (/^drp[MY][01]$/.test(el.id) && S.drp) { const side = +el.id[4], m = +$('drpM' + side).value, y = +$('drpY' + side).value; S.drp.m = ymAdd(`${y}-${pad(m)}`, -side); rerender(); return; }
   if (el.dataset && el.dataset.nbcheck) { const { L } = nbVisible(); if (el.dataset.nbcheck === '__all') { if (el.checked) L.forEach(i => S.nbChecked.add(i.kind + '|' + i.key)); else S.nbChecked.clear(); } else el.checked ? S.nbChecked.add(el.dataset.nbcheck) : S.nbChecked.delete(el.dataset.nbcheck); S.armed = null; rerender(); return; }
   if (el.id === 'nbMoveSel' && el.value) { const { L } = nbVisible(), now = new Date().toISOString(); L.filter(i => i.kind === 'note' && S.nbChecked.has('note|' + i.key)).forEach(i => { const n = S.notes.find(x => x.id === i.key); if (n) { n.folder = el.value; n.updatedAt = now; S.db.collection('notes').doc(n.id).update({ folder: n.folder, updatedAt: now }).catch(writeErr); } }); S.nbChecked.clear(); toast('Notes moved'); rerender(); }
 });
@@ -4797,25 +4820,27 @@ async function tlUse(k) {
 
 /* ---- notebook ---- */
 S.nbSort = 'updated'; S.nbChecked = new Set(); S.nbStatsOpen = true; S.nbSide = true; S.nbFocus = false; S.nbTag = ''; S.nbFilter = { kind: 'all', res: 'all' };
-const FIXED_FOLDERS = [{ id: 'all', name: 'All notes', fixed: 1, color: 'violet' }, { id: 'trade', name: 'Trade notes', fixed: 1, color: 'violet' }, { id: 'journal', name: 'Daily journal', fixed: 1, color: 'violet' }, { id: 'recap', name: 'Sessions recap', fixed: 1, color: 'violet' }, { id: 'mine', name: 'My notes', fixed: 1, color: 'slate' }];
+const FIXED_FOLDERS = [{ id: 'all', name: 'All notes', fixed: 1, color: 'violet' }, { id: 'trade', name: 'Trade notes', fixed: 1, color: 'violet' }, { id: 'journal', name: 'Daily journal', fixed: 1, color: 'violet' }, { id: 'recap', name: 'Sessions recap', fixed: 1, color: 'violet' }, { id: 'backtest', name: 'Backtesting session notes', fixed: 1, color: 'violet' }, { id: 'mine', name: 'My notes', fixed: 1, color: 'slate' }];
 function nbFolders() { const fx = S.nbSet.fixed || {}; return [...FIXED_FOLDERS.map(f => ({ ...f, ...(fx[f.id] || {}) })), ...S.folders]; }
 const fname = id => (nbFolders().find(x => x.id === id) || {}).name || 'My notes';
-function placeNbPop() { const m = document.querySelector('.nb-pop.fixed'); if (!m) return; const b = document.querySelector('.nbf [data-action="nbPop"][aria-expanded="true"]'); if (!b) return; const r = b.getBoundingClientRect(), w = m.offsetWidth || 200, h = m.offsetHeight || 90; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w)) + 'px'; m.style.top = (r.bottom + h + 8 > innerHeight ? Math.max(8, r.top - h - 4) : r.bottom + 4) + 'px'; }
-addEventListener('scroll', () => { if (S.nbPop && String(S.nbPop).startsWith('f:')) placeNbPop(); }, { passive: true, capture: true });
+function placeDrp() { const m = document.querySelector('.nb-pop.drp'), b = document.querySelector('.nbh-range'); if (!m || !b || innerWidth <= 900) return; const r = b.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.bottom + 6)) + 'px'; }
+function placeNbPop() { placeDrp(); const m = document.querySelector('.nb-pop.fixed'); if (!m) return; const b = document.querySelector('.nbf [data-action="nbPop"][aria-expanded="true"]'); if (!b) return; const r = b.getBoundingClientRect(), w = m.offsetWidth || 200, h = m.offsetHeight || 90; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w)) + 'px'; m.style.top = (r.bottom + h + 8 > innerHeight ? Math.max(8, r.top - h - 4) : r.bottom + 4) + 'px'; }
+addEventListener('scroll', () => { if (S.nbPop && (String(S.nbPop).startsWith('f:') || S.nbPop === 'range')) placeNbPop(); }, { passive: true, capture: true });
+addEventListener('resize', () => { if (S.nbPop) placeNbPop(); });
 const fmtMDY = s => { if (!s) return ''; const d = new Date(s); return isNaN(d) ? '' : `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()}`; };
 const fmtStampL = s => { if (!s) return '–'; const d = new Date(s); return isNaN(d) ? '–' : d.toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
 const longDate = d => { const [y, m, dd] = d.split('-'); return new Date(+y, +m - 1, +dd).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }); };
 const tradeTitle = t => `${t.symbol} : ${new Date(t.date + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}`;
 function nbItems() {
   const items = [], fids = S.folders.map(f => f.id), byD = tradesByDate();
-  S.trades.forEach(t => { if (hasText(t.note) || (t.noteTags || []).length) items.push({ kind: 'trade', key: t.id, title: tradeTitle(t), date: t.date, sort: t.noteUpdatedAt || t.date + 'T' + (t.time || ''), folder: 'trade', preview: strip(t.note), tags: t.noteTags || [], pnl: t.pnl, upd: t.noteUpdatedAt || t.createdAt || t.date }); });
-  Object.keys(S.journal).forEach(k => { const j = S.journal[k]; if (hasText(j.html) || j.logged || (j.tags || []).length) { const ts = byD[k] || []; items.push({ kind: 'journal', key: k, title: longDate(k), date: k, sort: j.updatedAt || k, folder: 'journal', preview: strip(j.html), tags: j.tags || [], pnl: ts.length ? ts.reduce((a, t) => a + t.pnl, 0) : null, upd: j.updatedAt || k }); } });
-  S.notes.forEach(n => items.push({ kind: 'note', key: n.id, title: n.title || 'Untitled note', date: (n.createdAt || '').slice(0, 10), sort: n.updatedAt || '', folder: n.folder === 'recap' ? 'recap' : fids.includes(n.folder) ? n.folder : 'mine', preview: strip(n.html), tags: n.tags || [], pnl: null, upd: n.updatedAt, deleted: !!n.deleted, origin: n.origin }));
+  S.trades.forEach(t => { if (hasText(t.note) || (t.noteTags || []).length) items.push({ kind: 'trade', key: t.id, shared: !!t.noteShare, title: tradeTitle(t), date: t.date, sort: t.noteUpdatedAt || t.date + 'T' + (t.time || ''), folder: 'trade', preview: strip(t.note), tags: t.noteTags || [], pnl: t.pnl, upd: t.noteUpdatedAt || t.createdAt || t.date }); });
+  Object.keys(S.journal).forEach(k => { const j = S.journal[k]; if (hasText(j.html) || j.logged || (j.tags || []).length) { const ts = byD[k] || []; items.push({ kind: 'journal', key: k, shared: !!j.shareId, title: longDate(k), date: k, sort: j.updatedAt || k, folder: 'journal', preview: strip(j.html), tags: j.tags || [], pnl: ts.length ? ts.reduce((a, t) => a + t.pnl, 0) : null, upd: j.updatedAt || k }); } });
+  S.notes.forEach(n => items.push({ kind: 'note', key: n.id, shared: !!n.shareId, title: n.session ? rangeTitle(n.session) : n.title || 'Untitled note', date: n.session ? n.session.to : (n.createdAt || '').slice(0, 10), pnl: n.session ? rangeTrades(n.session).reduce((a, t) => a + t.pnl, 0) : null, sort: n.updatedAt || '', folder: ['recap', 'backtest'].includes(n.folder) ? n.folder : fids.includes(n.folder) ? n.folder : 'mine', preview: strip(n.html), tags: n.tags || [], upd: n.updatedAt, deleted: !!n.deleted, origin: n.origin }));
   return items;
 }
 function nbVisible() {
   const all = nbItems(), f = S.nbFolder, q = S.nbQuery.trim().toLowerCase(), F = S.nbFilter;
-  let L = f === 'trash' ? all.filter(i => i.deleted) : all.filter(i => !i.deleted && (f === 'all' || i.folder === f));
+  let L = f === 'trash' ? all.filter(i => i.deleted) : q ? all.filter(i => !i.deleted && (!S.nbQFolder || i.folder === S.nbQFolder)) : all.filter(i => !i.deleted && (f === 'all' || i.folder === f));
   if (S.nbTag) L = L.filter(i => (i.tags || []).includes(S.nbTag));
   if (q) L = L.filter(i => (i.title + ' ' + i.preview + ' ' + (i.tags || []).join(' ')).toLowerCase().includes(q));
   if (F.kind !== 'all') L = L.filter(i => i.kind === F.kind);
@@ -4842,18 +4867,20 @@ function notebookView() {
     <div class="label nbs-l">Tags</div><div class="nb-taglist">${Object.keys(tags).sort().map(t => `<button class="nb-tagf" data-action="nbTagF" data-v="${esc(t)}" aria-pressed="${S.nbTag === t}">${esc(t)} <span>${tags[t]}</span></button>`).join('') || '<p class="hint">Tags you add to notes appear here.</p>'}</div>
     <button class="nbf-btn nb-trash" data-action="nbFolder" data-v="trash" aria-pressed="${f === 'trash'}"><span class="nm">🗑 Recently deleted</span><span class="ct">${all.filter(i => i.deleted).length}</span></button></aside>`;
   const isJ = f === 'journal', checked = L.filter(i => S.nbChecked.has(i.kind + '|' + i.key));
-  const list = `<section class="panel nb-list"><div class="nbl-head"><span class="nb-popwrap">${f === 'trash' ? '<span class="hint">Deleted notes are kept for 30 days.</span>' : isJ ? `<button class="linkish" data-action="nbPop" data-v="log" aria-expanded="${S.nbPop === 'log'}">📅 Log day</button>${S.nbPop === 'log' ? `<div class="nb-pop logpop"><form data-form="nbLog"><label class="hint">Day to log<input type="date" id="nbLogD" class="fin" value="${todayIso()}" required></label><button class="primary sm" type="submit">Open</button></form></div>` : ''}` : `<button class="linkish" data-action="newNote">📝 New note</button>`}</span>
+  const list = `<section class="panel nb-list"><div class="nbl-head"><span class="nb-popwrap">${f === 'trash' ? '<span class="hint">Deleted notes are kept for 30 days.</span>' : f === 'recap' ? '<button class="linkish" data-action="nbLogSession">🗓 Log session</button>' : isJ ? `<button class="linkish" data-action="nbPop" data-v="log" aria-expanded="${S.nbPop === 'log'}">📅 Log day</button>${S.nbPop === 'log' ? `<div class="nb-pop logpop"><form data-form="nbLog"><label class="hint">Day to log<input type="date" id="nbLogD" class="fin" value="${todayIso()}" required></label><button class="primary sm" type="submit">Open</button></form></div>` : ''}` : `<button class="linkish" data-action="newNote">📝 New note</button>`}</span>
       ${!S.nbSide ? '<button class="icon-btn" data-action="nbSide" aria-label="Show folders">›</button>' : ''}<span class="nb-popwrap"><button class="icon-btn" data-action="nbPop" data-v="sort" aria-label="Sort notes" aria-expanded="${S.nbPop === 'sort'}">⇅</button>${S.nbPop === 'sort' ? `<div class="nb-pop right">${[['updated', 'Last edited'], ['date', 'Date, newest'], ['oldest', 'Date, oldest'], ['title', 'Title A–Z']].map(([k, l]) => `<button data-action="nbSort" data-v="${k}" aria-pressed="${S.nbSort === k}">${S.nbSort === k ? '✓ ' : ''}${l}</button>`).join('')}</div>` : ''}</span></div>
     <label class="nb-selall"><input type="checkbox" data-nbcheck="__all" ${L.length && checked.length === L.length ? 'checked' : ''}> Select all</label>
     ${checked.length ? `<div class="nb-bulk"><b>${checked.length} selected</b>${f === 'trash' ? `<button class="ghost sm" data-action="nbBulk" data-v="restore">Restore</button><button class="del" data-action="nbBulk" data-v="purge">${S.armed === 'nbpurge' ? 'Confirm' : 'Delete forever'}</button>` : `${checked.every(i => i.kind === 'note') ? `<select class="fin" id="nbMoveSel" aria-label="Move to folder"><option value="">Move to…</option><option value="mine">${esc(fname('mine'))}</option><option value="recap">${esc(fname('recap'))}</option>${S.folders.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>` : ''}<button class="del" data-action="nbBulk" data-v="del">${S.armed === 'nbdel' ? 'Confirm' : 'Delete'}</button>`}</div>` : ''}
-    <div class="nbl">${L.map(i => { const k = i.kind + '|' + i.key, on = sel && sel.kind === i.kind && sel.key === i.key; return `<div class="nbi${on ? ' on' : ''}"><input type="checkbox" data-nbcheck="${esc(k)}" ${S.nbChecked.has(k) ? 'checked' : ''} aria-label="Select ${esc(i.title)}"><button class="nbi-b" data-action="nbSel" data-kind="${i.kind}" data-key="${esc(i.key)}" aria-pressed="${!!on}"><b>${esc(i.title)}</b>${i.pnl != null ? `<span class="nbi-p ${cls(i.pnl)}">NET P&amp;L: ${priv(money(i.pnl))}</span>` : i.preview ? `<span class="nbi-pv">${esc(i.preview.slice(0, 60))}</span>` : ''}<small>${fmtMDY(i.upd)}${(i.tags || []).length ? ` · ${esc(i.tags.slice(0, 2).join(', '))}` : ''}</small></button></div>`; }).join('') || `<p class="hint" style="padding:10px">${f === 'trash' ? 'Nothing deleted.' : S.nbQuery || S.nbTag ? 'No notes match.' : isJ ? 'Use Log day to write about a trading day.' : f === 'trade' ? 'Notes you write on trades show up here.' : 'No notes here yet.'}</p>`}</div></section>`;
+    <div class="nbl">${L.map(i => { const k = i.kind + '|' + i.key, on = sel && sel.kind === i.kind && sel.key === i.key; return `<div class="nbi${on ? ' on' : ''}"><input type="checkbox" data-nbcheck="${esc(k)}" ${S.nbChecked.has(k) ? 'checked' : ''} aria-label="Select ${esc(i.title)}"><button class="nbi-b" data-action="nbSel" data-kind="${i.kind}" data-key="${esc(i.key)}" aria-pressed="${!!on}"><b>${esc(i.title)}</b>${i.pnl != null ? `<span class="nbi-p ${cls(i.pnl)}">NET P&amp;L: ${priv(money(i.pnl))}</span>` : i.preview ? `<span class="nbi-pv">${esc(i.preview.slice(0, 60))}</span>` : ''}<small>${fmtMDY(i.upd)}${i.shared ? ' <span class="nb-shared" title="Shared">👥</span>' : ''}${(i.tags || []).length ? ` · ${esc(i.tags.slice(0, 2).join(', '))}` : ''}</small></button></div>`; }).join('') || `<p class="hint" style="padding:10px">${f === 'trash' ? 'Nothing deleted.' : S.nbQuery || S.nbTag ? 'No notes match.' : isJ ? 'Use Log day to write about a trading day.' : f === 'trade' ? 'Notes you write on trades show up here.' : 'No notes here yet.'}</p>`}</div></section>`;
   const nf = S.nbFilter, filt = S.nbPop === 'filter';
-  return `<div class="nb-top"><input class="search" id="nbSearch" type="search" placeholder="Search notes" value="${esc(S.nbQuery)}" aria-label="Search notes"><span class="nb-popwrap"><button class="icon-btn nb-filt${nf.kind !== 'all' || nf.res !== 'all' || S.nbTag ? ' on' : ''}" data-action="nbPop" data-v="filter" aria-label="Filter notes" aria-expanded="${filt}">⛉</button>${filt ? `<div class="nb-pop right filtpop"><div class="label">Type</div>${[['all', 'All'], ['trade', 'Trade notes'], ['journal', 'Journal days'], ['note', 'My notes']].map(([k, l]) => `<button data-action="nbFilt" data-f="kind" data-v="${k}" aria-pressed="${nf.kind === k}">${nf.kind === k ? '✓ ' : ''}${l}</button>`).join('')}<div class="label">Result</div>${[['all', 'Any'], ['win', 'Winning'], ['loss', 'Losing']].map(([k, l]) => `<button data-action="nbFilt" data-f="res" data-v="${k}" aria-pressed="${nf.res === k}">${nf.res === k ? '✓ ' : ''}${l}</button>`).join('')}${S.nbTag ? `<button data-action="nbTagF" data-v="${esc(S.nbTag)}">✕ Clear tag “${esc(S.nbTag)}”</button>` : ''}</div>` : ''}</span></div>
+  const tagNames = Object.keys(tags).sort();
+  return `<div class="nb-top"><span class="nb-search"><input class="search" id="nbSearch" type="search" placeholder="Search notes" value="${esc(S.nbQuery)}" aria-label="Search notes">${S.nbQuery ? '<button class="nb-qx" data-action="nbQClear" aria-label="Clear search">✕</button>' : ''}</span><span class="nb-popwrap"><button class="icon-btn nb-filt${nf.kind !== 'all' || nf.res !== 'all' || S.nbTag ? ' on' : ''}" data-action="nbPop" data-v="filter" aria-label="Filter notes" aria-expanded="${filt}">⛉</button>${filt ? `<div class="nb-pop right filtpop"><div class="label">Type</div>${[['all', 'All'], ['trade', 'Trade notes'], ['journal', 'Journal days'], ['note', 'My notes']].map(([k, l]) => `<button data-action="nbFilt" data-f="kind" data-v="${k}" aria-pressed="${nf.kind === k}">${nf.kind === k ? '✓ ' : ''}${l}</button>`).join('')}<div class="label">Result</div>${[['all', 'Any'], ['win', 'Winning'], ['loss', 'Losing']].map(([k, l]) => `<button data-action="nbFilt" data-f="res" data-v="${k}" aria-pressed="${nf.res === k}">${nf.res === k ? '✓ ' : ''}${l}</button>`).join('')}${S.nbTag ? `<button data-action="nbTagF" data-v="${esc(S.nbTag)}">✕ Clear tag “${esc(S.nbTag)}”</button>` : ''}</div>` : ''}</span></div>
+    ${S.nbQuery || S.nbTag ? `<div class="nb-scope"><span class="hint">Searching in</span><select id="nbQF" class="fin" aria-label="Search in folder"><option value="">${S.nbQuery ? 'All folders' : 'Current folder'}</option>${nbFolders().filter(x => x.id !== 'all').map(x => `<option value="${x.id}" ${S.nbQFolder === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><span class="hint">and</span><select id="nbQT" class="fin" aria-label="Search by tag"><option value="">Any tag</option>${tagNames.map(t => `<option ${S.nbTag === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select><span class="hint">${L.length} result${L.length === 1 ? '' : 's'}</span></div>` : ''}
     <div class="nb2${S.nbSide && !S.nbFocus ? '' : ' noside'}${S.nbFocus ? ' focus' : ''}">${S.nbSide && !S.nbFocus ? side : ''}${S.nbFocus ? '' : list}<section class="panel nb-ed">${nbEditor(sel)}</section></div>
     <input type="file" id="edImgIn" accept="image/*" hidden>`;
 }
 function nbHeadBtns(kind, key, title) {
-  return `<span class="nb-popwrap"><button class="icon-btn" data-action="nbPop" data-v="more" aria-label="More note actions" aria-expanded="${S.nbPop === 'more'}">⋯</button>${S.nbPop === 'more' ? `<div class="nb-pop right">${kind === 'note' ? `<div class="label">Move to</div>${[['mine', fname('mine')], ['recap', fname('recap')], ...S.folders.map(x => [x.id, x.name])].map(([k, l]) => `<button data-action="nbMove" data-key="${esc(key)}" data-v="${k}">${esc(l)}</button>`).join('')}<div class="sep"></div>` : ''}${kind === 'trade' ? `<button data-action="open" data-id="${esc(key)}">View trade details</button>` : ''}${kind === 'journal' ? `<button data-action="jGo" data-d="${esc(key)}">Open in daily journal</button>` : ''}<button data-action="ed" data-ed="editor" data-cmd="download">Download note</button><button class="danger" data-action="nbDel" data-kind="${kind}" data-key="${esc(key)}">${S.armed === 'nbd-' + key ? 'Click again to delete' : 'Delete note'}</button></div>` : ''}</span>`;
+  return `${shareIdOf(kind, key) ? `<button class="icon-btn nb-sharedbtn" data-action="nbShareCopy" data-kind="${kind}" data-key="${esc(key)}" title="Shared · copy link" aria-label="Shared. Copy link">👥</button>` : ''}<span class="nb-popwrap"><button class="icon-btn" data-action="nbPop" data-v="more" aria-label="More note actions" aria-expanded="${S.nbPop === 'more'}">⋯</button>${S.nbPop === 'more' ? `<div class="nb-pop right">${kind === 'note' ? `<div class="label">Move to</div>${[['mine', fname('mine')], ['recap', fname('recap')], ...S.folders.map(x => [x.id, x.name])].map(([k, l]) => `<button data-action="nbMove" data-key="${esc(key)}" data-v="${k}">${esc(l)}</button>`).join('')}<div class="sep"></div>` : ''}${kind === 'trade' ? `<button data-action="open" data-id="${esc(key)}">View trade details</button>` : ''}${kind === 'journal' ? `<button data-action="jGo" data-d="${esc(key)}">Open in daily journal</button>` : ''}${shareIdOf(kind, key) ? `<button data-action="nbShareCopy" data-kind="${kind}" data-key="${esc(key)}">🔗 Copy share link</button><button data-action="nbShareStop" data-kind="${kind}" data-key="${esc(key)}">⏹ Stop sharing</button>` : `<button data-action="nbShare" data-kind="${kind}" data-key="${esc(key)}">👥 Share</button>`}<button data-action="nbPdf" data-kind="${kind}" data-key="${esc(key)}">⤓ Download PDF</button><button data-action="ed" data-ed="editor" data-cmd="download">⤓ Download as web page</button><button class="danger" data-action="nbDel" data-kind="${kind}" data-key="${esc(key)}">${S.armed === 'nbd-' + key ? 'Click again to delete' : 'Delete note'}</button></div>` : ''}</span>`;
 }
 function nbEditor(sel) {
   const focusBtn = `<button class="icon-btn nb-focus" data-action="nbFocus" aria-pressed="${S.nbFocus}" aria-label="${S.nbFocus ? 'Show note list' : 'Focus on this note'}" title="${S.nbFocus ? 'Show note list' : 'Focus mode'}">▢</button>`;
@@ -4879,8 +4906,17 @@ function nbEditor(sel) {
       ${editor('journal', d, j.html || '')}`;
   }
   const n = S.notes.find(x => x.id === sel.key); if (!n) return '<div class="hint">This note was deleted.</div>';
+  if (n.session && !n.deleted) {
+    const ts = rangeTrades(n.session), st = dayStats(ts);
+    return `<div class="nbh">${focusBtn}<span class="nb-popwrap nbh-rangew"><button class="nbh-range" data-action="nbRange" aria-expanded="${S.nbPop === 'range'}" title="Change dates">📅 <span class="nbh-title">${esc(rangeTitle(n.session))}</span></button>${S.nbPop === 'range' ? drpHtml() : ''}</span><span class="saved" id="savedMark"></span>${nbHeadBtns('note', n.id)}</div>
+      <div class="nbh-pnl ${cls(st.net)}">Net P&amp;L ${priv(money(st.net))}</div>
+      <div class="nbh-meta">Created: ${fmtStampL(n.createdAt)} &nbsp; Last updated: ${fmtStampL(n.updatedAt)}</div>
+      <button class="icon-btn nb-statt" data-action="nbStats" aria-expanded="${S.nbStatsOpen}" aria-label="${S.nbStatsOpen ? 'Hide session stats' : 'Show session stats'}">${S.nbStatsOpen ? '⌄' : '›'}</button>
+      ${S.nbStatsOpen ? statsBlock(ts, 'No closed P&amp;L in this range') : ''}
+      ${editor('note', n.id, n.html || '')}`;
+  }
   if (n.deleted) return `<div class="nbh">${focusBtn}<h2 class="nbh-title">${esc(n.title || 'Untitled note')}</h2></div><div class="banner"><span>This note is in Recently deleted.</span><button class="secondary sm" data-action="nbRestore" data-key="${n.id}">Restore</button></div><div class="tl-preview editor">${sanitize(n.html)}</div>`;
-  const fo = nbFolders().find(x => x.id === (n.folder || 'mine')) || nbFolders()[4];
+  const fo = nbFolders().find(x => x.id === (n.folder || 'mine')) || nbFolders().find(x => x.id === 'mine');
   return `<div class="nbh">${focusBtn}<input class="fin nb-title" data-keep data-nbf="title" data-key="${n.id}" value="${esc(n.title || '')}" placeholder="Untitled note" aria-label="Note title"><span class="saved" id="savedMark"></span>${nbHeadBtns('note', n.id)}</div>
     <div class="nbh-meta">In <b>${esc(fo.name)}</b> · Created: ${fmtStampL(n.createdAt)} &nbsp; Last updated: ${fmtStampL(n.updatedAt)}</div>
     ${editor('note', n.id, n.html || '')}`;
@@ -4905,6 +4941,101 @@ function folderModal(id) {
     <form class="form" data-form="folder" data-v="${fo ? fo.id : ''}"><label class="full">Folder name<input id="folderName" required maxlength="40" value="${esc(fo ? fo.name : '')}" placeholder="Weekly recaps"></label>
     <div class="full"><div class="label" style="margin-bottom:6px">Colour</div><div class="nb-colors">${NB_COLORS.map(c => `<button type="button" data-action="folderColor" data-v="${c}" style="--fc:var(--c-${c})" aria-pressed="${col === c}" aria-label="${c}"></button>`).join('')}</div></div>
     <div class="full actions"><button type="button" class="secondary" data-action="close">Cancel</button><button class="primary" type="submit">${fo ? 'Save' : 'Add folder'}</button></div></form></div>`;
+}
+
+/* ---------- v35: session recaps, date range picker, sharing, PDF ---------- */
+const isoD = dt => `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+const dOf = s => { const [y, m, d] = s.split('-'); return new Date(+y, +m - 1, +d); };
+const fmtShort = s => dOf(s).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+const rangeTitle = r => r && r.from ? `${fmtShort(r.from)} - ${fmtShort(r.to || r.from)}` : 'Pick dates';
+const rangeTrades = r => r && r.from ? S.trades.filter(t => t.date >= r.from && t.date <= (r.to || r.from)) : [];
+function weekStart(dt = new Date()) { const d = new Date(dt); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; }
+const DRP_PRESETS = [['today', 'Today'], ['week', 'This week'], ['month', 'This month'], ['30', 'Last 30 days'], ['lastm', 'Last month'], ['quarter', 'This quarter'], ['ytd', 'YTD (year to date)']];
+function presetRange(k) {
+  const t = new Date(), y = t.getFullYear(), m = t.getMonth();
+  if (k === 'today') return [isoD(t), isoD(t)];
+  if (k === 'week') return [isoD(weekStart(t)), isoD(t)];
+  if (k === 'month') return [isoD(new Date(y, m, 1)), isoD(t)];
+  if (k === '30') return [isoD(new Date(Date.now() - 29 * 864e5)), isoD(t)];
+  if (k === 'lastm') return [isoD(new Date(y, m - 1, 1)), isoD(new Date(y, m, 0))];
+  if (k === 'quarter') return [isoD(new Date(y, Math.floor(m / 3) * 3, 1)), isoD(t)];
+  return [isoD(new Date(y, 0, 1)), isoD(t)];
+}
+function drpOpen(r) { const f = (r && r.from) || todayIso(); S.drp = { from: r && r.from || '', to: r && r.to || '', pick: 0, m: f.slice(0, 7) }; }
+const ymAdd = (ym, n) => { const [y, m] = ym.split('-').map(Number), d = new Date(y, m - 1 + n, 1); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; };
+function drpMonth(ym, side) {
+  const D = S.drp, [y, m] = ym.split('-').map(Number), first = new Date(y, m - 1, 1), start = new Date(first); start.setDate(1 - first.getDay());
+  const cells = []; for (let i = 0; i < 42; i++) { const d = new Date(start); d.setDate(start.getDate() + i); cells.push(d); }
+  const lo = D.from, hi = D.to || D.from, td = todayIso(), yrs = []; for (let k = y - 6; k <= y + 2; k++) yrs.push(k);
+  return `<div class="drp-m"><div class="drp-mh">${side === 0 ? '<button class="icon-btn" data-action="drpNav" data-v="-1" aria-label="Previous month">‹</button>' : '<span></span>'}
+    <select id="drpM${side}" aria-label="Month">${MONTHS.map((n, i) => `<option value="${i + 1}" ${i + 1 === m ? 'selected' : ''}>${n.slice(0, 3)}</option>`).join('')}</select><select id="drpY${side}" aria-label="Year">${yrs.map(k => `<option ${k === y ? 'selected' : ''}>${k}</option>`).join('')}</select>
+    ${side === 1 ? '<button class="icon-btn" data-action="drpNav" data-v="1" aria-label="Next month">›</button>' : '<span></span>'}</div>
+    <div class="drp-g">${['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(x => `<span class="dow">${x}</span>`).join('')}${cells.map(d => { const k = isoD(d), inR = lo && k >= lo && k <= hi, edge = k === lo || k === hi; return `<button class="drp-d${d.getMonth() + 1 !== m ? ' out' : ''}${inR ? ' in' : ''}${edge && lo ? ' edge' : ''}${k === td ? ' today' : ''}" data-action="drpDay" data-d="${k}" aria-label="${dateLabel(k)}" aria-pressed="${!!(edge && lo)}">${d.getDate()}</button>`; }).join('')}</div></div>`;
+}
+function drpHtml() {
+  const D = S.drp; if (!D) return '';
+  return `<div class="nb-pop drp" role="dialog" aria-label="Pick a date range"><div class="drp-main"><div class="drp-top"><span class="${D.pick === 0 ? 'on' : ''}">${D.from ? dOf(D.from).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }) : 'Start date'}</span><span>→</span><span class="${D.pick === 1 ? 'on' : ''}">${D.to ? dOf(D.to).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }) : 'End date'}</span></div>
+    <div class="drp-ms">${drpMonth(D.m, 0)}${drpMonth(ymAdd(D.m, 1), 1)}</div><p class="hint">${D.pick === 1 ? 'Now pick the end date.' : 'Pick the start date.'}</p></div>
+    <div class="drp-pre">${DRP_PRESETS.map(([k, l]) => `<button data-action="drpPreset" data-v="${k}">${l}</button>`).join('')}</div></div>`;
+}
+async function applyRange(from, to) {
+  const sel = S.nbSel, n = sel && S.notes.find(x => x.id === sel.key); if (!n) return;
+  if (to < from) [from, to] = [to, from];
+  n.session = { from, to }; n.updatedAt = new Date().toISOString(); S.nbPop = null; S.drp = null;
+  await S.db.collection('notes').doc(n.id).update({ session: n.session, updatedAt: n.updatedAt }).catch(writeErr); rerender();
+}
+function nbAreaMulti(ts) {
+  const L = ts.slice().sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || ''))), multi = new Set(L.map(t => t.date)).size > 1;
+  if (!multi) return nbArea(L);
+  let c = 0; const pts = [['', 0], ...L.map(t => [shortDate(t.date), c += t.pnl])];
+  const W = 440, H = 170, P = { l: 52, r: 8, t: 10, b: 22 }, ys = pts.map(p => p[1]), lo = Math.min(0, ...ys), hi = Math.max(0, ...ys), span = hi - lo || 1;
+  const X = i => P.l + i * (W - P.l - P.r) / Math.max(1, pts.length - 1), Y = v => P.t + (hi - v) * (H - P.t - P.b) / span, last = ys[ys.length - 1], col = last >= 0 ? 'var(--gain)' : 'var(--loss)', gid = 'nbm' + (last >= 0 ? 'g' : 'l');
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p[1]).toFixed(1)}`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="nb-area" role="img" aria-label="Cumulative P&L over the session, ending at ${money(last)}"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".45"/><stop offset="1" stop-color="${col}" stop-opacity=".03"/></linearGradient></defs>
+    ${[hi, (hi + lo) / 2, lo].map(v => `<line x1="${P.l}" x2="${W - P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${P.l - 6}" y="${Y(v) + 4}" text-anchor="end" font-size="10" fill="var(--muted)">${priv(money(v).replace('.00', ''))}</text>`).join('')}
+    <path d="${line}L${X(pts.length - 1)},${Y(lo)}L${X(0)},${Y(lo)}Z" fill="url(#${gid})"/><path d="${line}" fill="none" stroke="${col}" stroke-width="2"/>
+    <text x="${X(1)}" y="${H - 6}" font-size="10" fill="var(--muted)">${esc(pts[1][0])}</text><text x="${X(pts.length - 1)}" y="${H - 6}" text-anchor="end" font-size="10" fill="var(--muted)">${esc(pts[pts.length - 1][0])}</text></svg>`;
+}
+function statsBlock(ts, emptyMsg) {
+  const st = dayStats(ts), cells = [['Total trades', st.n || '–'], ['Winners', st.w], ['Gross P&L', priv(money(st.gross))], ['Commissions', priv(money(st.fees))], ['Win rate', ts.length ? (st.wr * 100).toFixed(1) + '%' : '–'], ['Losers', st.l], ['Volume', st.vol || 0], ['Profit factor', ts.length ? ratioTxt(st.pf) : '–']];
+  return `<div class="nb-day">${ts.length ? nbAreaMulti(ts) : `<div class="nb-noday hint">${emptyMsg}</div>`}<dl class="nb-dstats">${cells.map(([k, v]) => `<div><dt>${k}</dt><dd class="num">${v}</dd></div>`).join('')}</dl></div>`;
+}
+/* sharing */
+const canServer = () => !!(window.__llLocal && window.__llLocal.mode === 'server' && window.__llLocal.call);
+function shareIdOf(kind, key) { if (kind === 'trade') return (byId(key) || {}).noteShare || ''; if (kind === 'journal') return (S.journal[key] || {}).shareId || ''; return (S.notes.find(n => n.id === key) || {}).shareId || ''; }
+async function setShareId(kind, key, id) {
+  if (kind === 'trade') { const t = byId(key); if (t) { t.noteShare = id; await S.db.collection('trades').doc(key).update({ noteShare: id }).catch(writeErr); } }
+  else if (kind === 'journal') await saveJournal(key, { shareId: id }).catch(writeErr);
+  else { const n = S.notes.find(x => x.id === key); if (n) { n.shareId = id; await S.db.collection('notes').doc(key).update({ shareId: id }).catch(writeErr); } }
+}
+function noteDoc(kind, key) {
+  const ed = $('editor'), live = ed && ed.dataset.kind === kind && ed.dataset.key === key ? sanitize(ed.innerHTML) : null;
+  if (kind === 'trade') { const t = byId(key) || {}; return { title: tradeTitle(t), meta: `Net P&L ${money(t.pnl)} · ${t.side || ''} ${t.qty ? '· ' + t.qty + ' contracts' : ''}`, tone: t.pnl > 0 ? 'gain' : t.pnl < 0 ? 'loss' : '', html: live ?? (t.note || '') }; }
+  if (kind === 'journal') { const ts = tradesByDate()[key] || [], st = dayStats(ts); return { title: longDate(key), meta: ts.length ? `Net P&L ${money(st.net)} · ${st.n} trades · win rate ${(st.wr * 100).toFixed(0)}% · profit factor ${ratioTxt(st.pf)}` : 'No trades this day', tone: st.net > 0 ? 'gain' : st.net < 0 ? 'loss' : '', html: live ?? ((S.journal[key] || {}).html || '') }; }
+  const n = S.notes.find(x => x.id === key) || {}; if (n.session) { const ts = rangeTrades(n.session), st = dayStats(ts); return { title: rangeTitle(n.session), meta: ts.length ? `Net P&L ${money(st.net)} · ${st.n} trades · win rate ${(st.wr * 100).toFixed(1)}% · profit factor ${ratioTxt(st.pf)}` : 'No trades in this range', tone: st.net > 0 ? 'gain' : st.net < 0 ? 'loss' : '', html: live ?? (n.html || '') }; }
+  return { title: n.title || 'Untitled note', meta: '', tone: '', html: live ?? (n.html || '') };
+}
+const shareUrl = id => location.origin + location.pathname.replace(/[^/]*$/, '') + 'api/share?t=' + encodeURIComponent(id);
+async function copyLink(u) { try { await navigator.clipboard.writeText(u); toast('Share link copied'); } catch (e) { prompt ? toast('Link: ' + u) : null; } }
+async function shareNote(kind, key) {
+  if (!canServer()) return toast('Sharing works on your website, where notes can be served to others.');
+  saveNote(true); const d = noteDoc(kind, key), cur = shareIdOf(kind, key);
+  try { const r = await window.__llLocal.call('api/share', { action: 'save', id: cur || undefined, by: profName(), ...d }); if (!cur) await setShareId(kind, key, r.id); await copyLink(shareUrl(r.id)); rerender(); } catch (e) { toast(e.message || "Couldn't share this note."); }
+}
+async function stopShare(kind, key) {
+  const id = shareIdOf(kind, key); if (!id) return;
+  if (canServer()) { try { await window.__llLocal.call('api/share', { action: 'stop', id }); } catch (e) { return toast(e.message || "Couldn't stop sharing."); } }
+  await setShareId(kind, key, ''); toast('Sharing stopped. The old link no longer works.'); rerender();
+}
+let shareT = {};
+function shareSyncSoon(kind, key) { if (!shareIdOf(kind, key) || !canServer()) return; clearTimeout(shareT[key]); shareT[key] = setTimeout(() => { const d = noteDoc(kind, key); window.__llLocal.call('api/share', { action: 'save', id: shareIdOf(kind, key), by: profName(), ...d }).catch(() => {}); }, 4000); }
+/* PDF via the browser's print dialog */
+function nbPdf(kind, key) {
+  saveNote(true); const d = noteDoc(kind, key);
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(d.title)}</title><style>body{font:13px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;color:#111;margin:28px}h1.t{font-size:22px;margin:0 0 4px}.sum{font-weight:700;margin:0 0 16px;color:${d.tone === 'gain' ? '#15803d' : d.tone === 'loss' ? '#b91c1c' : '#333'}}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top}th{background:#f3f4f6}img{max-width:100%}details{border:1px solid #ddd;border-radius:8px;padding:6px 10px;margin:6px 0}summary{font-weight:700}li.todo{list-style:none}li.todo::before{content:"☐ "}li.todo.done::before{content:"☑ "}.hl-violet,.hl-red,.hl-green,.hl-blue,.hl-amber{display:inline-block;color:#fff;padding:2px 8px;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact}.hl-violet{background:#a855f7}.hl-red{background:#dc2626}.hl-green{background:#16a34a}.hl-blue{background:#2563eb}.hl-amber{background:#d97706}@page{margin:14mm}</style></head><body><h1 class="t">${esc(d.title)}</h1>${d.meta ? `<div class="sum">${esc(d.meta)}</div>` : ''}${sanitize(d.html)}</body></html>`;
+  const f = document.createElement('iframe'); f.setAttribute('aria-hidden', 'true'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0';
+  f.onload = () => { try { f.contentWindow.focus(); f.contentWindow.print(); toast('Choose "Save as PDF" in the print window'); } catch (e) { toast("Your browser blocked printing here. Use the website instead."); } setTimeout(() => f.remove(), 60000); };
+  document.body.appendChild(f); f.srcdoc = html;
 }
 
 /* ---------- v33: NinjaTrader live sync ---------- */
@@ -5117,7 +5248,7 @@ function saveNote(immediate) {
     else if (kind === 'note') { const n = S.notes.find(x => x.id === key); if (!n || n.html === html) return; n.html = html; n.updatedAt = new Date().toISOString(); p = S.db.collection('notes').doc(key).update({ html, updatedAt: n.updatedAt }); }
     else { const j = S.journal[key] || {}; if (j.html === html) return; const now = new Date().toISOString(); p = saveJournal(key, { html, updatedAt: now, createdAt: j.createdAt || now, logged: true }); }
     if (mark) mark.textContent = 'Saving…';
-    p.then(() => { const m = $('savedMark'); if (m) m.textContent = 'Saved'; }).catch(writeErr);
+    p.then(() => { const m = $('savedMark'); if (m) m.textContent = 'Saved'; shareSyncSoon(kind, key); }).catch(writeErr);
   };
   if (immediate) go(); else noteTimer = setTimeout(go, 1000);
 }
@@ -5161,6 +5292,16 @@ document.addEventListener('click', async e => {
   if (a === 'sel' || a === 'selAll' || a === 'toggleRev') e.stopPropagation();
   switch (a) {
     case 'add': if (!needDb()) return; return openModal('add', b.dataset.d);
+    case 'nbLogSession': { if (!needDb()) return; const id = 'n-' + uid(), now = new Date().toISOString(), [from, to] = presetRange('week'); const n = { title: '', folder: 'recap', session: { from, to }, html: '', tags: [], createdAt: now, updatedAt: now }; S.notes.unshift({ ...n, id }); S.db.collection('notes').doc(id).set(n).catch(writeErr); S.nbSel = { kind: 'note', key: id }; drpOpen({}); S.nbPop = 'range'; break; }
+    case 'nbRange': { const n = S.nbSel && S.notes.find(x => x.id === S.nbSel.key); if (S.nbPop === 'range') { S.nbPop = null; S.drp = null; } else { drpOpen(n && n.session); S.nbPop = 'range'; } break; }
+    case 'drpDay': { const D = S.drp, d = b.dataset.d; if (!D) return; if (D.pick === 0) { D.from = d; D.to = ''; D.pick = 1; rerender(); return; } await applyRange(D.from, d); toast('Session dates saved'); return; }
+    case 'drpNav': S.drp.m = ymAdd(S.drp.m, +b.dataset.v); rerender(); return;
+    case 'drpPreset': { const [f2, t2] = presetRange(b.dataset.v); await applyRange(f2, t2); return; }
+    case 'nbShare': await shareNote(b.dataset.kind, b.dataset.key); S.nbPop = null; break;
+    case 'nbShareCopy': await copyLink(shareUrl(shareIdOf(b.dataset.kind, b.dataset.key))); S.nbPop = null; break;
+    case 'nbShareStop': await stopShare(b.dataset.kind, b.dataset.key); S.nbPop = null; break;
+    case 'nbPdf': S.nbPop = null; rerender(); nbPdf(b.dataset.kind, b.dataset.key); return;
+    case 'nbQClear': S.nbQuery = ''; S.nbQFolder = ''; break;
     case 'ed': edCmd(b.dataset.ed, b.dataset.cmd, b.dataset.v); return;
     case 'edPop': { const k = b.dataset.v, eid = b.dataset.ed; S.edPop = S.edPop && S.edPop.k === k && S.edPop.id === eid ? null : { id: eid, k }; edToolsPaint(eid); return; }
     case 'slashPick': slashApply(b.dataset.v); return;
@@ -5300,7 +5441,7 @@ document.addEventListener('click', async e => {
     case 'nbOpen': { const k = b.dataset.kind; S.view = 'notebook'; S.nbFolder = k === 'trade' ? 'trade' : k === 'journal' ? 'journal' : 'all'; S.nbSel = { kind: k, key: b.dataset.key }; closeModal(); window.scrollTo(0, 0); break; }
     case 'newNote': {
       if (!needDb()) return;
-      const folder = S.folders.some(f => f.id === S.nbFolder) || S.nbFolder === 'recap' ? S.nbFolder : 'mine', id = 'n-' + uid(), now = new Date().toISOString();
+      const folder = S.folders.some(f => f.id === S.nbFolder) || ['recap', 'backtest'].includes(S.nbFolder) ? S.nbFolder : 'mine', id = 'n-' + uid(), now = new Date().toISOString();
       const n = { title: '', folder, html: '', tags: [], createdAt: now, updatedAt: now };
       S.notes.unshift({ ...n, id }); S.db.collection('notes').doc(id).set(n).catch(writeErr);
       if (['trade', 'journal', 'trash'].includes(S.nbFolder)) S.nbFolder = 'mine';

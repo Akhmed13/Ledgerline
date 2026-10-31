@@ -103,6 +103,7 @@ api/auth.js              sign-in and user management (Vercel function)
 api/ai.js                AI features through OpenRouter, Google Gemini or Anthropic, streamed (Vercel function)
 api/broker.js            MetaTrader auto-sync through MetaApi (Vercel function)
 api/ingest.js            live fills from the NinjaTrader add-on → trades (Vercel function)
+api/share.js             read-only public links for shared notebook notes (Vercel function)
 integrations/            LedgerLineSync.cs, the NinjaTrader 8 add-on template
 package.json             server dependencies (pg, mysql2)
 index.html               the website (generated)
