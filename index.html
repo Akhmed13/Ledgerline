@@ -1055,6 +1055,15 @@ a.focus-item{text-decoration:none;color:inherit}
 .nbi>input[type=checkbox]{display:none}.nbl.selecting .nbi>input[type=checkbox]{display:block}
 @media (hover:hover){.nbi:hover>input[type=checkbox]{display:block}}
 .nbi{padding-left:10px}
+
+.ov-bar{display:flex;align-items:center;gap:10px}.ov-bar select{max-width:160px}
+.ov{padding:22px 26px}.ov-h h3{margin:0;font-size:17px;text-transform:uppercase;letter-spacing:.02em}.ov-range{text-transform:uppercase;font-size:12.5px;margin-top:2px}
+.ov-top{display:flex;gap:56px;flex-wrap:wrap;margin:18px 0 22px}.ov-top div{display:grid;gap:2px}.ov-top span{font-weight:700;font-size:13.5px}.ov-top b{font-size:17px}.ov-top small{color:var(--muted);font-size:12px}
+.ov-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+.ov-t{margin:0}.ov-t div{display:flex;justify-content:space-between;gap:12px;padding:10px 10px;border-bottom:1px solid var(--line)}.ov-t div:nth-child(odd){background:var(--surface-2)}
+.ov-t dt{color:var(--ink);font-size:13.5px}.ov-t dd{margin:0;font-weight:600;text-align:right;white-space:nowrap}
+.ov-t dd.gain{color:var(--gain)}.ov-t dd.loss{color:var(--loss)}.ov-top .gain{color:var(--gain)}.ov-top .loss{color:var(--loss)}
+@media (max-width:900px){.ov-cols{grid-template-columns:1fr}.ov{padding:16px}.ov-top{gap:24px}}
 </style>
 
 <div class="app">
@@ -3435,12 +3444,13 @@ function compareView() {
 function reportsView() {
   const r = S.rep, ts = repTrades(), D = DIMS[r.dim] || DIMS.daytime;
   const menu = S.repMenu ? `<div class="ddmenu" role="menu" style="left:0;right:auto">${Object.entries(DIMS).map(([k, d]) => `<button class="linkish ddrow" style="color:var(--ink)" data-action="repDim" data-v="${k}">${d.name}</button>`).join('')}</div>` : '';
-  const tabs = `<div class="seg" role="tablist"><button data-action="repTab" data-v="perf" aria-pressed="${r.tab === 'perf'}">Performance</button><span class="ddwrap"><button data-action="repMenu" aria-pressed="${r.tab === 'dim'}" aria-expanded="${!!S.repMenu}">Reports${r.tab === 'dim' ? ': ' + D.name : ''} ▾</button>${menu}</span><button data-action="repTab" data-v="compare" aria-pressed="${r.tab === 'compare'}">Compare</button><button data-action="repTab" data-v="year" aria-pressed="${r.tab === 'year'}">Calendar</button></div>`;
+  const tabs = `<div class="seg" role="tablist"><button data-action="repTab" data-v="perf" aria-pressed="${r.tab === 'perf'}">Performance</button><button data-action="repTab" data-v="overview" aria-pressed="${r.tab === 'overview'}">Overview</button><span class="ddwrap"><button data-action="repMenu" aria-pressed="${r.tab === 'dim'}" aria-expanded="${!!S.repMenu}">Reports${r.tab === 'dim' ? ': ' + D.name : ''} ▾</button>${menu}</span><button data-action="repTab" data-v="compare" aria-pressed="${r.tab === 'compare'}">Compare</button><button data-action="repTab" data-v="year" aria-pressed="${r.tab === 'year'}">Calendar</button></div>`;
   const perfSub = r.psub || 'summary';
   let body;
   if (r.tab === 'dim') body = dimReport(ts);
   else if (r.tab === 'compare') body = compareView();
   else if (r.tab === 'year') body = yearTab(S.trades);
+  else if (r.tab === 'overview') body = overviewView(ts);
   else body = `<div class="rep2">${repChart(1)}${repChart(2)}</div>
       <div class="seg" role="tablist" style="align-self:flex-start"><button data-action="repPsub" data-v="summary" aria-pressed="${perfSub === 'summary'}">Summary</button><button data-action="repPsub" data-v="days" aria-pressed="${perfSub === 'days'}">Days</button><button data-action="repPsub" data-v="trades" aria-pressed="${perfSub === 'trades'}">Trades</button></div>
       ${perfSub === 'days' ? daysTab(ts) : perfSub === 'trades' ? tradesTab(ts) : `<section class="panel card"><dl class="sumgrid">${summary(ts).map(([k, v, c]) => `<div><dt>${k}</dt><dd class="${c || ''}">${v}</dd></div>`).join('')}</dl></section>`}`;
@@ -4786,6 +4796,7 @@ document.addEventListener('mousedown', e => {
 document.addEventListener('keydown', e => { if (e.key === 'Tab' && !S.slash) { const c = e.target.closest && e.target.closest('.editor[contenteditable]') && inCell(); if (c) { e.preventDefault(); const cells = [...c.closest('table').querySelectorAll('td,th')], n = cells[cells.indexOf(c) + (e.shiftKey ? -1 : 1)]; if (n) { const r = document.createRange(); r.selectNodeContents(n); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } } } });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.id === 'ovBasis') { S.rep.pnlBasis = el.value; rerender(); return; }
   if (el.id === 'nbQF') { S.nbQFolder = el.value; rerender(); return; }
   if (el.id === 'nbQT') { S.nbTag = el.value; rerender(); return; }
   if (/^drp[MY][01]$/.test(el.id) && S.drp) { const side = +el.id[4], m = +$('drpM' + side).value, y = +$('drpY' + side).value; S.drp.m = ymAdd(`${y}-${pad(m)}`, -side); rerender(); return; }
@@ -5149,6 +5160,52 @@ function nbPdf(kind, key) {
   const f = document.createElement('iframe'); f.setAttribute('aria-hidden', 'true'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0';
   f.onload = () => { try { f.contentWindow.focus(); f.contentWindow.print(); toast('Choose "Save as PDF" in the print window'); } catch (e) { toast("Your browser blocked printing here. Use the website instead."); } setTimeout(() => f.remove(), 60000); };
   document.body.appendChild(f); f.srcdoc = html;
+}
+
+/* ---------- v39: Reports → Overview (all your stats) ---------- */
+function durMin(t) {
+  if (!t.time || !t.exitTime) return null;
+  const a = new Date(`${t.date}T${t.time.length === 5 ? t.time + ':00' : t.time}`), b = new Date(`${t.exitDate || t.date}T${t.exitTime.length === 5 ? t.exitTime + ':00' : t.exitTime}`);
+  const m = (b - a) / 60000; return isFinite(m) && m >= 0 ? m : null;
+}
+function fmtHold(m) { if (m == null) return 'N/A'; m = Math.round(m); if (m < 1) return 'under a minute'; const d = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60), mm = m % 60; return [d && `${d} day${d > 1 ? 's' : ''}`, h && `${h} hour${h > 1 ? 's' : ''}`, mm && `${mm} minute${mm > 1 ? 's' : ''}`].filter(Boolean).slice(0, 2).join(', '); }
+function streaks(vals) { let w = 0, l = 0, cw = 0, cl = 0; vals.forEach(v => { if (v > 0) { cw++; cl = 0; } else if (v < 0) { cl++; cw = 0; } else { cw = 0; cl = 0; } w = Math.max(w, cw); l = Math.max(l, cl); }); return [w, l]; }
+function overviewStats(ts, gross) {
+  const val = t => gross ? t.pnl + (num(t.fees) || 0) : t.pnl;
+  const closed = ts.filter(t => !isOpen(t)), L = closed.slice().sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || ''))), v = L.map(val);
+  const wins = L.filter(t => val(t) > 0), losses = L.filter(t => val(t) < 0), even = L.filter(t => val(t) === 0);
+  const sum = a => a.reduce((x, t) => x + val(t), 0), gw = sum(wins), gl = -sum(losses);
+  const days = {}; L.forEach(t => { (days[t.date] = days[t.date] || []).push(t); });
+  const dk = Object.keys(days).sort(), dv = dk.map(d => sum(days[d])), wd = dv.filter(x => x > 0), ld = dv.filter(x => x < 0);
+  const months = {}; L.forEach(t => { const k = t.date.slice(0, 7); months[k] = (months[k] || 0) + val(t); }); const mk = Object.keys(months).sort();
+  const best = mk.length ? mk.reduce((a, b) => months[b] > months[a] ? b : a) : null, low = mk.length ? mk.reduce((a, b) => months[b] < months[a] ? b : a) : null;
+  const [cw, cl] = streaks(v), [dw, dl] = streaks(dv);
+  const hold = arr => avgOf(arr.map(durMin).filter(x => x != null));
+  const planned = L.map(t => { const r = riskOf(t), g = targetOf(t); return r > 0 && g != null ? g / r : null; }).filter(x => x != null), realized = L.filter(t => riskOf(t) > 0).map(rOf);
+  const wr = L.length ? wins.length / L.length : 0, lr = L.length ? losses.length / L.length : 0, aw = wins.length ? gw / wins.length : 0, al = losses.length ? -gl / losses.length : 0;
+  // drawdown on the equity curve (trade by trade), from the starting balance of the selected accounts
+  const accs = allAccounts().filter(a => !S.accSel || S.accSel.includes(a.id)), base = accs.reduce((x, a) => x + (+a.startingBalance || 0), 0);
+  let eq = base, peak = base, maxDD = 0, maxDDp = 0, cur = 0, curP = 0; const eps = [], epsP = [];
+  v.forEach(x => { eq += x; if (eq >= peak) { if (cur > 0) { eps.push(cur); epsP.push(curP); } peak = eq; cur = 0; curP = 0; } else { const dd = peak - eq, ddp = peak > 0 ? dd / peak * 100 : null; cur = Math.max(cur, dd); if (ddp != null) curP = Math.max(curP, ddp); maxDD = Math.max(maxDD, dd); if (ddp != null) maxDDp = Math.max(maxDDp, ddp); } });
+  if (cur > 0) { eps.push(cur); epsP.push(curP); }
+  const fees = L.reduce((x, t) => x + (num(t.fees) || 0), 0), logged = Object.keys(S.journal).filter(k => (!dk.length || (k >= dk[0] && k <= dk[dk.length - 1])) && hasText(S.journal[k].html)).length;
+  return { L, best, low, months, mk, open: ts.length - closed.length, total: sum(L), vol: dk.length ? L.reduce((x, t) => x + (num(t.qty) || 0), 0) / dk.length : 0, aw, al, wins: wins.length, losses: losses.length, even: even.length, cw, cl, fees,
+    big: L.length ? Math.max(...v) : 0, small: L.length ? Math.min(...v) : 0, hAll: hold(L), hW: hold(wins), hL: hold(losses), hE: hold(even), avg: L.length ? sum(L) / L.length : 0, pf: gl ? gw / gl : (gw ? Infinity : 0),
+    days: dk.length, wDays: wd.length, lDays: ld.length, eDays: dv.filter(x => x === 0).length, logged, dw, dl, avgDay: avgOf(dv) || 0, avgWDay: avgOf(wd) || 0, avgLDay: avgOf(ld) || 0, bigDay: dv.length ? Math.max(...dv) : 0, lowDay: dv.length ? Math.min(...dv) : 0,
+    planned: avgOf(planned), realized: avgOf(realized), exp: wr * aw + lr * al, maxDD, maxDDp: base > 0 || peak > 0 ? maxDDp : null, avgDD: avgOf(eps) || 0, avgDDp: epsP.length ? avgOf(epsP) : null, from: dk[0], to: dk[dk.length - 1] };
+}
+function overviewView(ts) {
+  const g = S.rep.pnlBasis === 'gross', O = overviewStats(ts, g), m = x => priv(money(x)), c = x => x > 0 ? 'gain' : x < 0 ? 'loss' : '';
+  const mlabel = k => k ? new Date(+k.slice(0, 4), +k.slice(5) - 1, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
+  const range = S.rep.range === 'custom' && S.rep.from ? [S.rep.from, S.rep.to || todayIso()] : [O.from, O.to];
+  const left = [['Total P&L', m(O.total), c(O.total)], ['Average daily volume', O.vol ? O.vol.toFixed(2) : '0'], ['Average winning trade', m(O.aw), 'gain'], ['Average losing trade', m(O.al), 'loss'], ['Total number of trades', O.L.length], ['Number of winning trades', O.wins], ['Number of losing trades', O.losses], ['Number of break even trades', O.even], ['Max consecutive wins', O.cw], ['Max consecutive losses', O.cl], ['Total commissions & fees', m(O.fees)], ['Largest profit', m(O.big), c(O.big)], ['Largest loss', m(O.small), c(O.small)], ['Average hold time (all trades)', fmtHold(O.hAll)], ['Average hold time (winning trades)', fmtHold(O.hW)], ['Average hold time (losing trades)', fmtHold(O.hL)], ['Average hold time (scratch trades)', fmtHold(O.hE)], ['Average trade P&L', m(O.avg), c(O.avg)], ['Profit factor', ratioTxt(O.pf)]];
+  const right = [['Open trades', O.open], ['Total trading days', O.days], ['Winning days', O.wDays], ['Losing days', O.lDays], ['Breakeven days', O.eDays], ['Logged days', O.logged], ['Max consecutive winning days', O.dw], ['Max consecutive losing days', O.dl], ['Average daily P&L', m(O.avgDay), c(O.avgDay)], ['Average winning day P&L', m(O.avgWDay), 'gain'], ['Average losing day P&L', m(O.avgLDay), 'loss'], ['Largest profitable day (profits)', m(O.bigDay), c(O.bigDay)], ['Largest losing day (losses)', m(O.lowDay), c(O.lowDay)], ['Average planned R-multiple', O.planned == null ? 'N/A' : O.planned.toFixed(2) + 'R'], ['Average realized R-multiple', O.realized == null ? 'N/A' : O.realized.toFixed(2) + 'R', c(O.realized)], ['Trade expectancy', m(O.exp), c(O.exp)], ['Max drawdown', O.maxDD ? m(-O.maxDD) : '$0.00', O.maxDD ? 'loss' : ''], ['Max drawdown, %', O.maxDDp == null ? 'N/A' : (O.maxDD ? '-' : '') + O.maxDDp.toFixed(2) + '%', O.maxDD ? 'loss' : ''], ['Average drawdown', O.avgDD ? m(-O.avgDD) : '$0.00', O.avgDD ? 'loss' : ''], ['Average drawdown, %', O.avgDDp == null ? 'N/A' : (O.avgDD ? '-' : '') + O.avgDDp.toFixed(2) + '%', O.avgDD ? 'loss' : '']];
+  const tbl = rows => `<dl class="ov-t">${rows.map(([k, val, cl]) => `<div><dt>${k}</dt><dd class="num ${cl || ''}">${val}</dd></div>`).join('')}</dl>`;
+  const avgM = O.mk.length ? O.mk.reduce((x, k) => x + O.months[k], 0) / O.mk.length : 0;
+  return `<div class="ov-bar"><span class="label">P&amp;L showing</span><select id="ovBasis" class="fin" aria-label="P&L showing"><option value="net" ${!g ? 'selected' : ''}>Net P&amp;L</option><option value="gross" ${g ? 'selected' : ''}>Gross P&amp;L</option></select></div>
+    <section class="panel ov">${O.L.length ? `<div class="ov-h"><h3>Your stats <span class="hint" title="Stats for the trades in the current filters and date range">ⓘ</span></h3><div class="hint ov-range">${range[0] ? `(From ${fmtShort(range[0])} to ${fmtShort(range[1] || range[0])})` : ''}</div></div>
+      <div class="ov-top"><div><span>Best month</span><b class="num ${c(O.months[O.best])}">${m(O.months[O.best] || 0)}</b><small>in ${mlabel(O.best)}</small></div><div><span>Lowest month</span><b class="num ${c(O.months[O.low])}">${m(O.months[O.low] || 0)}</b><small>in ${mlabel(O.low)}</small></div><div><span>Average</span><b class="num ${c(avgM)}">${m(avgM)}</b><small>per month</small></div></div>
+      <div class="ov-cols">${tbl(left)}${tbl(right)}</div>` : '<div class="empty"><h3>No closed trades in this range</h3><p>Pick another date range or clear filters to see your stats.</p></div>'}</section>`;
 }
 
 /* ---------- v33: NinjaTrader live sync ---------- */
