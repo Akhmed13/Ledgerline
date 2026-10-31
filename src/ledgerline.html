@@ -1012,6 +1012,24 @@ a.focus-item{text-decoration:none;color:inherit}
 .drp-pre{border-left:1px solid var(--line);padding:10px 6px;display:flex;flex-direction:column;gap:2px;min-width:170px}
 .drp-pre button{text-align:left}
 @media (max-width:900px){.nb-pop.drp{flex-direction:column;position:fixed;left:8px!important;right:8px;top:80px;max-height:80vh;overflow:auto}.drp-ms{flex-direction:column}.drp-m{width:auto}.drp-pre{border-left:0;border-top:1px solid var(--line);flex-direction:row;flex-wrap:wrap}}
+
+/* v37 colourful folders */
+.nb-side .nbfs{gap:3px}
+.nbf::before{display:none}
+.nbf{border-radius:10px;transition:background .15s}
+.nbf-btn{gap:10px;padding:6px 8px}
+.nbf-ic{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:8px;color:var(--fc);background:color-mix(in srgb,var(--fc) 15%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fc) 28%,transparent)}
+.nbf-btn .nm{flex:1;font-weight:500}
+.nbf-btn .ct{min-width:24px;text-align:center;padding:1px 7px;border-radius:999px;font-size:11.5px;font-weight:700;color:color-mix(in srgb,var(--fc) 80%,var(--ink));background:color-mix(in srgb,var(--fc) 12%,transparent)}
+.nbf:hover{background:color-mix(in srgb,var(--fc) 7%,transparent)}
+.nbf.on{background:linear-gradient(90deg,color-mix(in srgb,var(--fc) 20%,transparent),color-mix(in srgb,var(--fc) 6%,transparent));box-shadow:inset 3px 0 0 var(--fc)}
+.nbf.on .nbf-ic{background:var(--fc);color:#fff;box-shadow:0 3px 10px color-mix(in srgb,var(--fc) 40%,transparent)}
+.nbf.on .nm{font-weight:700}.nbf.on .ct{background:var(--fc);color:#fff}
+.nb2 .nbf-btn:hover{background:none}.nbf-more{background:transparent!important}.nbf-more:hover{background:color-mix(in srgb,var(--fc) 15%,transparent)!important}
+.nb-trash .nm{display:flex;align-items:center;gap:10px}
+.nb-tagf{--tc:var(--c-violet);border-color:color-mix(in srgb,var(--tc) 35%,transparent)!important;background:color-mix(in srgb,var(--tc) 12%,var(--surface))!important;color:color-mix(in srgb,var(--tc) 75%,var(--ink))!important;font-weight:600}
+.nb-tagf span{background:color-mix(in srgb,var(--tc) 22%,var(--surface))!important}
+.nb-tagf[aria-pressed="true"]{background:var(--tc)!important;color:#fff!important}
 </style>
 
 <div class="app">
@@ -4820,7 +4838,11 @@ async function tlUse(k) {
 
 /* ---- notebook ---- */
 S.nbSort = 'updated'; S.nbChecked = new Set(); S.nbStatsOpen = true; S.nbSide = true; S.nbFocus = false; S.nbTag = ''; S.nbFilter = { kind: 'all', res: 'all' };
-const FIXED_FOLDERS = [{ id: 'all', name: 'All notes', fixed: 1, color: 'violet' }, { id: 'trade', name: 'Trade notes', fixed: 1, color: 'violet' }, { id: 'journal', name: 'Daily journal', fixed: 1, color: 'violet' }, { id: 'recap', name: 'Sessions recap', fixed: 1, color: 'violet' }, { id: 'backtest', name: 'Backtesting session notes', fixed: 1, color: 'violet' }, { id: 'mine', name: 'My notes', fixed: 1, color: 'slate' }];
+const FIXED_FOLDERS = [{ id: 'all', name: 'All notes', fixed: 1, color: 'violet' }, { id: 'trade', name: 'Trade notes', fixed: 1, color: 'blue' }, { id: 'journal', name: 'Daily journal', fixed: 1, color: 'teal' }, { id: 'recap', name: 'Sessions recap', fixed: 1, color: 'amber' }, { id: 'backtest', name: 'Backtesting session notes', fixed: 1, color: 'pink' }, { id: 'mine', name: 'My notes', fixed: 1, color: 'green' }];
+const NBF_IC = { all: '<rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1"/>', trade: '<path d="M2 12l3.5-4 3 2.5L14 4"/><path d="M10.5 4H14v3.5"/>', journal: '<rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/>', recap: '<path d="M3.2 8a4.8 4.8 0 1 0 1.4-3.4"/><path d="M3 2.6v2.6h2.6"/><path d="M8 5.4V8l1.8 1.2"/>', backtest: '<path d="M6 2h4M6.8 2v4L3 12.5A1 1 0 004 14h8a1 1 0 001-1.5L9.2 6V2"/><path d="M4.6 10h6.8"/>', mine: '<path d="M10.5 2.5l3 3L6 13H3v-3z"/><path d="M9 4l3 3"/>', folder: '<path d="M2 4.5A1.5 1.5 0 013.5 3h3l1.5 1.5h4.5A1.5 1.5 0 0114 6v5.5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 012 11.5z"/>' };
+const nbfIcon = id => `<span class="nbf-ic" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${NBF_IC[id] || NBF_IC.folder}</svg></span>`;
+const TAG_COLS = ['violet', 'blue', 'teal', 'green', 'amber', 'orange', 'red', 'pink'];
+const tagCol = t => TAG_COLS[[...t].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) % TAG_COLS.length];
 function nbFolders() { const fx = S.nbSet.fixed || {}; return [...FIXED_FOLDERS.map(f => ({ ...f, ...(fx[f.id] || {}) })), ...S.folders]; }
 const fname = id => (nbFolders().find(x => x.id === id) || {}).name || 'My notes';
 function placeDrp() { const m = document.querySelector('.nb-pop.drp'), b = document.querySelector('[data-drp-anchor]'); if (!m || !b || innerWidth <= 900) return; const r = b.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.bottom + 6)) + 'px'; }
@@ -4860,11 +4882,11 @@ function nbArea(ts) {
 }
 function notebookView() {
   const { all, L } = nbVisible(), f = S.nbFolder, sel = S.nbSel, tags = allNoteTags(), cnt = id => id === 'all' ? all.filter(i => !i.deleted).length : all.filter(i => !i.deleted && i.folder === id).length;
-  const folderRow = x => `<div class="nbf${f === x.id ? ' on' : ''}" style="--fc:var(--c-${x.color || 'violet'})"><button class="nbf-btn" data-action="nbFolder" data-v="${x.id}" aria-pressed="${f === x.id}"><span class="nm">${esc(x.name)}</span><span class="ct">${cnt(x.id)}</span></button>
+  const folderRow = x => `<div class="nbf${f === x.id ? ' on' : ''}" style="--fc:var(--c-${x.color || 'violet'})"><button class="nbf-btn" data-action="nbFolder" data-v="${x.id}" aria-pressed="${f === x.id}" title="${esc(x.name)}">${nbfIcon(x.fixed ? x.id : 'folder')}<span class="nm">${esc(x.name)}</span><span class="ct">${cnt(x.id)}</span></button>
     <span class="nb-popwrap"><button class="icon-btn nbf-more" data-action="nbPop" data-v="f:${x.id}" aria-label="Folder options for ${esc(x.name)}" aria-expanded="${S.nbPop === 'f:' + x.id}">⋯</button>${S.nbPop === 'f:' + x.id ? `<div class="nb-pop fixed"><button data-action="folderEdit" data-v="${x.id}">✎ Rename or recolour</button>${x.fixed ? ((S.nbSet.fixed || {})[x.id] ? `<button data-action="folderReset" data-v="${x.id}">↺ Reset to default</button>` : '') : `<button class="danger" data-action="delFolder" data-v="${x.id}">${S.armed === 'folder-' + x.id ? 'Click again to delete' : '🗑 Delete folder'}</button>`}</div>` : ''}</span></div>`;
   const side = `<aside class="panel nb-side"><div class="nbs-head"><button class="linkish nb-addf" data-action="addFolder">📁 Add folder</button><button class="icon-btn" data-action="nbSide" aria-label="Hide folders">‹</button></div>
     <div class="label nbs-l">Folders</div><div class="nbfs">${nbFolders().filter(x => x.fixed).map(folderRow).join('')}${S.folders.length ? '<div class="nbs-sep"></div>' + S.folders.map(folderRow).join('') : ''}</div>
-    <div class="label nbs-l">Tags</div><div class="nb-taglist">${Object.keys(tags).sort().map(t => `<button class="nb-tagf" data-action="nbTagF" data-v="${esc(t)}" aria-pressed="${S.nbTag === t}">${esc(t)} <span>${tags[t]}</span></button>`).join('') || '<p class="hint">Tags you add to notes appear here.</p>'}</div>
+    <div class="label nbs-l">Tags</div><div class="nb-taglist">${Object.keys(tags).sort().map(t => `<button class="nb-tagf" style="--tc:var(--c-${tagCol(t)})" data-action="nbTagF" data-v="${esc(t)}" aria-pressed="${S.nbTag === t}"># ${esc(t)} <span>${tags[t]}</span></button>`).join('') || '<p class="hint">Tags you add to notes appear here.</p>'}</div>
     <button class="nbf-btn nb-trash" data-action="nbFolder" data-v="trash" aria-pressed="${f === 'trash'}"><span class="nm">🗑 Recently deleted</span><span class="ct">${all.filter(i => i.deleted).length}</span></button></aside>`;
   const isJ = f === 'journal', checked = L.filter(i => S.nbChecked.has(i.kind + '|' + i.key));
   const list = `<section class="panel nb-list"><div class="nbl-head"><span class="nb-popwrap">${f === 'trash' ? '<span class="hint">Deleted notes are kept for 30 days.</span>' : f === 'recap' ? `<button class="linkish" data-action="nbLogSession" aria-expanded="${S.nbPop === 'newsession'}" ${S.nbPop === 'newsession' ? 'data-drp-anchor' : ''}>🗓 Log session</button>${S.nbPop === 'newsession' ? drpHtml() : ''}` : isJ ? `<button class="linkish" data-action="nbPop" data-v="log" aria-expanded="${S.nbPop === 'log'}">📅 Log day</button>${S.nbPop === 'log' ? `<div class="nb-pop logpop"><form data-form="nbLog"><label class="hint">Day to log<input type="date" id="nbLogD" class="fin" value="${todayIso()}" required></label><button class="primary sm" type="submit">Open</button></form></div>` : ''}` : `<button class="linkish" data-action="newNote">📝 New note</button>`}</span>
