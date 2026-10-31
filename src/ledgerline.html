@@ -1185,6 +1185,17 @@ tr.acct-arch td{opacity:.6}
 .hf-go{color:var(--muted);font-size:14px}
 @media (max-width:900px){.h2-prods{grid-template-columns:repeat(2,minmax(0,1fr))}.h2-two{grid-template-columns:1fr}}
 @media (max-width:560px){.h2-prods{grid-template-columns:1fr}.h2-sec{margin-top:30px}}
+
+.rtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 16px}
+.rtab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:600;font-size:14px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.rtab.on{color:var(--accent);border-bottom-color:var(--accent)}.rtab:hover{color:var(--ink)}
+.rcal{padding:0;overflow:hidden}
+.rcal-bar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
+.rcal-cc{flex:1;min-width:0}
+.rcal-cc .fchip{color:var(--muted)}.rcal-cc .fchip.on{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.rcal-host{height:max(560px,calc(100vh - 290px))}
+.rcal-foot{padding:10px 14px;border-top:1px solid var(--line)}
+@media (max-width:560px){.rcal-host{height:70vh}}
 </style>
 
 <div class="app">
@@ -3088,13 +3099,31 @@ function econEvents(from, to) {
     .sort((a, b) => (a.date + (a.time || '99')).localeCompare(b.date + (b.time || '99')));
 }
 const OFFICIAL_CALENDARS = [['Forex Factory calendar', 'https://www.forexfactory.com/calendar'], ['Investing.com economic calendar', 'https://www.investing.com/economic-calendar/'], ['US BLS release schedule', 'https://www.bls.gov/schedule/news_release/'], ['Federal Reserve calendar', 'https://www.federalreserve.gov/newsevents/calendar.htm']];
+const CAL_COUNTRIES = [['us', '🇺🇸', 'USA'], ['eu', '🇪🇺', 'Euro area'], ['gb', '🇬🇧', 'UK'], ['de', '🇩🇪', 'Germany'], ['jp', '🇯🇵', 'Japan'], ['cn', '🇨🇳', 'China'], ['ca', '🇨🇦', 'Canada'], ['au', '🇦🇺', 'Australia'], ['ch', '🇨🇭', 'Switzerland'], ['nz', '🇳🇿', 'New Zealand'], ['fr', '🇫🇷', 'France'], ['it', '🇮🇹', 'Italy']];
+function calPrefs() { let p = {}; try { p = JSON.parse(localStorage.getItem('ll-cal') || '{}'); } catch (e) { } return { imp: p.imp || 'all', cc: Array.isArray(p.cc) && p.cc.length ? p.cc : ['us', 'eu', 'gb', 'de', 'jp', 'cn'] }; }
+function calSave(p) { try { localStorage.setItem('ll-cal', JSON.stringify(p)); } catch (e) { } }
+function liveCalendarView() {
+  const P = calPrefs(), imp = { all: '-1,0,1', med: '0,1', high: '1' }[P.imp];
+  const cfg = { __src: 'events', colorTheme: tvDark() ? 'dark' : 'light', isTransparent: true, width: '100%', height: '100%', locale: 'en', importanceFilter: imp, countryFilter: P.cc.join(',') };
+  const key = ['cal', P.imp, P.cc.join('.'), cfg.colorTheme].join('|');
+  return `<section class="panel rcal">
+    <div class="rcal-bar"><div class="seg" role="group" aria-label="Importance">${[['all', 'All'], ['med', 'Medium + high'], ['high', 'High only']].map(([k, l]) => `<button data-action="calImp" data-v="${k}" aria-pressed="${P.imp === k}">${l}</button>`).join('')}</div>
+      <div class="fchips rcal-cc">${CAL_COUNTRIES.map(([c, f, n]) => `<button class="fchip${P.cc.includes(c) ? ' on' : ''}" data-action="calCc" data-v="${c}" aria-pressed="${P.cc.includes(c)}" title="${n}">${f} ${n}</button>`).join('')}</div></div>
+    <div class="tv-host rcal-host" data-tv="${esc(key)}" data-cfg="${esc(JSON.stringify(cfg))}"><div class="tv-wait hint">Loading economic calendar…</div></div>
+    <div class="hint rcal-foot">Live calendar by TradingView, shown in your local time. Events you want on Home and in the pre-market briefing go under <button class="linkish" data-action="resTab" data-v="mine">My events</button>.</div></section>`;
+}
 function resourcesView() {
+  const tab = S.resTab || 'live';
+  const tabs = `<div class="rtabs" role="tablist">${[['live', 'Economic calendar'], ['mine', 'My events']].map(([k, l]) => `<button role="tab" class="rtab${tab === k ? ' on' : ''}" data-action="resTab" data-v="${k}" aria-selected="${tab === k}">${l}</button>`).join('')}</div>`;
+  if (tab === 'live') return tabs + liveCalendarView();
+  return tabs + myEventsView();
+}
+function myEventsView() {
   const wk = S.ecoWeek || weekKey(todayIso()), [y, m, d] = wk.split('-'), end = iso(new Date(+y, +m - 1, +d + 6)), td = todayIso();
   const evs = econEvents(wk, end), countries = [...new Set(S.econ.map(e => e.country).filter(Boolean))].sort();
   const byDay = {}; evs.forEach(e => (byDay[e.date] = byDay[e.date] || []).push(e));
   const rows = Object.keys(byDay).sort().map(day => `<tr class="eday"><td colspan="8"><b>${dateLabel(day)}</b>${day === td ? ' <span class="chip">Today</span>' : ''}</td></tr>` + byDay[day].map(e => `<tr><td class="num">${esc(e.time || 'All day')}</td><td>${esc(e.country || '–')}</td><td>${impactDots(e.impact)}</td><td><b>${esc(e.event)}</b>${e.note ? `<small class="hint" style="display:block">${esc(e.note)}</small>` : ''}</td><td class="r num">${esc(e.actual || '–')}</td><td class="r num">${esc(e.forecast || '–')}</td><td class="r num">${esc(e.previous || '–')}</td><td class="r" style="white-space:nowrap"><button class="linkish" data-action="econEdit" data-v="${e.id}">Edit</button></td></tr>`).join('')).join('');
-  return `<div class="toolbar"><div class="seg" role="tablist"><button aria-pressed="true">Economic calendar</button></div></div>
-  <div class="grid jgrid"><section class="panel log">
+  return `<div class="grid jgrid"><section class="panel log">
     <div class="toolbar"><div class="left"><button class="icon-btn" data-action="ecoWeek" data-v="-7" aria-label="Previous week">‹</button><b>${shortDate(wk)} – ${shortDate(end)}</b><button class="icon-btn" data-action="ecoWeek" data-v="7" aria-label="Next week">›</button><button class="ghost" data-action="ecoWeek" data-v="0">This week</button></div>
       <div class="left"><div class="seg" role="group" aria-label="Impact"><button data-action="ecoImpact" data-v="all" aria-pressed="${S.ecoImpact === 'all'}">All</button><button data-action="ecoImpact" data-v="medhigh" aria-pressed="${S.ecoImpact === 'medhigh'}">Medium+</button><button data-action="ecoImpact" data-v="high" aria-pressed="${S.ecoImpact === 'high'}">High</button></div>
         ${countries.length ? `<select class="fin" style="width:auto" data-eco="country" aria-label="Country"><option value="">All countries</option>${countries.map(c => `<option ${c === S.ecoCountry ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>` : ''}
@@ -5593,8 +5622,8 @@ function tvBox(sym, interval, h, opts = {}) {
 function tvMake(cfg) {
   const box = document.createElement('div'); box.className = 'tradingview-widget-container'; box.style.cssText = 'height:100%;width:100%';
   const w = document.createElement('div'); w.className = 'tradingview-widget-container__widget'; w.style.cssText = 'height:100%;width:100%'; box.appendChild(w);
-  const sc = document.createElement('script'); sc.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'; sc.async = true; sc.textContent = JSON.stringify(cfg);
-  sc.onerror = () => { box.innerHTML = `<div class="tv-wait hint">Couldn't load TradingView. Check your connection or ad blocker, or <a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(cfg.symbol)}" target="_blank" rel="noopener">open the chart on TradingView</a>.</div>`; };
+  const sc = document.createElement('script'); const src = cfg.__src || 'advanced-chart'; cfg = { ...cfg }; delete cfg.__src; sc.src = `https://s3.tradingview.com/external-embedding/embed-widget-${src}.js`; sc.async = true; sc.textContent = JSON.stringify(cfg);
+  sc.onerror = () => { box.innerHTML = src === 'events' ? `<div class="tv-wait hint">Couldn't load the TradingView calendar. Check your connection or ad blocker, or <a href="https://www.tradingview.com/economic-calendar/" target="_blank" rel="noopener">open it on TradingView ↗</a>.</div>` : `<div class="tv-wait hint">Couldn't load TradingView. Check your connection or ad blocker, or <a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(cfg.symbol)}" target="_blank" rel="noopener">open the chart on TradingView</a>.</div>`; };
   box.appendChild(sc); return box;
 }
 function tvPark() {
@@ -6057,6 +6086,9 @@ document.addEventListener('click', async e => {
     case 'aipNew': if (S.aiBusy) return; aipSaveCurrent(); S.chat = []; S.aipHist = false; rerender(); return;
     case 'aipLoad': { if (S.aiBusy) return; const h = (S.chatHist || [])[+b.dataset.v]; if (!h) return; aipSaveCurrent(); S.chatHist = S.chatHist.filter(x => x !== h); try { localStorage.setItem('ll-chats', JSON.stringify(S.chatHist)); } catch (e) {} S.chat = h.chat.map(m => ({ ...m })); S.aipHist = false; rerender(); return; }
     case 'aipAsk': askClaude(b.dataset.v); return;
+    case 'resTab': S.resTab = b.dataset.v; break;
+    case 'calImp': { const P = calPrefs(); P.imp = b.dataset.v; calSave(P); break; }
+    case 'calCc': { const P = calPrefs(), c = b.dataset.v; P.cc = P.cc.includes(c) ? P.cc.filter(x => x !== c) : [...P.cc, c]; if (!P.cc.length) return toast('Keep at least one country.'); calSave(P); break; }
     case 'homeChip': S.aiOpen = true; renderAiPanel(); askClaude(b.dataset.v); return;
     case 'homeFocus': $('homeAsk')?.focus(); return;
     case 'homeBt': S.agTab = 'backtest'; S.view = 'agents'; window.scrollTo(0, 0); break;
