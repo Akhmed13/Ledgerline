@@ -1072,6 +1072,17 @@ a.focus-item{text-decoration:none;color:inherit}
 .tlist .tl-sum{display:flex;flex-wrap:wrap;gap:10px}.tlist .tl-sum div{flex:1;min-width:110px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;display:grid;gap:2px}.tlist .tl-sum span{font-size:12px;color:var(--muted)}
 .tlist .table-scroll{max-height:55vh;overflow:auto}.tlist tr.row{cursor:pointer}
 .tlist th .linkish{font:inherit;text-transform:inherit;letter-spacing:inherit;text-decoration:none}
+
+.acc-btn{display:inline-flex;align-items:center;gap:8px;max-width:240px}.acc-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.accmenu{min-width:270px;max-height:min(70vh,560px);overflow:auto;padding:6px}
+.acc-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;cursor:pointer}.acc-row:hover{background:var(--surface-2)}
+.acc-row input{width:15px;height:15px;accent-color:var(--accent);flex:none;margin:0}.acc-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.acc-row.on .acc-nm{font-weight:600}.acc-all{border-bottom:1px solid var(--line);border-radius:8px 8px 0 0;margin-bottom:4px}
+.acc-sec{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:8px 10px 4px}
+.acc-arch{background:color-mix(in srgb,var(--accent) 9%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 20%,var(--line));border-radius:10px;padding:4px}
+.acc-arch .acc-row{color:var(--muted)}.acc-arch .acc-row.on{color:var(--ink)}
+.acc-manage{display:block;width:100%;text-align:left;padding:8px 10px;margin-top:4px;border-top:1px solid var(--line)!important;border-radius:0}
+tr.acct-arch td{opacity:.6}
 </style>
 
 <div class="app">
@@ -2148,6 +2159,8 @@ function allAccounts() {
   return list;
 }
 const acctById = id => allAccounts().find(a => a.id === id);
+const activeAccounts = () => allAccounts().filter(a => !a.archived);
+const archivedAccounts = () => allAccounts().filter(a => a.archived);
 const selAccounts = () => { const all = allAccounts(); return S.accSel ? all.filter(a => S.accSel.includes(a.id)) : all; };
 function startBal() { return selAccounts().reduce((a, x) => a + (+x.startingBalance || 0), 0); }
 const cashSel = () => S.cash.filter(c => !S.accSel || S.accSel.includes(c.accountId || 'main'));
@@ -2176,15 +2189,18 @@ function passFilter(t, f = S.flt) {
   return true;
 }
 function fltCount(f = S.flt) { let n = 0; ['symbols', 'weekdays', 'playbooks', 'tagsIn', 'tagsOut'].forEach(k => { if (f[k].length) n++; }); ['side', 'status', 'reviewed', 'rMin', 'rMax', 'hFrom', 'hTo'].forEach(k => { if (f[k] !== '') n++; }); if (f.minRating) n++; return n; }
-function applyFilters() { const sel = S.accSel; S.trades = S.allTrades.filter(t => (!sel || sel.includes(acctOf(t))) && passFilter(t)); }
+function applyFilters() { const sel = S.accSel, arch = new Set(archivedAccounts().map(a => a.id)); S.trades = S.allTrades.filter(t => (sel ? sel.includes(acctOf(t)) : !arch.has(acctOf(t))) && passFilter(t)); }
 function saveFilterPrefs() { try { localStorage.setItem('ll-flt', JSON.stringify(S.flt)); localStorage.setItem('ll-acc', JSON.stringify(S.accSel)); } catch (e) {} }
 function acctFilterBar() {
-  const accs = allAccounts(), sel = S.accSel, n = fltCount();
-  const label = !sel || sel.length === accs.length ? 'All accounts' : sel.length === 1 ? (acctById(sel[0]) || {}).name || '1 account' : sel.length + ' accounts';
-  const menu = S.accMenu ? `<div class="ddmenu" role="menu"><label class="ddrow"><input type="checkbox" data-action="accToggle" data-v="all" ${!sel ? 'checked' : ''}>All accounts</label><div class="label" style="padding:4px 8px 0">My accounts</div>
-    ${accs.map(a => `<label class="ddrow"><input type="checkbox" data-action="accToggle" data-v="${a.id}" ${!sel || sel.includes(a.id) ? 'checked' : ''}>${esc(a.name)}</label>`).join('')}
-    <button class="linkish" style="padding:6px 8px;text-align:left" data-action="settings" data-v="accounts">Manage accounts</button></div>` : '';
-  return `<div class="ddwrap"><button class="ghost" data-action="accMenu" aria-expanded="${!!S.accMenu}">${esc(label)} ▾</button>${menu}</div>
+  const act = activeAccounts(), arc = archivedAccounts(), sel = S.accSel, n = fltCount(), on = id => sel ? sel.includes(id) : !arc.some(a => a.id === id);
+  const one = sel && sel.length === 1 ? acctById(sel[0]) : null;
+  const label = !sel ? 'All accounts' : one ? one.name : sel.length + ' accounts';
+  const row = a => `<label class="ddrow acc-row${on(a.id) ? ' on' : ''}"><input type="checkbox" data-action="accToggle" data-v="${a.id}" ${on(a.id) ? 'checked' : ''}>${blogo(a.broker || 'Manual', 20)}<span class="acc-nm" title="${esc(a.name)}">${esc(a.name)}</span></label>`;
+  const menu = S.accMenu ? `<div class="ddmenu accmenu" role="menu"><label class="ddrow acc-row acc-all${!sel ? ' on' : ''}"><input type="checkbox" data-action="accToggle" data-v="all" ${!sel ? 'checked' : ''}><span class="acc-nm">All accounts</span></label>
+    <div class="acc-sec">My accounts</div>${act.map(row).join('') || '<p class="hint" style="padding:4px 10px">No active accounts.</p>'}
+    ${arc.length ? `<div class="acc-sec">Archived accounts</div><div class="acc-arch">${arc.map(row).join('')}</div>` : ''}
+    <button class="linkish acc-manage" data-action="settings" data-v="accounts">⚙ Manage accounts</button></div>` : '';
+  return `<div class="ddwrap"><button class="ghost acc-btn" data-action="accMenu" aria-expanded="${!!S.accMenu}"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5A1.5 1.5 0 014 3h8v2.5"/><rect x="2.5" y="5" width="11" height="8" rx="1.5"/><path d="M10.5 9h3"/></svg><span class="acc-lbl">${esc(label)}</span><span class="car">${S.accMenu ? '▴' : '▾'}</span></button>${menu}</div>
     <button class="ghost${n ? ' on' : ''}" data-action="filters">Filters${n ? ` <span class="chip">${n}</span>` : ''}</button>${n ? '<button class="icon-btn" data-action="clearFilters" aria-label="Clear all filters" title="Clear filters">✕</button>' : ''}`;
 }
 function filterModal() {
@@ -4144,13 +4160,13 @@ function accountsTable() {
       const Y = a.sync && a.sync.type === 'auto' ? a.sync : null, bal = Y && Y.balance != null ? Y.balance : (+a.startingBalance || 0) + net + cash;
       const lastImp = S.imports.filter(i => i.accountId === a.id).map(i => i.at).sort().pop(), last = Y ? Y.lastSync : (lastImp || (ts.length ? ts.map(t => t.createdAt || t.date).sort().pop() : ''));
       const open = S.acctMenu === a.id, NT = ntLinked(a), ST = S.syncStat || {};
-      return `<tr><td><b>${esc(a.name)}</b>${Y && Y.error ? `<div class="hint loss" title="${esc(Y.error)}">Sync problem: ${esc(Y.error.slice(0, 60))}</div>` : ''}</td>
+      return `<tr class="${a.archived ? 'acct-arch' : ''}"><td><b>${esc(a.name)}</b>${a.archived ? ' <span class="tchip slate">Archived</span>' : ''}${Y && Y.error ? `<div class="hint loss" title="${esc(Y.error)}">Sync problem: ${esc(Y.error.slice(0, 60))}</div>` : ''}</td>
         <td><span class="pb-row" style="gap:8px;align-items:center">${blogo(a.broker || 'Manual', 24)}${esc(a.broker || 'Manual')}</span></td>
         <td class="r num"><button class="linkish num" data-action="acctEdit" data-v="${a.virtual ? '' : a.id}" ${a.virtual ? 'disabled' : ''}>${priv(money(bal))}</button></td>
         <td class="num">${NT && ST.lastAt ? acctStamp(ST.lastAt) : acctStamp(last)}</td><td class="num">${NT ? (ST.lastAt ? 'Live' : '–') : Y ? (S.syncing[a.id] ? 'Syncing…' : acctStamp(new Date(Math.max(Date.now(), Date.parse(Y.lastSync || 0) + SYNC_EVERY)).toISOString())) : '–'}</td>
         <td>${NT ? `<button class="acct-type linkish" data-action="ntToggle" data-open="1" title="Live sync settings">Live sync <span class="tchip ${ntLive() ? 'green' : 'slate'}">${ntLive() ? 'Synced' : 'Waiting'}</span></button>` : Y ? `<span class="acct-type">Auto sync <span class="tchip green">Synced</span></span>` : 'Manual'}</td>
         <td class="r" style="white-space:nowrap;position:relative"><button class="icon-btn has-tip" data-action="awForAcct" data-v="${a.id}" aria-label="Add trades to ${esc(a.name)}" data-tip="Add trades">+</button><button class="icon-btn" data-action="acctMenu" data-v="${a.id}" aria-expanded="${open}" aria-label="More actions">⋮</button>
-          ${open ? `<div class="acct-menu" role="menu">${Y ? `<button role="menuitem" data-action="acctSync" data-v="${a.id}" ${hasBrokerApi() ? '' : 'disabled'}>Sync now</button><button role="menuitem" data-action="acctUnlink" data-v="${a.id}">${S.armed === 'unl-' + a.id ? 'Confirm: stop auto-sync' : 'Stop auto-sync'}</button>` : ''}${a.virtual ? '' : accs.filter(o => o.id !== a.id).map(o => { const n = S.allTrades.filter(t => acctOf(t) === o.id).length; return n ? `<button role="menuitem" data-action="acctMoveIn" data-v="${a.id}" data-from="${o.id}">Move ${n} trade${n === 1 ? '' : 's'} here from ${esc(o.name)}</button>` : ''; }).join('')}${a.virtual ? '' : `<button role="menuitem" data-action="acctEdit" data-v="${a.id}">Edit</button>`}${ts.length || a.virtual ? '' : `<button role="menuitem" class="danger" data-action="acctDel" data-v="${a.id}">${S.armed === 'acc-' + a.id ? 'Confirm delete' : 'Delete'}</button>`}</div>` : ''}</td></tr>`;
+          ${open ? `<div class="acct-menu" role="menu">${Y ? `<button role="menuitem" data-action="acctSync" data-v="${a.id}" ${hasBrokerApi() ? '' : 'disabled'}>Sync now</button><button role="menuitem" data-action="acctUnlink" data-v="${a.id}">${S.armed === 'unl-' + a.id ? 'Confirm: stop auto-sync' : 'Stop auto-sync'}</button>` : ''}${a.virtual ? '' : accs.filter(o => o.id !== a.id).map(o => { const n = S.allTrades.filter(t => acctOf(t) === o.id).length; return n ? `<button role="menuitem" data-action="acctMoveIn" data-v="${a.id}" data-from="${o.id}">Move ${n} trade${n === 1 ? '' : 's'} here from ${esc(o.name)}</button>` : ''; }).join('')}${a.virtual ? '' : `<button role="menuitem" data-action="acctEdit" data-v="${a.id}">Edit</button><button role="menuitem" data-action="acctArchive" data-v="${a.id}">${a.archived ? 'Unarchive' : 'Archive'}</button>`}${ts.length || a.virtual ? '' : `<button role="menuitem" class="danger" data-action="acctDel" data-v="${a.id}">${S.armed === 'acc-' + a.id ? 'Confirm delete' : 'Delete'}</button>`}</div>` : ''}</td></tr>`;
     }).join('')}</tbody></table></div>`;
 }
 S.syncing = {};
@@ -5692,9 +5708,9 @@ document.addEventListener('click', async e => {
     case 'shareTrade': { const t = byId(id); if (!t) return; const r = roi(t); const txt = `${t.symbol} ${t.side} · ${dateLabel(t.date)}${t.time ? ' ' + t.time : ''}${t.exitTime ? '–' + t.exitTime : ''}\nNet P&L ${money(t.pnl)}${r != null ? ' · ROI ' + r.toFixed(2) + '%' : ''}${riskOf(t) ? ' · ' + rOf(t).toFixed(2) + 'R' : ''}\nEntry ${t.entry ?? '–'} → Exit ${t.exit ?? '–'} · Qty ${t.qty ?? '–'}`; try { await navigator.clipboard.writeText(txt); toast('Trade summary copied. Paste it anywhere to share.'); } catch (_) { toast('Copying isn’t allowed here.'); } return; }
     case 'accMenu': S.accMenu = !S.accMenu; S.dashMenu = false; break;
     case 'accToggle': {
-      e.preventDefault(); const all = allAccounts().map(a => a.id), v = b.dataset.v;
+      e.preventDefault(); const all = activeAccounts().map(a => a.id), v = b.dataset.v;
       if (v === 'all') S.accSel = null;
-      else { let cur = S.accSel ? [...S.accSel] : [...all]; cur = cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v]; if (!cur.length) { toast('Keep at least one account selected.'); return; } S.accSel = cur.length === all.length ? null : cur; }
+      else { let cur = S.accSel ? [...S.accSel] : [...all]; cur = cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v]; if (!cur.length) { toast('Keep at least one account selected.'); return; } S.accSel = cur.length === all.length && cur.every(x => all.includes(x)) ? null : cur; }
       applyFilters(); saveFilterPrefs(); break;
     }
     case 'filters': S.fltEdit = JSON.parse(JSON.stringify(S.flt)); S.fltTab = 'general'; return openModal('filters');
@@ -5711,6 +5727,7 @@ document.addEventListener('click', async e => {
     case 'clearFilters': S.flt = EMPTY_FLT(); applyFilters(); saveFilterPrefs(); break;
     case 'settings': S.view = 'settings'; S.setTab = b.dataset.v; S.accMenu = false; S.profMenu = false; window.scrollTo(0, 0); closeModal(); rpStop(); break;
     case 'acctEdit': if (!needDb()) return; return openModal('acct', b.dataset.v);
+    case 'acctArchive': { const a = S.accounts.find(x => x.id === b.dataset.v); if (!a || !needDb()) return; a.archived = !a.archived; S.acctMenu = null; if (a.archived && S.accSel) { S.accSel = S.accSel.filter(x => x !== a.id); if (!S.accSel.length) S.accSel = null; } saveFilterPrefs(); S.db.collection('accounts').doc(a.id).update({ archived: a.archived }).catch(writeErr); applyFilters(); toast(a.archived ? `${a.name} archived. Its trades are hidden from "All accounts" but kept.` : `${a.name} is active again`); break; }
     case 'acctDel': { const k = b.dataset.v; if (S.armed !== 'acc-' + k) { S.armed = 'acc-' + k; break; } S.armed = null; if (S.accSel) S.accSel = S.accSel.filter(x => x !== k); if (S.accSel && !S.accSel.length) S.accSel = null; saveFilterPrefs(); S.db.collection('accounts').doc(k).delete().catch(writeErr); S.accounts = S.accounts.filter(a => a.id !== k); toast('Account deleted'); break; }
     case 'feeAdd': if (!needDb()) return; S.fees = [...(S.fees || []), { root: '', fee: 0 }]; S.db.doc('settings/fees').set({ rows: S.fees }).catch(writeErr); break;
     case 'feeDel': S.fees = S.fees.filter((_, i) => i !== +b.dataset.i); S.db.doc('settings/fees').set({ rows: S.fees }).catch(writeErr); break;
