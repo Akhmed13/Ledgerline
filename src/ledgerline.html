@@ -910,7 +910,7 @@ a.focus-item{text-decoration:none;color:inherit}
 .nbi.on{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--accent)}.nbi:hover{background:var(--surface-2)}
 .nbi-b{flex:1;display:flex;flex-direction:column;gap:2px;border:0;background:none;text-align:left;padding:8px 4px;min-width:0;color:var(--ink)}
 .nbi-b b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nbi-p{font-size:12px;font-weight:700;letter-spacing:.02em}.nbi-pv{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nbi-p{font-size:12px;font-weight:700;letter-spacing:.02em}.nbi-p.gain{color:var(--gain)}.nbi-p.loss{color:var(--loss)}.nbi-pv{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nbi-b small{color:var(--muted);font-size:11.5px}
 .nb-ed{padding:18px 22px;min-width:0}
 .nbh{display:flex;align-items:center;gap:10px}
@@ -4823,9 +4823,9 @@ S.nbSort = 'updated'; S.nbChecked = new Set(); S.nbStatsOpen = true; S.nbSide = 
 const FIXED_FOLDERS = [{ id: 'all', name: 'All notes', fixed: 1, color: 'violet' }, { id: 'trade', name: 'Trade notes', fixed: 1, color: 'violet' }, { id: 'journal', name: 'Daily journal', fixed: 1, color: 'violet' }, { id: 'recap', name: 'Sessions recap', fixed: 1, color: 'violet' }, { id: 'backtest', name: 'Backtesting session notes', fixed: 1, color: 'violet' }, { id: 'mine', name: 'My notes', fixed: 1, color: 'slate' }];
 function nbFolders() { const fx = S.nbSet.fixed || {}; return [...FIXED_FOLDERS.map(f => ({ ...f, ...(fx[f.id] || {}) })), ...S.folders]; }
 const fname = id => (nbFolders().find(x => x.id === id) || {}).name || 'My notes';
-function placeDrp() { const m = document.querySelector('.nb-pop.drp'), b = document.querySelector('.nbh-range'); if (!m || !b || innerWidth <= 900) return; const r = b.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.bottom + 6)) + 'px'; }
+function placeDrp() { const m = document.querySelector('.nb-pop.drp'), b = document.querySelector('[data-drp-anchor]'); if (!m || !b || innerWidth <= 900) return; const r = b.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.bottom + 6)) + 'px'; }
 function placeNbPop() { placeDrp(); const m = document.querySelector('.nb-pop.fixed'); if (!m) return; const b = document.querySelector('.nbf [data-action="nbPop"][aria-expanded="true"]'); if (!b) return; const r = b.getBoundingClientRect(), w = m.offsetWidth || 200, h = m.offsetHeight || 90; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w)) + 'px'; m.style.top = (r.bottom + h + 8 > innerHeight ? Math.max(8, r.top - h - 4) : r.bottom + 4) + 'px'; }
-addEventListener('scroll', () => { if (S.nbPop && (String(S.nbPop).startsWith('f:') || S.nbPop === 'range')) placeNbPop(); }, { passive: true, capture: true });
+addEventListener('scroll', () => { if (S.nbPop && (String(S.nbPop).startsWith('f:') || S.nbPop === 'range' || S.nbPop === 'newsession')) placeNbPop(); }, { passive: true, capture: true });
 addEventListener('resize', () => { if (S.nbPop) placeNbPop(); });
 const fmtMDY = s => { if (!s) return ''; const d = new Date(s); return isNaN(d) ? '' : `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()}`; };
 const fmtStampL = s => { if (!s) return '–'; const d = new Date(s); return isNaN(d) ? '–' : d.toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
@@ -4867,7 +4867,7 @@ function notebookView() {
     <div class="label nbs-l">Tags</div><div class="nb-taglist">${Object.keys(tags).sort().map(t => `<button class="nb-tagf" data-action="nbTagF" data-v="${esc(t)}" aria-pressed="${S.nbTag === t}">${esc(t)} <span>${tags[t]}</span></button>`).join('') || '<p class="hint">Tags you add to notes appear here.</p>'}</div>
     <button class="nbf-btn nb-trash" data-action="nbFolder" data-v="trash" aria-pressed="${f === 'trash'}"><span class="nm">🗑 Recently deleted</span><span class="ct">${all.filter(i => i.deleted).length}</span></button></aside>`;
   const isJ = f === 'journal', checked = L.filter(i => S.nbChecked.has(i.kind + '|' + i.key));
-  const list = `<section class="panel nb-list"><div class="nbl-head"><span class="nb-popwrap">${f === 'trash' ? '<span class="hint">Deleted notes are kept for 30 days.</span>' : f === 'recap' ? '<button class="linkish" data-action="nbLogSession">🗓 Log session</button>' : isJ ? `<button class="linkish" data-action="nbPop" data-v="log" aria-expanded="${S.nbPop === 'log'}">📅 Log day</button>${S.nbPop === 'log' ? `<div class="nb-pop logpop"><form data-form="nbLog"><label class="hint">Day to log<input type="date" id="nbLogD" class="fin" value="${todayIso()}" required></label><button class="primary sm" type="submit">Open</button></form></div>` : ''}` : `<button class="linkish" data-action="newNote">📝 New note</button>`}</span>
+  const list = `<section class="panel nb-list"><div class="nbl-head"><span class="nb-popwrap">${f === 'trash' ? '<span class="hint">Deleted notes are kept for 30 days.</span>' : f === 'recap' ? `<button class="linkish" data-action="nbLogSession" aria-expanded="${S.nbPop === 'newsession'}" ${S.nbPop === 'newsession' ? 'data-drp-anchor' : ''}>🗓 Log session</button>${S.nbPop === 'newsession' ? drpHtml() : ''}` : isJ ? `<button class="linkish" data-action="nbPop" data-v="log" aria-expanded="${S.nbPop === 'log'}">📅 Log day</button>${S.nbPop === 'log' ? `<div class="nb-pop logpop"><form data-form="nbLog"><label class="hint">Day to log<input type="date" id="nbLogD" class="fin" value="${todayIso()}" required></label><button class="primary sm" type="submit">Open</button></form></div>` : ''}` : `<button class="linkish" data-action="newNote">📝 New note</button>`}</span>
       ${!S.nbSide ? '<button class="icon-btn" data-action="nbSide" aria-label="Show folders">›</button>' : ''}<span class="nb-popwrap"><button class="icon-btn" data-action="nbPop" data-v="sort" aria-label="Sort notes" aria-expanded="${S.nbPop === 'sort'}">⇅</button>${S.nbPop === 'sort' ? `<div class="nb-pop right">${[['updated', 'Last edited'], ['date', 'Date, newest'], ['oldest', 'Date, oldest'], ['title', 'Title A–Z']].map(([k, l]) => `<button data-action="nbSort" data-v="${k}" aria-pressed="${S.nbSort === k}">${S.nbSort === k ? '✓ ' : ''}${l}</button>`).join('')}</div>` : ''}</span></div>
     <label class="nb-selall"><input type="checkbox" data-nbcheck="__all" ${L.length && checked.length === L.length ? 'checked' : ''}> Select all</label>
     ${checked.length ? `<div class="nb-bulk"><b>${checked.length} selected</b>${f === 'trash' ? `<button class="ghost sm" data-action="nbBulk" data-v="restore">Restore</button><button class="del" data-action="nbBulk" data-v="purge">${S.armed === 'nbpurge' ? 'Confirm' : 'Delete forever'}</button>` : `${checked.every(i => i.kind === 'note') ? `<select class="fin" id="nbMoveSel" aria-label="Move to folder"><option value="">Move to…</option><option value="mine">${esc(fname('mine'))}</option><option value="recap">${esc(fname('recap'))}</option>${S.folders.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>` : ''}<button class="del" data-action="nbBulk" data-v="del">${S.armed === 'nbdel' ? 'Confirm' : 'Delete'}</button>`}</div>` : ''}
@@ -4908,7 +4908,7 @@ function nbEditor(sel) {
   const n = S.notes.find(x => x.id === sel.key); if (!n) return '<div class="hint">This note was deleted.</div>';
   if (n.session && !n.deleted) {
     const ts = rangeTrades(n.session), st = dayStats(ts);
-    return `<div class="nbh">${focusBtn}<span class="nb-popwrap nbh-rangew"><button class="nbh-range" data-action="nbRange" aria-expanded="${S.nbPop === 'range'}" title="Change dates">📅 <span class="nbh-title">${esc(rangeTitle(n.session))}</span></button>${S.nbPop === 'range' ? drpHtml() : ''}</span><span class="saved" id="savedMark"></span>${nbHeadBtns('note', n.id)}</div>
+    return `<div class="nbh">${focusBtn}<span class="nb-popwrap nbh-rangew"><button class="nbh-range" data-action="nbRange" aria-expanded="${S.nbPop === 'range'}" ${S.nbPop === 'range' ? 'data-drp-anchor' : ''} title="Change dates">📅 <span class="nbh-title">${esc(rangeTitle(n.session))}</span></button>${S.nbPop === 'range' ? drpHtml() : ''}</span><span class="saved" id="savedMark"></span>${nbHeadBtns('note', n.id)}</div>
       <div class="nbh-pnl ${cls(st.net)}">Net P&amp;L ${priv(money(st.net))}</div>
       <div class="nbh-meta">Created: ${fmtStampL(n.createdAt)} &nbsp; Last updated: ${fmtStampL(n.updatedAt)}</div>
       <button class="icon-btn nb-statt" data-action="nbStats" aria-expanded="${S.nbStatsOpen}" aria-label="${S.nbStatsOpen ? 'Hide session stats' : 'Show session stats'}">${S.nbStatsOpen ? '⌄' : '›'}</button>
@@ -4934,7 +4934,8 @@ async function nbRestore(id) {
   else if (o && o.kind === 'journal') { const j = S.journal[o.key] || {}; await saveJournal(o.key, { html: (hasText(j.html) ? j.html + '<p><br></p>' : '') + (n.html || ''), tags: [...new Set([...(j.tags || []), ...(n.tags || [])])], logged: true }).catch(writeErr); S.notes = S.notes.filter(x => x.id !== id); await S.db.collection('notes').doc(id).delete().catch(writeErr); S.nbSel = { kind: 'journal', key: o.key }; }
   else { n.deleted = false; n.deletedAt = null; await S.db.collection('notes').doc(id).update({ deleted: false, deletedAt: null }).catch(writeErr); S.nbSel = { kind: 'note', key: id }; }
 }
-function nbPurgeOld() { if (!S.db || S._purged) return; S._purged = true; const cut = Date.now() - 30 * 864e5; S.notes.filter(n => n.deleted && Date.parse(n.deletedAt || 0) < cut).forEach(n => S.db.collection('notes').doc(n.id).delete().catch(() => {})); }
+function nbDedupeSessions() { const seen = new Set(); S.notes.filter(n => n.session && !n.deleted).sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt))).forEach(n => { const k = n.session.from + '|' + n.session.to; const empty = !hasText(n.html) && !(n.tags || []).length && !n.shareId && !n.title; if (seen.has(k) && empty) { S.notes = S.notes.filter(x => x.id !== n.id); S.db.collection('notes').doc(n.id).delete().catch(() => {}); } else seen.add(k); }); }
+function nbPurgeOld() { if (!S.db || S._purged) return; S._purged = true; nbDedupeSessions(); rerender(); const cut = Date.now() - 30 * 864e5; S.notes.filter(n => n.deleted && Date.parse(n.deletedAt || 0) < cut).forEach(n => S.db.collection('notes').doc(n.id).delete().catch(() => {})); }
 function folderModal(id) {
   const fo = nbFolders().find(x => x.id === id), col = (S.folderDraft && S.folderDraft.color) || (fo && fo.color) || 'violet';
   return `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">${fo ? 'Edit folder' : 'New folder'}</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
@@ -4975,10 +4976,18 @@ function drpMonth(ym, side) {
 function drpHtml() {
   const D = S.drp; if (!D) return '';
   return `<div class="nb-pop drp" role="dialog" aria-label="Pick a date range"><div class="drp-main"><div class="drp-top"><span class="${D.pick === 0 ? 'on' : ''}">${D.from ? dOf(D.from).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }) : 'Start date'}</span><span>→</span><span class="${D.pick === 1 ? 'on' : ''}">${D.to ? dOf(D.to).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }) : 'End date'}</span></div>
-    <div class="drp-ms">${drpMonth(D.m, 0)}${drpMonth(ymAdd(D.m, 1), 1)}</div><p class="hint">${D.pick === 1 ? 'Now pick the end date.' : 'Pick the start date.'}</p></div>
+    <div class="drp-ms">${drpMonth(D.m, 0)}${drpMonth(ymAdd(D.m, 1), 1)}</div><p class="hint">${D.mode === 'new' ? 'Pick the dates for the new session recap. ' : ''}${D.pick === 1 ? 'Now pick the end date.' : 'Pick the start date.'}</p></div>
     <div class="drp-pre">${DRP_PRESETS.map(([k, l]) => `<button data-action="drpPreset" data-v="${k}">${l}</button>`).join('')}</div></div>`;
 }
 async function applyRange(from, to) {
+  if (to < from) [from, to] = [to, from];
+  if (S.drp && S.drp.mode === 'new') {
+    S.nbPop = null; S.drp = null;
+    const same = S.notes.find(x => !x.deleted && x.session && x.session.from === from && x.session.to === to);
+    if (same) { S.nbSel = { kind: 'note', key: same.id }; toast('You already have a recap for these dates, so it opened.'); rerender(); return; }
+    const id = 'n-' + uid(), now = new Date().toISOString(), n = { title: '', folder: 'recap', session: { from, to }, html: '', tags: [], createdAt: now, updatedAt: now };
+    S.notes.unshift({ ...n, id }); await S.db.collection('notes').doc(id).set(n).catch(writeErr); S.nbSel = { kind: 'note', key: id }; toast('Session recap created'); rerender(); setTimeout(() => $('editor')?.focus(), 30); return;
+  }
   const sel = S.nbSel, n = sel && S.notes.find(x => x.id === sel.key); if (!n) return;
   if (to < from) [from, to] = [to, from];
   n.session = { from, to }; n.updatedAt = new Date().toISOString(); S.nbPop = null; S.drp = null;
@@ -5292,7 +5301,7 @@ document.addEventListener('click', async e => {
   if (a === 'sel' || a === 'selAll' || a === 'toggleRev') e.stopPropagation();
   switch (a) {
     case 'add': if (!needDb()) return; return openModal('add', b.dataset.d);
-    case 'nbLogSession': { if (!needDb()) return; const id = 'n-' + uid(), now = new Date().toISOString(), [from, to] = presetRange('week'); const n = { title: '', folder: 'recap', session: { from, to }, html: '', tags: [], createdAt: now, updatedAt: now }; S.notes.unshift({ ...n, id }); S.db.collection('notes').doc(id).set(n).catch(writeErr); S.nbSel = { kind: 'note', key: id }; drpOpen({}); S.nbPop = 'range'; break; }
+    case 'nbLogSession': { if (!needDb()) return; if (S.nbPop === 'newsession') { S.nbPop = null; S.drp = null; break; } drpOpen({}); S.drp.mode = 'new'; S.nbPop = 'newsession'; break; }
     case 'nbRange': { const n = S.nbSel && S.notes.find(x => x.id === S.nbSel.key); if (S.nbPop === 'range') { S.nbPop = null; S.drp = null; } else { drpOpen(n && n.session); S.nbPop = 'range'; } break; }
     case 'drpDay': { const D = S.drp, d = b.dataset.d; if (!D) return; if (D.pick === 0) { D.from = d; D.to = ''; D.pick = 1; rerender(); return; } await applyRange(D.from, d); toast('Session dates saved'); return; }
     case 'drpNav': S.drp.m = ymAdd(S.drp.m, +b.dataset.v); rerender(); return;
