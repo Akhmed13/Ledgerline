@@ -1050,6 +1050,22 @@ a.focus-item{text-decoration:none;color:inherit}
 .ov-t dt{color:var(--ink);font-size:13.5px}.ov-t dd{margin:0;font-weight:600;text-align:right;white-space:nowrap}
 .ov-t dd.gain{color:var(--gain)}.ov-t dd.loss{color:var(--loss)}.ov-top .gain{color:var(--gain)}.ov-top .loss{color:var(--loss)}
 @media (max-width:900px){.ov-cols{grid-template-columns:1fr}.ov{padding:16px}.ov-top{gap:24px}}
+
+.nt-card{margin-top:18px;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.nt-head{width:100%;display:flex;align-items:center;gap:12px;padding:12px 16px;border:0;background:none;text-align:left;color:var(--ink)}
+.nt-head:hover{background:var(--surface-2)}.nt-card.open .nt-head{border-bottom:1px solid var(--line)}
+.nt-ht{flex:1;display:grid;gap:1px;min-width:0}.nt-ht b{font-size:15px}.nt-ht .hint{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nt-car{width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:12px}
+.nt-body{padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+.nt-map2{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.nt-mrow{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);align-items:center;gap:10px;padding:8px 12px;border-top:1px solid var(--line)}
+.nt-mrow:first-child{border-top:0}.nt-mrow.head{background:var(--surface-2);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.nt-mrow select{padding:6px 8px}
+.nt-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.nt-foot{margin:0}
+.acct-type{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+@media (max-width:640px){.nt-head .tchip{display:none}.nt-mrow{grid-template-columns:1fr;gap:4px}.nt-mrow .hint{display:none}}
+.acct-table td{white-space:nowrap}.acct-table td:first-child{white-space:normal}
+.acct-type.linkish{color:var(--ink);text-decoration:none}.acct-table th,.acct-table td{padding-left:8px;padding-right:8px}
 </style>
 
 <div class="app">
@@ -4114,18 +4130,18 @@ async function moveTrades(ids, to) {
 }
 function accountsTable() {
   const accs = allAccounts();
-  return `<div class="toolbar"><div><h3 class="h3">Accounts</h3><div class="hint">Each account has its own balance. Auto-synced accounts pull new trades every 6 hours while the journal is open.</div></div><button class="primary" data-action="acctEdit" data-v="">Add account</button></div>
+  return `<div class="toolbar"><div><h3 class="h3">Accounts</h3><div class="hint">Each account has its own balance. Live-synced accounts update as you trade; auto-synced ones every 6 hours.</div></div><button class="primary" data-action="acctEdit" data-v="">Add account</button></div>
     <div class="table-scroll"><table class="rtable acct-table"><thead><tr><th>Account name</th><th>Broker</th><th class="r">Balance</th><th>Last update</th><th>Next update</th><th>Type</th><th class="r">Actions</th></tr></thead><tbody>
     ${accs.map(a => {
       const ts = S.allTrades.filter(t => acctOf(t) === a.id), net = ts.reduce((x, t) => x + t.pnl, 0), cash = S.cash.filter(c => (c.accountId || 'main') === a.id).reduce((x, c) => x + c.amount, 0);
       const Y = a.sync && a.sync.type === 'auto' ? a.sync : null, bal = Y && Y.balance != null ? Y.balance : (+a.startingBalance || 0) + net + cash;
       const lastImp = S.imports.filter(i => i.accountId === a.id).map(i => i.at).sort().pop(), last = Y ? Y.lastSync : (lastImp || (ts.length ? ts.map(t => t.createdAt || t.date).sort().pop() : ''));
-      const open = S.acctMenu === a.id;
+      const open = S.acctMenu === a.id, NT = ntLinked(a), ST = S.syncStat || {};
       return `<tr><td><b>${esc(a.name)}</b>${Y && Y.error ? `<div class="hint loss" title="${esc(Y.error)}">Sync problem: ${esc(Y.error.slice(0, 60))}</div>` : ''}</td>
         <td><span class="pb-row" style="gap:8px;align-items:center">${blogo(a.broker || 'Manual', 24)}${esc(a.broker || 'Manual')}</span></td>
         <td class="r num"><button class="linkish num" data-action="acctEdit" data-v="${a.virtual ? '' : a.id}" ${a.virtual ? 'disabled' : ''}>${priv(money(bal))}</button></td>
-        <td class="num">${fmtStamp(last)}</td><td class="num">${Y ? (S.syncing[a.id] ? 'Syncing…' : fmtStamp(new Date(Math.max(Date.now(), Date.parse(Y.lastSync || 0) + SYNC_EVERY)).toISOString())) : '–'}</td>
-        <td>${Y ? `<span class="chip" style="color:var(--gain)">Auto-sync</span>` : 'Manual'}</td>
+        <td class="num">${NT && ST.lastAt ? acctStamp(ST.lastAt) : acctStamp(last)}</td><td class="num">${NT ? (ST.lastAt ? 'Live' : '–') : Y ? (S.syncing[a.id] ? 'Syncing…' : acctStamp(new Date(Math.max(Date.now(), Date.parse(Y.lastSync || 0) + SYNC_EVERY)).toISOString())) : '–'}</td>
+        <td>${NT ? `<button class="acct-type linkish" data-action="ntToggle" data-open="1" title="Live sync settings">Live sync <span class="tchip ${ntLive() ? 'green' : 'slate'}">${ntLive() ? 'Synced' : 'Waiting'}</span></button>` : Y ? `<span class="acct-type">Auto sync <span class="tchip green">Synced</span></span>` : 'Manual'}</td>
         <td class="r" style="white-space:nowrap;position:relative"><button class="icon-btn has-tip" data-action="awForAcct" data-v="${a.id}" aria-label="Add trades to ${esc(a.name)}" data-tip="Add trades">+</button><button class="icon-btn" data-action="acctMenu" data-v="${a.id}" aria-expanded="${open}" aria-label="More actions">⋮</button>
           ${open ? `<div class="acct-menu" role="menu">${Y ? `<button role="menuitem" data-action="acctSync" data-v="${a.id}" ${hasBrokerApi() ? '' : 'disabled'}>Sync now</button><button role="menuitem" data-action="acctUnlink" data-v="${a.id}">${S.armed === 'unl-' + a.id ? 'Confirm: stop auto-sync' : 'Stop auto-sync'}</button>` : ''}${a.virtual ? '' : accs.filter(o => o.id !== a.id).map(o => { const n = S.allTrades.filter(t => acctOf(t) === o.id).length; return n ? `<button role="menuitem" data-action="acctMoveIn" data-v="${a.id}" data-from="${o.id}">Move ${n} trade${n === 1 ? '' : 's'} here from ${esc(o.name)}</button>` : ''; }).join('')}${a.virtual ? '' : `<button role="menuitem" data-action="acctEdit" data-v="${a.id}">Edit</button>`}${ts.length || a.virtual ? '' : `<button role="menuitem" class="danger" data-action="acctDel" data-v="${a.id}">${S.armed === 'acc-' + a.id ? 'Confirm delete' : 'Delete'}</button>`}</div>` : ''}</td></tr>`;
     }).join('')}</tbody></table></div>`;
@@ -5213,25 +5229,32 @@ async function ntDownload() {
   if (!dl) return toast("Downloads aren't available in this view.");
   try { await dl.save({ filename: 'LedgerLineSync.cs', data: file }); toast('Add-on downloaded'); } catch (e) { if (e && e.code !== 'declined') toast("The file couldn't be saved. Try again."); }
 }
+const acctStamp = v => { if (!v) return '–'; const d = new Date(v); if (isNaN(d)) return '–'; return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); };
+const ntLinked = a => { const C = S.syncCfg; return !!(C && !C.off && (C.accountId === a.id || Object.values(C.map || {}).includes(a.id))); };
+const ntLive = () => { const St = S.syncStat || {}; return St.lastAt && Date.now() - Date.parse(St.lastAt) < 12 * 60e3; };
 function ntSyncPanel() {
   const L = window.__llLocal, server = L && L.mode === 'server', C = S.syncCfg, St = S.syncStat || {}, accs = allAccounts().filter(a => !a.virtual);
-  const ago = St.lastAt ? Date.now() - Date.parse(St.lastAt) : Infinity, live = C && !C.off && ago < 12 * 60e3;
+  const on = C && !C.off, live = on && ntLive(), setup = !on || !St.lastAt, open = setup || S.ntOpen;
   const opt = sel => `<option value="main" ${sel === 'main' ? 'selected' : ''}>Main account</option>${accs.filter(a => a.id !== 'main').map(a => `<option value="${a.id}" ${sel === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}`;
-  const head = `<div class="toolbar" style="margin-top:22px"><div><h3 class="h3" style="display:flex;align-items:center;gap:8px">${blogo('NinjaTrader', 24)}NinjaTrader live sync ${C && !C.off ? `<span class="tchip ${live ? 'green' : 'slate'}">${live ? '● Connected' : St.lastAt ? 'Waiting for NinjaTrader' : 'Not connected yet'}</span>` : ''}</h3>
-    <div class="hint">Every fill in NinjaTrader 8 (Lucid, Tradovate, Rithmic or any other connection) lands in your journal within seconds, as a finished trade when the position goes flat.</div></div></div>`;
-  if (!server) return head + `<div class="panel" style="padding:14px 16px"><p class="hint">Live sync works on your website (the Vercel version), because NinjaTrader needs a server address to send fills to.</p></div>`;
+  const chip = on ? `<span class="tchip ${live ? 'green' : 'slate'}">${live ? '● Connected' : St.lastAt ? 'Waiting for NinjaTrader' : 'Not connected yet'}</span>` : '<span class="tchip slate">Off</span>';
+  const summary = on && St.lastAt ? `Last contact ${fmtStamp(St.lastAt)} · ${(St.accounts || []).length} account${(St.accounts || []).length === 1 ? '' : 's'} · ${St.total || 0} fills received` : 'Sync every fill from NinjaTrader 8 (Lucid, Tradovate, Rithmic…) into your journal.';
+  const head = `<button class="nt-head" data-action="ntToggle" aria-expanded="${!!open}">${blogo('NinjaTrader', 30)}<span class="nt-ht"><b>NinjaTrader live sync</b><span class="hint">${esc(summary)}</span></span>${chip}<span class="nt-car" aria-hidden="true">${open ? '▴' : '▾'}</span></button>`;
+  if (!open) return `<section class="nt-card">${head}</section>`;
+  if (!server) return `<section class="nt-card open">${head}<div class="nt-body"><p class="hint">Live sync works on your website (the Vercel version), because NinjaTrader needs a server address to send fills to.</p></div></section>`;
   const keyBox = S.syncKeyShown ? `<div class="banner" style="display:block"><b>Your sync key</b> (shown once, it's already inside the download)<div class="pb-row" style="gap:6px;margin-top:6px"><input class="fin num" readonly value="${esc(S.syncKeyShown)}" style="flex:1" aria-label="Sync key" onclick="this.select()"><button class="secondary sm" data-action="ntCopy">Copy</button></div></div>` : '';
   const steps = `<ol class="nt-steps">
-      <li><b>${S.syncKeyShown ? 'Download the add-on' : C ? 'Make a new key and download the add-on' : 'Turn on live sync'}</b><div>${S.syncKeyShown ? `<button class="primary sm" data-action="ntDownload">⬇ Download LedgerLineSync.cs</button>` : `<button class="primary sm" data-action="ntKey">${C ? 'Make new key' : 'Turn on live sync'}</button>`}${C && !S.syncKeyShown ? '<span class="hint"> A new key replaces the old one, so download the add-on again after.</span>' : ''}</div></li>
+      <li><b>${S.syncKeyShown ? 'Download the add-on' : on ? 'Make a new key and download the add-on' : 'Turn on live sync'}</b><div>${S.syncKeyShown ? `<button class="primary sm" data-action="ntDownload">⬇ Download LedgerLineSync.cs</button>` : `<button class="primary sm" data-action="ntKey">${on ? 'Make new key' : 'Turn on live sync'}</button>`}${on && !S.syncKeyShown ? '<span class="hint"> A new key replaces the old one, so download the add-on again after.</span>' : ''}</div></li>
       <li><b>Put the file in NinjaTrader's add-on folder</b><div class="hint">Copy it to <code>Documents\\NinjaTrader 8\\bin\\Custom\\AddOns\\</code></div></li>
       <li><b>Compile it once</b><div class="hint">In NinjaTrader's Control Center: <b>New → NinjaScript Editor</b>, then press <b>F5</b>. Wait for the sound, then close the editor.</div></li>
-      <li><b>Trade as usual</b><div class="hint">Open <b>New → NinjaScript Output</b> to see "Ledger Line: watching account …". Closed trades appear here automatically. Fills from today's session are sent too.</div></li></ol>`;
-  const seen = (St.accounts || []), map = (C && C.map) || {};
-  const mapping = C && !C.off ? `<div class="label" style="margin-top:12px">Put synced trades in</div><div class="nt-map"><label>Default journal account<select class="fin" data-ntmap="__default">${opt(C.accountId || 'main')}</select></label>
-      ${seen.map(n => `<label>NinjaTrader account <b>${esc(n)}</b><select class="fin" data-ntmap="${esc(n)}">${opt(map[n] || C.accountId || 'main')}</select></label>`).join('')}</div>
-      <div class="hint" style="margin-top:8px">${St.lastAt ? `Last contact ${fmtStamp(St.lastAt)}${St.lastFill ? ` · last fill ${esc(String(St.lastFill).replace('T', ' ').slice(0, 16))}` : ''}${St.open && St.open.length ? ` · open now: ${esc(St.open.join(', '))}` : ''} · ${St.total || 0} fills received` : 'No contact from NinjaTrader yet.'}${St.client ? ' · ' + esc(St.client) : ''}</div>
-      <div class="actions" style="justify-content:flex-start"><button class="del${S.armed === 'ntoff' ? ' armed' : ''}" data-action="ntOff">${S.armed === 'ntoff' ? 'Confirm: turn off live sync' : 'Turn off live sync'}</button></div>` : '';
-  return head + `<div class="panel" style="padding:14px 16px">${keyBox}${steps}${mapping}<p class="hint" style="margin-top:10px">Trades from NinjaTrader keep your tags, notes and screenshots when they update. Fees come from NinjaTrader, or from your Commissions &amp; fees table when NinjaTrader reports none. Sim and Playback accounts are skipped.</p></div>`;
+      <li><b>Trade as usual</b><div class="hint">Closed trades appear here automatically. Fills from today's session are sent too.</div></li></ol>`;
+  const seen = St.accounts || [], map = (C && C.map) || {};
+  const mapping = on ? `<div class="nt-map2"><div class="nt-mrow head"><span>NinjaTrader account</span><span></span><span>Goes into</span></div>
+      ${seen.map(n => `<div class="nt-mrow"><span class="num">${esc(n)}</span><span class="hint">→</span><select class="fin" data-ntmap="${esc(n)}" aria-label="Journal account for ${esc(n)}">${opt(map[n] || C.accountId || 'main')}</select></div>`).join('')}
+      <div class="nt-mrow"><span>Any other account</span><span class="hint">→</span><select class="fin" data-ntmap="__default" aria-label="Default journal account">${opt(C.accountId || 'main')}</select></div></div>` : '';
+  const showSteps = setup || S.syncKeyShown || S.ntSteps;
+  return `<section class="nt-card open">${head}<div class="nt-body">${keyBox}${on && !setup ? mapping : ''}${showSteps ? steps : ''}${on && !setup ? mapping ? '' : '' : mapping}
+    ${on ? `<div class="nt-actions">${!setup && !S.syncKeyShown ? `<button class="ghost sm" data-action="ntSteps" aria-expanded="${!!S.ntSteps}">${S.ntSteps ? 'Hide setup steps' : 'Setup steps & new key'}</button>` : ''}<span style="flex:1"></span><button class="del${S.armed === 'ntoff' ? ' armed' : ''}" data-action="ntOff">${S.armed === 'ntoff' ? 'Confirm: turn off live sync' : 'Turn off live sync'}</button></div>` : ''}
+    <p class="hint nt-foot">Synced trades keep your tags, notes and screenshots when they update. Fees come from NinjaTrader, or from your Commissions &amp; fees table when NinjaTrader reports none. Sim and Playback accounts are skipped.</p></div></section>`;
 }
 
 /* ---------- v32: live charts (TradingView widget) ---------- */
@@ -5493,6 +5516,8 @@ document.addEventListener('click', async e => {
     case 'folderIcon': { S.folderDraft = { ...(S.folderDraft || {}), icon: b.dataset.v }; const nm = $('folderName') ? $('folderName').value : null, st = document.querySelector('.ip-wrap') ? document.querySelector('.ip-wrap').scrollTop : 0; renderModal(); if (nm != null && $('folderName')) $('folderName').value = nm; const w = document.querySelector('.ip-wrap'); if (w) w.scrollTop = st; return; }
     case 'folderReset': { const fx = { ...(S.nbSet.fixed || {}) }; delete fx[b.dataset.v]; S.nbPop = null; await saveNbSettings({ fixed: fx }); toast('Folder reset'); break; }
     case 'folderColor': S.folderDraft = { ...(S.folderDraft || {}), color: b.dataset.v }; { const nm = $('folderName') ? $('folderName').value : null; renderModal(); if (nm != null && $('folderName')) $('folderName').value = nm; } return;
+    case 'ntToggle': S.ntOpen = b.dataset.open ? true : !S.ntOpen; if (b.dataset.open) setTimeout(() => document.querySelector('.nt-card')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 40); break;
+    case 'ntSteps': S.ntSteps = !S.ntSteps; break;
     case 'ntKey': await ntMakeKey(); return;
     case 'ntDownload': await ntDownload(); return;
     case 'ntCopy': { try { await navigator.clipboard.writeText(S.syncKeyShown); toast('Key copied'); } catch (e) { toast('Select the key and copy it.'); } return; }
