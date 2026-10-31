@@ -1210,6 +1210,27 @@ tr.acct-arch td{opacity:.6}
 .rcal-host{height:max(560px,calc(100vh - 290px))}
 .rcal-foot{padding:10px 14px;border-top:1px solid var(--line)}
 @media (max-width:560px){.rcal-host{height:70vh}}
+
+.rcal-view{margin-left:auto}
+.rcal-msg{padding:40px 16px;text-align:center}
+.rc-table{width:100%}.rc-table th{white-space:nowrap}
+.rc-table td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.rc-day td{background:var(--surface-2);font-weight:700;font-size:13px;padding:8px 10px}
+.rc-time{white-space:nowrap;width:70px}.rc-cur{white-space:nowrap;width:90px}
+.rc-row.imp-high td:first-child{box-shadow:inset 3px 0 0 var(--c-red)}.rc-row.imp-med td:first-child{box-shadow:inset 3px 0 0 var(--c-orange)}
+.rc-row.imp-high .rc-ev{color:var(--c-red);font-weight:600}.rc-row.imp-med .rc-ev{color:var(--c-orange);font-weight:600}
+.rc-row.past{opacity:.55}
+.rc-row.next td{border-top:2px solid color-mix(in srgb,var(--c-red) 55%,transparent)}
+.rc-pill{background:var(--c-red);color:#fff;border-radius:6px;padding:2px 8px;font-weight:700}
+.rc-cd{color:var(--c-red);font-weight:600;font-size:12.5px;margin-left:6px;white-space:nowrap}
+.rc-imp{display:inline-flex;gap:2px;align-items:flex-end}.rc-imp i{width:4px;border-radius:1px;background:var(--line)}
+.rc-imp i:nth-child(1){height:7px}.rc-imp i:nth-child(2){height:10px}.rc-imp i:nth-child(3){height:13px}
+.imp-high .rc-imp i.on{background:var(--c-red)}.imp-med .rc-imp i.on{background:var(--c-orange)}.imp-low .rc-imp i.on{background:var(--flat)}
+.rc-tag.hol{font-size:11.5px;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.rc-add{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-weight:700}.rc-add:hover{color:var(--accent);border-color:var(--accent)}
+.rc-added{color:var(--gain);font-weight:700}
+.rc-key{display:inline-flex;align-items:center;gap:5px;margin-right:10px}.rc-key i{width:9px;height:9px;border-radius:2px;display:inline-block}
+@media (max-width:700px){.rcal-view{margin-left:0}}
 </style>
 
 <div class="app">
@@ -3106,26 +3127,67 @@ function acctModal() {
 async function exportAllCsv() { const keep = S.rep.range; S.rep.range = 'all'; const keepT = S.trades; S.trades = S.allTrades; try { await exportCsv(); } finally { S.trades = keepT; S.rep.range = keep; } }
 
 /* ---------- economic calendar ---------- */
-const IMPACT = { high: ['High', 'var(--loss)'], med: ['Medium', 'var(--accent)'], low: ['Low', 'var(--flat)'] };
+const IMPACT = { high: ['High', 'var(--c-red)'], med: ['Medium', 'var(--c-orange)'], low: ['Low', 'var(--flat)'] };
 const impactDots = k => { const n = k === 'high' ? 3 : k === 'med' ? 2 : 1, c = (IMPACT[k] || IMPACT.low)[1]; return `<span class="imp" aria-label="${(IMPACT[k] || IMPACT.low)[0]} impact" title="${(IMPACT[k] || IMPACT.low)[0]} impact">${[1, 2, 3].map(i => `<i style="background:${i <= n ? c : 'var(--line)'}"></i>`).join('')}</span>`; };
 function econEvents(from, to) {
   return S.econ.filter(e => e.date >= from && e.date <= to && (S.ecoImpact === 'all' || (S.ecoImpact === 'high' ? e.impact === 'high' : e.impact !== 'low')) && (!S.ecoCountry || e.country === S.ecoCountry))
     .sort((a, b) => (a.date + (a.time || '99')).localeCompare(b.date + (b.time || '99')));
 }
 const OFFICIAL_CALENDARS = [['Forex Factory calendar', 'https://www.forexfactory.com/calendar'], ['Investing.com economic calendar', 'https://www.investing.com/economic-calendar/'], ['US BLS release schedule', 'https://www.bls.gov/schedule/news_release/'], ['Federal Reserve calendar', 'https://www.federalreserve.gov/newsevents/calendar.htm']];
-const CAL_COUNTRIES = [['us', '🇺🇸', 'USA'], ['eu', '🇪🇺', 'Euro area'], ['gb', '🇬🇧', 'UK'], ['de', '🇩🇪', 'Germany'], ['jp', '🇯🇵', 'Japan'], ['cn', '🇨🇳', 'China'], ['ca', '🇨🇦', 'Canada'], ['au', '🇦🇺', 'Australia'], ['ch', '🇨🇭', 'Switzerland'], ['nz', '🇳🇿', 'New Zealand'], ['fr', '🇫🇷', 'France'], ['it', '🇮🇹', 'Italy']];
-function calPrefs() { let p = {}; try { p = JSON.parse(localStorage.getItem('ll-cal') || '{}'); } catch (e) { } return { imp: p.imp || 'all', cc: Array.isArray(p.cc) && p.cc.length ? p.cc : ['us', 'eu', 'gb', 'de', 'jp', 'cn'] }; }
-function calSave(p) { try { localStorage.setItem('ll-cal', JSON.stringify(p)); } catch (e) { } }
-function liveCalendarView() {
-  const P = calPrefs(), imp = { all: '-1,0,1', med: '0,1', high: '1' }[P.imp];
-  const cfg = { __src: 'events', colorTheme: tvDark() ? 'dark' : 'light', isTransparent: true, width: '100%', height: '100%', locale: 'en', importanceFilter: imp, countryFilter: P.cc.join(',') };
-  const key = ['cal', P.imp, P.cc.join('.'), cfg.colorTheme].join('|');
-  return `<section class="panel rcal">
-    <div class="rcal-bar"><div class="seg" role="group" aria-label="Importance">${[['all', 'All'], ['med', 'Medium + high'], ['high', 'High only']].map(([k, l]) => `<button data-action="calImp" data-v="${k}" aria-pressed="${P.imp === k}">${l}</button>`).join('')}</div>
-      <div class="fchips rcal-cc">${CAL_COUNTRIES.map(([c, f, n]) => `<button class="fchip${P.cc.includes(c) ? ' on' : ''}" data-action="calCc" data-v="${c}" aria-pressed="${P.cc.includes(c)}" title="${n}">${f} ${n}</button>`).join('')}</div></div>
-    <div class="tv-host rcal-host" data-tv="${esc(key)}" data-cfg="${esc(JSON.stringify(cfg))}"><div class="tv-wait hint">Loading economic calendar…</div></div>
-    <div class="hint rcal-foot">Live calendar by TradingView, shown in your local time. Events you want on Home and in the pre-market briefing go under <button class="linkish" data-action="resTab" data-v="mine">My events</button>.</div></section>`;
+const CAL_CUR = [['USD', '🇺🇸', 'USA'], ['EUR', '🇪🇺', 'Euro area'], ['GBP', '🇬🇧', 'UK'], ['JPY', '🇯🇵', 'Japan'], ['CNY', '🇨🇳', 'China'], ['CAD', '🇨🇦', 'Canada'], ['AUD', '🇦🇺', 'Australia'], ['CHF', '🇨🇭', 'Switzerland'], ['NZD', '🇳🇿', 'New Zealand']];
+const CAL_TV = { USD: 'us', EUR: 'eu', GBP: 'gb', JPY: 'jp', CNY: 'cn', CAD: 'ca', AUD: 'au', CHF: 'ch', NZD: 'nz' };
+const curInfo = c => CAL_CUR.find(x => x[0] === c) || [c, '🏳️', c];
+function calPrefs() { let p = {}; try { p = JSON.parse(localStorage.getItem('ll-cal2') || '{}'); } catch (e) { } return { imp: p.imp || 'all', cur: Array.isArray(p.cur) && p.cur.length ? p.cur : ['USD', 'EUR', 'GBP'], wk: p.wk === 'next' ? 'next' : 'this', view: p.view === 'tv' ? 'tv' : 'table' }; }
+function calSave(p) { try { localStorage.setItem('ll-cal2', JSON.stringify(p)); } catch (e) { } }
+S.cal = { st: 'idle', events: [], updated: '' };
+async function calLoad(force) {
+  if (S.cal.st === 'loading' || (!force && S.cal.st === 'ok' && Date.now() - S.cal.t < 15 * 60e3)) return;
+  S.cal.st = 'loading';
+  try { const r = await fetch('api/calendar', { headers: { accept: 'application/json' } }); const j = await r.json().catch(() => ({})); if (!r.ok || !Array.isArray(j.events)) throw new Error(j.error || 'unavailable'); S.cal = { st: 'ok', events: j.events, updated: j.updated, t: Date.now() }; }
+  catch (e) { S.cal = { st: 'err', events: [], updated: '', err: String(e.message || e) }; }
+  if (S.view === 'resources') rerender();
 }
+const calHm = d => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+function calTvWidget(P) {
+  const cfg = { __src: 'events', colorTheme: tvDark() ? 'dark' : 'light', isTransparent: true, width: '100%', height: '100%', locale: 'en', importanceFilter: { all: '-1,0,1', med: '0,1', high: '1' }[P.imp], countryFilter: P.cur.map(c => CAL_TV[c]).filter(Boolean).join(',') };
+  return `<div class="tv-host rcal-host" data-tv="${esc(['cal', P.imp, P.cur.join('.'), cfg.colorTheme].join('|'))}" data-cfg="${esc(JSON.stringify(cfg))}"><div class="tv-wait hint">Loading economic calendar…</div></div>`;
+}
+function calMine(ev, d) { return S.econ.some(e => e.date === iso(d) && e.time === calHm(d) && e.event === ev.title); }
+function calTable(P) {
+  if (S.cal.st === 'idle') calLoad();
+  if (S.cal.st === 'idle' || S.cal.st === 'loading') return '<div class="rcal-msg hint">Loading this week\'s events…</div>';
+  if (S.cal.st === 'err') return `<div class="rcal-msg hint">The calendar feed couldn't be reached right now. <button class="linkish" data-action="calRetry">Try again</button> or switch to the <button class="linkish" data-action="calView" data-v="tv">TradingView view</button>.</div>`;
+  const now = new Date(), mon = new Date(now); mon.setHours(0, 0, 0, 0); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7)); if (P.wk === 'next') mon.setDate(mon.getDate() + 7);
+  const end = new Date(mon); end.setDate(end.getDate() + 7);
+  const ok = { all: ['high', 'med', 'low', 'hol'], med: ['high', 'med'], high: ['high'] }[P.imp];
+  const evs = S.cal.events.map(e => ({ ...e, d: new Date(e.at) })).filter(e => e.d >= mon && e.d < end && P.cur.includes(e.cur) && ok.includes(e.impact));
+  if (!evs.length) return `<div class="rcal-msg hint">${P.wk === 'next' && !S.cal.events.some(e => new Date(e.at) >= end - 7 * 864e5) ? 'Next week\'s events are usually published at the end of this week.' : 'No events match these filters.'}</div>`;
+  const next = evs.find(e => e.d > now && e.impact !== 'hol');
+  const byDay = {}; evs.forEach(e => (byDay[iso(e.d)] = byDay[iso(e.d)] || []).push(e));
+  const td = todayIso(), lbl = { high: 'High', med: 'Medium', low: 'Low', hol: 'Holiday' };
+  const rows = Object.keys(byDay).sort().map(day => `<tr class="rc-day"><td colspan="8">${dateLabel(day)}${day === td ? ' <span class="chip">Today</span>' : ''}</td></tr>` + byDay[day].map((e, i, a) => {
+    const [, flag, cname] = curInfo(e.cur), past = e.d <= now, isNext = next && e.at === next.at, t = calHm(e.d), sameT = i && a[i - 1].at === e.at && a[i - 1].cur === e.cur, mine = calMine(e, e.d);
+    return `<tr class="rc-row imp-${e.impact}${past ? ' past' : ''}${isNext ? ' next' : ''}">
+      <td class="rc-time num">${sameT ? '' : isNext ? `<span class="rc-pill">${t}</span>` : e.impact === 'hol' ? 'All day' : t}</td>
+      <td class="rc-cur">${sameT ? '' : `<span title="${esc(cname)}">${flag}</span> ${esc(e.cur)}`}</td>
+      <td>${e.impact === 'hol' ? '<span class="rc-tag hol">Holiday</span>' : `<span class="rc-imp" title="${lbl[e.impact]} impact" aria-label="${lbl[e.impact]} impact">${[1, 2, 3].map(n => `<i class="${n <= ({ high: 3, med: 2, low: 1 }[e.impact]) ? 'on' : ''}"></i>`).join('')}</span>`}</td>
+      <td class="rc-ev">${esc(e.title)}${isNext && !sameT ? ` <span class="rc-cd" data-cd="${e.d.getTime()}"></span>` : ''}</td>
+      <td class="r num">${esc(e.actual || '')}</td><td class="r num">${esc(e.forecast || '–')}</td><td class="r num">${esc(e.previous || '–')}</td>
+      <td class="r">${e.impact === 'hol' ? '' : mine ? '<span class="rc-added" title="In My events">✓</span>' : `<button class="rc-add" data-action="calAdd" data-v="${esc(e.at + '|' + e.cur + '|' + e.title)}" title="Add to My events (shows on Home and in the briefing)" aria-label="Add to My events">+</button>`}</td></tr>`;
+  }).join('')).join('');
+  return `<div class="table-scroll"><table class="rtable rc-table"><thead><tr><th>Time</th><th>Currency</th><th>Impact</th><th>Event</th><th class="r">Actual</th><th class="r">Forecast</th><th class="r">Previous</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function liveCalendarView() {
+  const P = calPrefs(), tv = P.view === 'tv';
+  return `<section class="panel rcal">
+    <div class="rcal-bar">${tv ? '' : `<div class="seg" role="group" aria-label="Week">${[['this', 'This week'], ['next', 'Next week']].map(([k, l]) => `<button data-action="calWk" data-v="${k}" aria-pressed="${P.wk === k}">${l}</button>`).join('')}</div>`}
+      <div class="seg" role="group" aria-label="Impact">${[['all', 'All'], ['med', 'Medium + high'], ['high', 'High only']].map(([k, l]) => `<button data-action="calImp" data-v="${k}" aria-pressed="${P.imp === k}">${l}</button>`).join('')}</div>
+      <div class="fchips rcal-cc">${CAL_CUR.map(([c, f, n]) => `<button class="fchip${P.cur.includes(c) ? ' on' : ''}" data-action="calCc" data-v="${c}" aria-pressed="${P.cur.includes(c)}" title="${n}">${f} ${c}</button>`).join('')}</div>
+      <div class="seg rcal-view" role="group" aria-label="View"><button data-action="calView" data-v="table" aria-pressed="${!tv}">Table</button><button data-action="calView" data-v="tv" aria-pressed="${tv}">TradingView</button></div></div>
+    ${tv ? calTvWidget(P) : calTable(P)}
+    <div class="hint rcal-foot">${tv ? 'Live calendar by TradingView. TradingView sets its own colors.' : `<span class="rc-key"><i style="background:var(--c-red)"></i>High</span><span class="rc-key"><i style="background:var(--c-orange)"></i>Medium</span><span class="rc-key"><i style="background:var(--flat)"></i>Low</span> · Times in your local time · Source: Forex Factory weekly feed${S.cal.updated ? `, updated ${calHm(new Date(S.cal.updated))}` : ''}.`} Press + to copy an event to <button class="linkish" data-action="resTab" data-v="mine">My events</button>, which feed Home and the pre-market briefing.</div></section>`;
+}
+setInterval(() => { document.querySelectorAll('[data-cd]').forEach(el => { const ms = +el.dataset.cd - Date.now(); if (ms <= 0) { el.textContent = 'Now'; return; } const h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4), sec = Math.floor(ms % 6e4 / 1e3); el.textContent = 'Coming in ' + (h ? `${h}:${String(m).padStart(2, '0')}` : `${m}:${String(sec).padStart(2, '0')}`) + (h ? ' h' : ''); }); }, 1000);
 function resourcesView() {
   const tab = S.resTab || 'live';
   const tabs = `<div class="rtabs" role="tablist">${[['live', 'Economic calendar'], ['mine', 'My events']].map(([k, l]) => `<button role="tab" class="rtab${tab === k ? ' on' : ''}" data-action="resTab" data-v="${k}" aria-selected="${tab === k}">${l}</button>`).join('')}</div>`;
@@ -6102,7 +6164,12 @@ document.addEventListener('click', async e => {
     case 'aipAsk': askClaude(b.dataset.v); return;
     case 'resTab': S.resTab = b.dataset.v; break;
     case 'calImp': { const P = calPrefs(); P.imp = b.dataset.v; calSave(P); break; }
-    case 'calCc': { const P = calPrefs(), c = b.dataset.v; P.cc = P.cc.includes(c) ? P.cc.filter(x => x !== c) : [...P.cc, c]; if (!P.cc.length) return toast('Keep at least one country.'); calSave(P); break; }
+    case 'calCc': { const P = calPrefs(), c = b.dataset.v; P.cur = P.cur.includes(c) ? P.cur.filter(x => x !== c) : [...P.cur, c]; if (!P.cur.length) return toast('Keep at least one currency.'); calSave(P); break; }
+    case 'calWk': { const P = calPrefs(); P.wk = b.dataset.v; calSave(P); break; }
+    case 'calView': { const P = calPrefs(); P.view = b.dataset.v; calSave(P); break; }
+    case 'calRetry': calLoad(true); break;
+    case 'calAdd': { const [at, cur, ...t] = b.dataset.v.split('|'), title = t.join('|'), ev = S.cal.events.find(e => e.at === at && e.cur === cur && e.title === title); if (!ev || !S.db) return; const d = new Date(at);
+      try { await S.db.collection('econ').doc('e-' + uid()).set({ date: iso(d), time: calHm(d), country: curInfo(cur)[2], event: title, impact: ev.impact === 'high' ? 'high' : ev.impact === 'med' ? 'med' : 'low', forecast: ev.forecast, previous: ev.previous, actual: ev.actual || '', note: '' }); toast('Added to My events'); } catch (err) { writeErr(err); } return; }
     case 'homeChip': S.aiOpen = true; renderAiPanel(); askClaude(b.dataset.v); return;
     case 'homeFocus': $('homeAsk')?.focus(); return;
     case 'homeBt': S.agTab = 'backtest'; S.view = 'agents'; window.scrollTo(0, 0); break;
