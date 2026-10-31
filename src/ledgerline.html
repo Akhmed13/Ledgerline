@@ -5977,7 +5977,7 @@ render();
   db.doc('settings/symbols').onSnapshot(sn => { if (sn.exists) { S.symSet = { list: [], ...sn.data() }; safeRender(); } }, () => {});
   db.collection('videos').onSnapshot(snap => { S.videos = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
   db.doc('settings/learn').onSnapshot(sn => { if (sn.exists) { S.learn = sn.data(); safeRender(); } }, () => {});
-  db.collection('notes').onSnapshot(snap => { S.notes = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
+  db.collection('notes').onSnapshot(snap => { S.notes = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); clearTimeout(S._dd); S._dd = setTimeout(() => { const n0 = S.notes.length; nbDedupeSessions(); if (S.notes.length !== n0) { if (S.nbSel && !S.notes.some(x => x.id === S.nbSel.key) && S.nbSel.kind === 'note') S.nbSel = null; safeRender(); } }, 1500); }, () => {});
   db.doc('settings/notebook').onSnapshot(s => { const x = s.exists ? s.data() : {}; S.folders = x.folders || []; S.nbSet = { favTpl: x.favTpl || [], recentTpl: x.recentTpl || [], fixed: x.fixed || {} }; safeRender(); }, () => {});
   setTimeout(nbPurgeOld, 8000);
   db.doc('settings/account').onSnapshot(s => { if (s.exists) { const d = s.data(); S.settings = { ...S.settings, ...d }; if (d.theme && THEMES.some(x => x[0] === d.theme) && d.theme !== getTheme()) { try { localStorage.setItem('ll-theme', d.theme); } catch (e) {} applyTheme(d.theme); } safeRender(); renderProfile(); } }, () => {});
