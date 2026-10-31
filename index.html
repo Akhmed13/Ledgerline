@@ -906,8 +906,10 @@ a.focus-item{text-decoration:none;color:inherit}
 .nbf.on{background:var(--surface-2)}
 .nbf-btn{flex:1;display:flex;justify-content:space-between;align-items:center;gap:6px;border:0;background:none;padding:7px 8px;border-radius:7px;text-align:left;color:var(--ink);min-width:0}
 .nbf-btn .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nbf-btn .ct{color:var(--muted);font-size:12px}
-.nbf-btn:hover{background:var(--surface-2)}.nbf-btn[aria-pressed="true"]{font-weight:600}
-.nbf-more{width:26px;height:26px;opacity:.6}.nbf:hover .nbf-more{opacity:1}
+.nbf-btn:hover{background:var(--surface-2)}.nb2 .nbf-btn[aria-pressed="true"]{font-weight:600;box-shadow:none;background:none}
+.nb-side{overflow-x:hidden}.nb-pop.fixed{position:fixed;right:auto;z-index:120}
+.nbf .nb-popwrap{flex:none}
+.nbf-more{width:26px;height:26px;opacity:0;border-color:transparent!important}.nbf:hover .nbf-more,.nbf-more:focus-visible,.nbf-more[aria-expanded="true"]{opacity:1}@media (hover:none){.nbf-more{opacity:.7}}
 .nb-taglist{display:flex;flex-wrap:wrap;gap:6px;padding:0 4px}
 .nb-tagf{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--ink)}
 .nb-tagf span{display:inline-block;min-width:16px;margin-left:4px;padding:0 5px;border-radius:999px;background:var(--surface);font-size:11px}
@@ -1414,6 +1416,7 @@ function render() {
   tvPark();
   $('root').innerHTML = html;
   tvMount();
+  placeNbPop();
   renderProfile();
   renderAiPanel();
   fixAvatarInk();
@@ -4544,7 +4547,7 @@ const REC_TPL = [
 ];
 const tplById = k => k.startsWith('c:') ? (S.templates.find(t => t.id === k.slice(2)) ? { ...S.templates.find(t => t.id === k.slice(2)), key: k, custom: true } : null) : (REC_TPL.find(t => 'r:' + t.id === k) ? { ...REC_TPL.find(t => 'r:' + t.id === k), key: k } : null);
 S.nbSet = { favTpl: [], recentTpl: [] };
-function saveNbSettings(patch) { S.nbSet = { ...S.nbSet, ...patch }; if (!S.db) return Promise.resolve(); return S.db.doc('settings/notebook').set({ folders: S.folders, favTpl: S.nbSet.favTpl || [], recentTpl: S.nbSet.recentTpl || [] }).catch(writeErr); }
+function saveNbSettings(patch) { S.nbSet = { ...S.nbSet, ...patch }; if (!S.db) return Promise.resolve(); return S.db.doc('settings/notebook').set({ folders: S.folders, favTpl: S.nbSet.favTpl || [], recentTpl: S.nbSet.recentTpl || [], fixed: S.nbSet.fixed || {} }).catch(writeErr); }
 
 /* ---- sanitising rich text ---- */
 const NB_TAGS = { DETAILS: 1, SUMMARY: 1, B: 1, STRONG: 1, I: 1, EM: 1, U: 1, S: 1, STRIKE: 1, H1: 1, H2: 1, H3: 1, H4: 1, P: 1, DIV: 1, BR: 1, UL: 1, OL: 1, LI: 1, SPAN: 1, A: 1, IMG: 1, TABLE: 1, THEAD: 1, TBODY: 1, TR: 1, TD: 1, TH: 1, BLOCKQUOTE: 1, PRE: 1, CODE: 1, HR: 1, MARK: 1 };
@@ -4809,7 +4812,10 @@ async function tlUse(k) {
 /* ---- notebook ---- */
 S.nbSort = 'updated'; S.nbChecked = new Set(); S.nbStatsOpen = true; S.nbSide = true; S.nbFocus = false; S.nbTag = ''; S.nbFilter = { kind: 'all', res: 'all' };
 const FIXED_FOLDERS = [{ id: 'all', name: 'All notes', fixed: 1, color: 'violet' }, { id: 'trade', name: 'Trade notes', fixed: 1, color: 'violet' }, { id: 'journal', name: 'Daily journal', fixed: 1, color: 'violet' }, { id: 'recap', name: 'Sessions recap', fixed: 1, color: 'violet' }, { id: 'mine', name: 'My notes', fixed: 1, color: 'slate' }];
-function nbFolders() { return [...FIXED_FOLDERS, ...S.folders]; }
+function nbFolders() { const fx = S.nbSet.fixed || {}; return [...FIXED_FOLDERS.map(f => ({ ...f, ...(fx[f.id] || {}) })), ...S.folders]; }
+const fname = id => (nbFolders().find(x => x.id === id) || {}).name || 'My notes';
+function placeNbPop() { const m = document.querySelector('.nb-pop.fixed'); if (!m) return; const b = document.querySelector('.nbf [data-action="nbPop"][aria-expanded="true"]'); if (!b) return; const r = b.getBoundingClientRect(), w = m.offsetWidth || 200, h = m.offsetHeight || 90; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w)) + 'px'; m.style.top = (r.bottom + h + 8 > innerHeight ? Math.max(8, r.top - h - 4) : r.bottom + 4) + 'px'; }
+addEventListener('scroll', () => { if (S.nbPop && String(S.nbPop).startsWith('f:')) placeNbPop(); }, { passive: true, capture: true });
 const fmtMDY = s => { if (!s) return ''; const d = new Date(s); return isNaN(d) ? '' : `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()}`; };
 const fmtStampL = s => { if (!s) return '–'; const d = new Date(s); return isNaN(d) ? '–' : d.toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
 const longDate = d => { const [y, m, dd] = d.split('-'); return new Date(+y, +m - 1, +dd).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }); };
@@ -4844,16 +4850,16 @@ function nbArea(ts) {
 function notebookView() {
   const { all, L } = nbVisible(), f = S.nbFolder, sel = S.nbSel, tags = allNoteTags(), cnt = id => id === 'all' ? all.filter(i => !i.deleted).length : all.filter(i => !i.deleted && i.folder === id).length;
   const folderRow = x => `<div class="nbf${f === x.id ? ' on' : ''}" style="--fc:var(--c-${x.color || 'violet'})"><button class="nbf-btn" data-action="nbFolder" data-v="${x.id}" aria-pressed="${f === x.id}"><span class="nm">${esc(x.name)}</span><span class="ct">${cnt(x.id)}</span></button>
-    ${x.fixed ? '' : `<span class="nb-popwrap"><button class="icon-btn nbf-more" data-action="nbPop" data-v="f:${x.id}" aria-label="Folder options for ${esc(x.name)}" aria-expanded="${S.nbPop === 'f:' + x.id}">⋯</button>${S.nbPop === 'f:' + x.id ? `<div class="nb-pop"><button data-action="folderEdit" data-v="${x.id}">Rename or recolour</button><button class="danger" data-action="delFolder" data-v="${x.id}">${S.armed === 'folder-' + x.id ? 'Click again to delete' : 'Delete folder'}</button></div>` : ''}</span>`}</div>`;
+    <span class="nb-popwrap"><button class="icon-btn nbf-more" data-action="nbPop" data-v="f:${x.id}" aria-label="Folder options for ${esc(x.name)}" aria-expanded="${S.nbPop === 'f:' + x.id}">⋯</button>${S.nbPop === 'f:' + x.id ? `<div class="nb-pop fixed"><button data-action="folderEdit" data-v="${x.id}">✎ Rename or recolour</button>${x.fixed ? ((S.nbSet.fixed || {})[x.id] ? `<button data-action="folderReset" data-v="${x.id}">↺ Reset to default</button>` : '') : `<button class="danger" data-action="delFolder" data-v="${x.id}">${S.armed === 'folder-' + x.id ? 'Click again to delete' : '🗑 Delete folder'}</button>`}</div>` : ''}</span></div>`;
   const side = `<aside class="panel nb-side"><div class="nbs-head"><button class="linkish nb-addf" data-action="addFolder">📁 Add folder</button><button class="icon-btn" data-action="nbSide" aria-label="Hide folders">‹</button></div>
-    <div class="label nbs-l">Folders</div><div class="nbfs">${FIXED_FOLDERS.map(folderRow).join('')}${S.folders.length ? '<div class="nbs-sep"></div>' + S.folders.map(folderRow).join('') : ''}</div>
+    <div class="label nbs-l">Folders</div><div class="nbfs">${nbFolders().filter(x => x.fixed).map(folderRow).join('')}${S.folders.length ? '<div class="nbs-sep"></div>' + S.folders.map(folderRow).join('') : ''}</div>
     <div class="label nbs-l">Tags</div><div class="nb-taglist">${Object.keys(tags).sort().map(t => `<button class="nb-tagf" data-action="nbTagF" data-v="${esc(t)}" aria-pressed="${S.nbTag === t}">${esc(t)} <span>${tags[t]}</span></button>`).join('') || '<p class="hint">Tags you add to notes appear here.</p>'}</div>
     <button class="nbf-btn nb-trash" data-action="nbFolder" data-v="trash" aria-pressed="${f === 'trash'}"><span class="nm">🗑 Recently deleted</span><span class="ct">${all.filter(i => i.deleted).length}</span></button></aside>`;
   const isJ = f === 'journal', checked = L.filter(i => S.nbChecked.has(i.kind + '|' + i.key));
   const list = `<section class="panel nb-list"><div class="nbl-head"><span class="nb-popwrap">${f === 'trash' ? '<span class="hint">Deleted notes are kept for 30 days.</span>' : isJ ? `<button class="linkish" data-action="nbPop" data-v="log" aria-expanded="${S.nbPop === 'log'}">📅 Log day</button>${S.nbPop === 'log' ? `<div class="nb-pop logpop"><form data-form="nbLog"><label class="hint">Day to log<input type="date" id="nbLogD" class="fin" value="${todayIso()}" required></label><button class="primary sm" type="submit">Open</button></form></div>` : ''}` : `<button class="linkish" data-action="newNote">📝 New note</button>`}</span>
       ${!S.nbSide ? '<button class="icon-btn" data-action="nbSide" aria-label="Show folders">›</button>' : ''}<span class="nb-popwrap"><button class="icon-btn" data-action="nbPop" data-v="sort" aria-label="Sort notes" aria-expanded="${S.nbPop === 'sort'}">⇅</button>${S.nbPop === 'sort' ? `<div class="nb-pop right">${[['updated', 'Last edited'], ['date', 'Date, newest'], ['oldest', 'Date, oldest'], ['title', 'Title A–Z']].map(([k, l]) => `<button data-action="nbSort" data-v="${k}" aria-pressed="${S.nbSort === k}">${S.nbSort === k ? '✓ ' : ''}${l}</button>`).join('')}</div>` : ''}</span></div>
     <label class="nb-selall"><input type="checkbox" data-nbcheck="__all" ${L.length && checked.length === L.length ? 'checked' : ''}> Select all</label>
-    ${checked.length ? `<div class="nb-bulk"><b>${checked.length} selected</b>${f === 'trash' ? `<button class="ghost sm" data-action="nbBulk" data-v="restore">Restore</button><button class="del" data-action="nbBulk" data-v="purge">${S.armed === 'nbpurge' ? 'Confirm' : 'Delete forever'}</button>` : `${checked.every(i => i.kind === 'note') ? `<select class="fin" id="nbMoveSel" aria-label="Move to folder"><option value="">Move to…</option><option value="mine">My notes</option><option value="recap">Sessions recap</option>${S.folders.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>` : ''}<button class="del" data-action="nbBulk" data-v="del">${S.armed === 'nbdel' ? 'Confirm' : 'Delete'}</button>`}</div>` : ''}
+    ${checked.length ? `<div class="nb-bulk"><b>${checked.length} selected</b>${f === 'trash' ? `<button class="ghost sm" data-action="nbBulk" data-v="restore">Restore</button><button class="del" data-action="nbBulk" data-v="purge">${S.armed === 'nbpurge' ? 'Confirm' : 'Delete forever'}</button>` : `${checked.every(i => i.kind === 'note') ? `<select class="fin" id="nbMoveSel" aria-label="Move to folder"><option value="">Move to…</option><option value="mine">${esc(fname('mine'))}</option><option value="recap">${esc(fname('recap'))}</option>${S.folders.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>` : ''}<button class="del" data-action="nbBulk" data-v="del">${S.armed === 'nbdel' ? 'Confirm' : 'Delete'}</button>`}</div>` : ''}
     <div class="nbl">${L.map(i => { const k = i.kind + '|' + i.key, on = sel && sel.kind === i.kind && sel.key === i.key; return `<div class="nbi${on ? ' on' : ''}"><input type="checkbox" data-nbcheck="${esc(k)}" ${S.nbChecked.has(k) ? 'checked' : ''} aria-label="Select ${esc(i.title)}"><button class="nbi-b" data-action="nbSel" data-kind="${i.kind}" data-key="${esc(i.key)}" aria-pressed="${!!on}"><b>${esc(i.title)}</b>${i.pnl != null ? `<span class="nbi-p ${cls(i.pnl)}">NET P&amp;L: ${priv(money(i.pnl))}</span>` : i.preview ? `<span class="nbi-pv">${esc(i.preview.slice(0, 60))}</span>` : ''}<small>${fmtMDY(i.upd)}${(i.tags || []).length ? ` · ${esc(i.tags.slice(0, 2).join(', '))}` : ''}</small></button></div>`; }).join('') || `<p class="hint" style="padding:10px">${f === 'trash' ? 'Nothing deleted.' : S.nbQuery || S.nbTag ? 'No notes match.' : isJ ? 'Use Log day to write about a trading day.' : f === 'trade' ? 'Notes you write on trades show up here.' : 'No notes here yet.'}</p>`}</div></section>`;
   const nf = S.nbFilter, filt = S.nbPop === 'filter';
   return `<div class="nb-top"><input class="search" id="nbSearch" type="search" placeholder="Search notes" value="${esc(S.nbQuery)}" aria-label="Search notes"><span class="nb-popwrap"><button class="icon-btn nb-filt${nf.kind !== 'all' || nf.res !== 'all' || S.nbTag ? ' on' : ''}" data-action="nbPop" data-v="filter" aria-label="Filter notes" aria-expanded="${filt}">⛉</button>${filt ? `<div class="nb-pop right filtpop"><div class="label">Type</div>${[['all', 'All'], ['trade', 'Trade notes'], ['journal', 'Journal days'], ['note', 'My notes']].map(([k, l]) => `<button data-action="nbFilt" data-f="kind" data-v="${k}" aria-pressed="${nf.kind === k}">${nf.kind === k ? '✓ ' : ''}${l}</button>`).join('')}<div class="label">Result</div>${[['all', 'Any'], ['win', 'Winning'], ['loss', 'Losing']].map(([k, l]) => `<button data-action="nbFilt" data-f="res" data-v="${k}" aria-pressed="${nf.res === k}">${nf.res === k ? '✓ ' : ''}${l}</button>`).join('')}${S.nbTag ? `<button data-action="nbTagF" data-v="${esc(S.nbTag)}">✕ Clear tag “${esc(S.nbTag)}”</button>` : ''}</div>` : ''}</span></div>
@@ -4861,7 +4867,7 @@ function notebookView() {
     <input type="file" id="edImgIn" accept="image/*" hidden>`;
 }
 function nbHeadBtns(kind, key, title) {
-  return `<span class="nb-popwrap"><button class="icon-btn" data-action="nbPop" data-v="more" aria-label="More note actions" aria-expanded="${S.nbPop === 'more'}">⋯</button>${S.nbPop === 'more' ? `<div class="nb-pop right">${kind === 'note' ? `<div class="label">Move to</div>${[['mine', 'My notes'], ['recap', 'Sessions recap'], ...S.folders.map(x => [x.id, x.name])].map(([k, l]) => `<button data-action="nbMove" data-key="${esc(key)}" data-v="${k}">${esc(l)}</button>`).join('')}<div class="sep"></div>` : ''}${kind === 'trade' ? `<button data-action="open" data-id="${esc(key)}">View trade details</button>` : ''}${kind === 'journal' ? `<button data-action="jGo" data-d="${esc(key)}">Open in daily journal</button>` : ''}<button data-action="ed" data-ed="editor" data-cmd="download">Download note</button><button class="danger" data-action="nbDel" data-kind="${kind}" data-key="${esc(key)}">${S.armed === 'nbd-' + key ? 'Click again to delete' : 'Delete note'}</button></div>` : ''}</span>`;
+  return `<span class="nb-popwrap"><button class="icon-btn" data-action="nbPop" data-v="more" aria-label="More note actions" aria-expanded="${S.nbPop === 'more'}">⋯</button>${S.nbPop === 'more' ? `<div class="nb-pop right">${kind === 'note' ? `<div class="label">Move to</div>${[['mine', fname('mine')], ['recap', fname('recap')], ...S.folders.map(x => [x.id, x.name])].map(([k, l]) => `<button data-action="nbMove" data-key="${esc(key)}" data-v="${k}">${esc(l)}</button>`).join('')}<div class="sep"></div>` : ''}${kind === 'trade' ? `<button data-action="open" data-id="${esc(key)}">View trade details</button>` : ''}${kind === 'journal' ? `<button data-action="jGo" data-d="${esc(key)}">Open in daily journal</button>` : ''}<button data-action="ed" data-ed="editor" data-cmd="download">Download note</button><button class="danger" data-action="nbDel" data-kind="${kind}" data-key="${esc(key)}">${S.armed === 'nbd-' + key ? 'Click again to delete' : 'Delete note'}</button></div>` : ''}</span>`;
 }
 function nbEditor(sel) {
   const focusBtn = `<button class="icon-btn nb-focus" data-action="nbFocus" aria-pressed="${S.nbFocus}" aria-label="${S.nbFocus ? 'Show note list' : 'Focus on this note'}" title="${S.nbFocus ? 'Show note list' : 'Focus mode'}">▢</button>`;
@@ -4888,7 +4894,7 @@ function nbEditor(sel) {
   }
   const n = S.notes.find(x => x.id === sel.key); if (!n) return '<div class="hint">This note was deleted.</div>';
   if (n.deleted) return `<div class="nbh">${focusBtn}<h2 class="nbh-title">${esc(n.title || 'Untitled note')}</h2></div><div class="banner"><span>This note is in Recently deleted.</span><button class="secondary sm" data-action="nbRestore" data-key="${n.id}">Restore</button></div><div class="tl-preview editor">${sanitize(n.html)}</div>`;
-  const fo = nbFolders().find(x => x.id === (n.folder || 'mine')) || FIXED_FOLDERS[4];
+  const fo = nbFolders().find(x => x.id === (n.folder || 'mine')) || nbFolders()[4];
   return `<div class="nbh">${focusBtn}<input class="fin nb-title" data-keep data-nbf="title" data-key="${n.id}" value="${esc(n.title || '')}" placeholder="Untitled note" aria-label="Note title"><span class="saved" id="savedMark"></span>${nbHeadBtns('note', n.id)}</div>
     <div class="nbh-meta">In <b>${esc(fo.name)}</b> · Created: ${fmtStampL(n.createdAt)} &nbsp; Last updated: ${fmtStampL(n.updatedAt)}</div>
     ${editor('note', n.id, n.html || '')}`;
@@ -4908,7 +4914,7 @@ async function nbRestore(id) {
 }
 function nbPurgeOld() { if (!S.db || S._purged) return; S._purged = true; const cut = Date.now() - 30 * 864e5; S.notes.filter(n => n.deleted && Date.parse(n.deletedAt || 0) < cut).forEach(n => S.db.collection('notes').doc(n.id).delete().catch(() => {})); }
 function folderModal(id) {
-  const fo = S.folders.find(x => x.id === id), col = (S.folderDraft && S.folderDraft.color) || (fo && fo.color) || 'violet';
+  const fo = nbFolders().find(x => x.id === id), col = (S.folderDraft && S.folderDraft.color) || (fo && fo.color) || 'violet';
   return `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><h3 id="mTitle">${fo ? 'Edit folder' : 'New folder'}</h3><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
     <form class="form" data-form="folder" data-v="${fo ? fo.id : ''}"><label class="full">Folder name<input id="folderName" required maxlength="40" value="${esc(fo ? fo.name : '')}" placeholder="Weekly recaps"></label>
     <div class="full"><div class="label" style="margin-bottom:6px">Colour</div><div class="nb-colors">${NB_COLORS.map(c => `<button type="button" data-action="folderColor" data-v="${c}" style="--fc:var(--c-${c})" aria-pressed="${col === c}" aria-label="${c}"></button>`).join('')}</div></div>
@@ -5200,7 +5206,8 @@ document.addEventListener('click', async e => {
       if ((v === 'del' || v === 'purge') && S.armed !== 'nb' + v) { S.armed = 'nb' + v; break; } S.armed = null;
       for (const i of picked) { if (v === 'del') await nbDelete(i.kind, i.key); else if (v === 'restore') await nbRestore(i.key); else { S.notes = S.notes.filter(x => x.id !== i.key); S.db.collection('notes').doc(i.key).delete().catch(writeErr); } }
       S.nbChecked.clear(); toast(v === 'del' ? `${picked.length} note(s) moved to Recently deleted` : v === 'restore' ? `${picked.length} note(s) restored` : `${picked.length} note(s) deleted`); break; }
-    case 'folderEdit': S.folderDraft = null; S.nbPop = null; return openModal('folder', b.dataset.v);
+    case 'folderEdit': S.folderDraft = null; S.nbPop = null; rerender(); return openModal('folder', b.dataset.v);
+    case 'folderReset': { const fx = { ...(S.nbSet.fixed || {}) }; delete fx[b.dataset.v]; S.nbPop = null; await saveNbSettings({ fixed: fx }); toast('Folder reset'); break; }
     case 'folderColor': S.folderDraft = { color: b.dataset.v }; { const nm = $('folderName') ? $('folderName').value : null; renderModal(); if (nm != null && $('folderName')) $('folderName').value = nm; } return;
     case 'ntKey': await ntMakeKey(); return;
     case 'ntDownload': await ntDownload(); return;
@@ -5791,7 +5798,8 @@ document.addEventListener('submit', async e => {
     try { await S.db.collection('cash').add(c); toast(c.amount > 0 ? 'Deposit added' : 'Withdrawal added'); } catch (err) { writeErr(err); }
   }
   if (f.dataset.form === 'folder') {
-    const name = $('folderName').value.trim(); if (!name) return; const eid = f.dataset.v, color = (S.folderDraft && S.folderDraft.color) || ((S.folders.find(x => x.id === eid) || {}).color) || 'violet';
+    const name = $('folderName').value.trim(); if (!name) return; const eid = f.dataset.v, color = (S.folderDraft && S.folderDraft.color) || ((nbFolders().find(x => x.id === eid) || {}).color) || 'violet';
+    if (eid && FIXED_FOLDERS.some(x => x.id === eid)) { S.folderDraft = null; await saveNbSettings({ fixed: { ...(S.nbSet.fixed || {}), [eid]: { name: name.slice(0, 40), color } } }); closeModal(); render(); toast('Folder saved'); return; }
     if (eid) S.folders = S.folders.map(x => x.id === eid ? { ...x, name: name.slice(0, 40), color } : x);
     else { const fo = { id: 'f-' + uid(), name: name.slice(0, 40), color }; S.folders = [...S.folders, fo]; S.nbFolder = fo.id; S.nbSel = null; }
     S.folderDraft = null; await saveNbSettings({}); closeModal(); render(); toast(eid ? 'Folder saved' : 'Folder added');
@@ -5834,7 +5842,7 @@ render();
   db.collection('videos').onSnapshot(snap => { S.videos = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
   db.doc('settings/learn').onSnapshot(sn => { if (sn.exists) { S.learn = sn.data(); safeRender(); } }, () => {});
   db.collection('notes').onSnapshot(snap => { S.notes = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
-  db.doc('settings/notebook').onSnapshot(s => { const x = s.exists ? s.data() : {}; S.folders = x.folders || []; S.nbSet = { favTpl: x.favTpl || [], recentTpl: x.recentTpl || [] }; safeRender(); }, () => {});
+  db.doc('settings/notebook').onSnapshot(s => { const x = s.exists ? s.data() : {}; S.folders = x.folders || []; S.nbSet = { favTpl: x.favTpl || [], recentTpl: x.recentTpl || [], fixed: x.fixed || {} }; safeRender(); }, () => {});
   setTimeout(nbPurgeOld, 8000);
   db.doc('settings/account').onSnapshot(s => { if (s.exists) { const d = s.data(); S.settings = { ...S.settings, ...d }; if (d.theme && THEMES.some(x => x[0] === d.theme) && d.theme !== getTheme()) { try { localStorage.setItem('ll-theme', d.theme); } catch (e) {} applyTheme(d.theme); } safeRender(); renderProfile(); } }, () => {});
 })();
