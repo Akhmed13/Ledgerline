@@ -1115,6 +1115,25 @@ tr.acct-arch td{opacity:.6}
 .fx-range{display:flex;align-items:center;gap:8px}.fx-range input{max-width:140px}.fx-range span{color:var(--muted)}
 .fx-foot{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface)}
 @media (max-width:719px){.fx-sheet{left:8px!important;right:8px;top:70px!important;width:auto}.fx-grid{grid-template-columns:1fr}.fx-left{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}.fx-cat{flex:none}.fx-car{display:none}}
+
+.appbar{gap:14px}.appbar-title{flex:1;min-width:0}
+.gbar{display:flex;justify-content:flex-end;min-width:0}
+.gb{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.04);min-height:40px}
+.gb-seg{position:relative;display:flex;align-items:center;border-left:1px solid var(--line)}.gb-seg:first-child{border-left:0}
+.gb-btn{display:inline-flex;align-items:center;gap:8px;height:100%;padding:0 14px;border:0;background:none;color:var(--ink);font-size:13.5px;white-space:nowrap;border-radius:0}
+.gb-seg:first-child .gb-btn{border-radius:14px 0 0 14px}.gb-seg:last-child .gb-btn{border-radius:0 14px 14px 0}
+.gb-btn:hover{background:var(--surface-2)}.gb-btn[aria-expanded="true"]{background:var(--surface-2)}
+.gb-btn svg{color:var(--muted)}.gb-btn.on svg{color:var(--accent)}
+.gb-btn .car{font-size:10px;color:var(--muted);margin-left:2px}
+.gb-coin{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--muted);font-weight:700;font-size:12px}.gb-coin.sm{width:22px;height:22px;font-size:11px}
+.gb-n{min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.gb-x{width:20px;height:20px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:10px;line-height:1;margin:0 8px 0 -6px;display:grid;place-items:center;padding:0}
+.gb-lbl{max-width:220px;overflow:hidden;text-overflow:ellipsis}.gb-acc .acc-lbl{max-width:260px}
+.gb .ddmenu{top:calc(100% + 6px)}.gb-menu{min-width:210px;left:0;right:auto;padding:6px}
+.gb-mi{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:7px 10px;border-radius:8px;color:var(--ink);text-align:left}.gb-mi:hover,.gb-mi.on{background:var(--surface-2)}.gb-ck{margin-left:auto;color:var(--accent)}
+.gb-acc .ddmenu{right:0;left:auto}
+@media (max-width:1100px){.gb-lbl{max-width:150px}.gb-acc .acc-lbl{max-width:140px}}
+@media (max-width:820px){.appbar{flex-wrap:wrap}.gbar{order:3;flex-basis:100%;justify-content:flex-start}.gb{flex-wrap:wrap;width:100%}.gb-seg{flex:1 1 auto}.gb-btn{width:100%;justify-content:center;min-height:38px}.gb-btn span:not(.car):not(.gb-coin):not(.gb-n){max-width:110px;overflow:hidden;text-overflow:ellipsis}}
 </style>
 
 <div class="app">
@@ -1184,7 +1203,7 @@ tr.acct-arch td{opacity:.6}
       </nav>
     </div>
   </aside>
-  <main class="main"><div class="appbar"><span class="appbar-title" id="appbarTitle"></span><button class="ai-top" id="aiTopBtn" data-action="aipToggle" aria-controls="aiPanel" aria-expanded="false"><span class="ai-mark"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.5l1.6 4.4 4.4 1.6-4.4 1.6L10 14.5l-1.6-4.4L4 8.5l4.4-1.6z"/><path d="M15.5 13.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg></span>Ledgerline AI</button></div><div class="wrap" id="root"></div></main>
+  <main class="main"><div class="appbar"><span class="appbar-title" id="appbarTitle"></span><div class="gbar" id="gbar"></div><button class="ai-top" id="aiTopBtn" data-action="aipToggle" aria-controls="aiPanel" aria-expanded="false"><span class="ai-mark"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.5l1.6 4.4 4.4 1.6-4.4 1.6L10 14.5l-1.6-4.4L4 8.5l4.4-1.6z"/><path d="M15.5 13.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg></span>Ledgerline AI</button></div><div class="wrap" id="root"></div></main>
   <aside class="aip" id="aiPanel" role="complementary" aria-label="AI coach" hidden></aside>
 </div>
 <div class="scrim" id="modal" hidden></div>
@@ -1525,6 +1544,7 @@ function render() {
   tvPark();
   $('root').innerHTML = html;
   tvMount();
+  renderGbar();
   placeNbPop();
   renderProfile();
   renderAiPanel();
@@ -1546,7 +1566,7 @@ function unitSeg() {
 function topbar(title, sub, scope, extra = '') {
   return `<div class="topbar"><div><h1>${esc(title)}</h1><div class="sub">${esc(sub)}</div></div><div class="controls">
     ${scope ? `<div class="seg" role="group" aria-label="Stats period"><button data-action="scope" data-v="month" aria-pressed="${S.scope === 'month'}">Month</button><button data-action="scope" data-v="all" aria-pressed="${S.scope === 'all'}">All time</button></div>` : ''}
-    ${['home', 'settings', 'playbooks', 'replay', 'resources', 'agents', 'props'].includes(S.view) ? '' : acctFilterBar()}${S.view === 'settings' ? '' : unitSeg()}${extra}</div></div>`;
+    ${extra}</div></div>`;
 }
 function banner() {
   if (S.dbMissing) return `<div class="banner"><span>Saving isn't available in this view. Open the journal from your Claude account to record trades.</span></div>`;
@@ -2233,9 +2253,10 @@ function passFilter(t, f = S.flt) {
   return true;
 }
 function fltCount(f = S.flt) { f = { ...EMPTY_FLT(), ...f }; let n = 0; ['symbols', 'weekdays', 'playbooks', 'tagsIn', 'tagsOut', 'roots', 'months'].forEach(k => { if (f[k].length) n++; }); ['side', 'status', 'reviewed', 'intraday', 'open', 'hasStop', 'rules'].forEach(k => { if (f[k] !== '') n++; }); Object.values({ r: ['rMin', 'rMax'], h: ['hFrom', 'hTo'], px: ['pxEnMin', 'pxEnMax'], pxx: ['pxExMin', 'pxExMax'], q: ['qtyMin', 'qtyMax'], p: ['pnlMin', 'pnlMax'], hd: ['holdMin', 'holdMax'] }).forEach(([a, b]) => { if (f[a] !== '' || f[b] !== '') n++; }); if (f.minRating) n++; return n; }
-function applyFilters() { const sel = S.accSel, arch = new Set(archivedAccounts().map(a => a.id)); S.trades = S.allTrades.filter(t => (sel ? sel.includes(acctOf(t)) : !arch.has(acctOf(t))) && passFilter(t)); }
+function applyFilters() { const sel = S.accSel, arch = new Set(archivedAccounts().map(a => a.id)), dr = S.dateRange; S.trades = S.allTrades.filter(t => (sel ? sel.includes(acctOf(t)) : !arch.has(acctOf(t))) && (!dr || (t.date >= dr.from && t.date <= dr.to)) && passFilter(t)); }
+try { S.dateRange = JSON.parse(localStorage.getItem('ll-dr') || 'null'); } catch (e) { S.dateRange = null; }
 function saveFilterPrefs() { try { localStorage.setItem('ll-flt', JSON.stringify(S.flt)); localStorage.setItem('ll-acc', JSON.stringify(S.accSel)); } catch (e) {} }
-function acctFilterBar() {
+function acctBtn() {
   const act = activeAccounts(), arc = archivedAccounts(), sel = S.accSel, n = fltCount(), on = id => sel ? sel.includes(id) : !arc.some(a => a.id === id);
   const one = sel && sel.length === 1 ? acctById(sel[0]) : null;
   const label = !sel ? 'All accounts' : one ? one.name : sel.length + ' accounts';
@@ -2244,8 +2265,7 @@ function acctFilterBar() {
     <div class="acc-sec">My accounts</div>${act.map(row).join('') || '<p class="hint" style="padding:4px 10px">No active accounts.</p>'}
     ${arc.length ? `<div class="acc-sec">Archived accounts</div><div class="acc-arch">${arc.map(row).join('')}</div>` : ''}
     <button class="linkish acc-manage" data-action="settings" data-v="accounts">⚙ Manage accounts</button></div>` : '';
-  return `<div class="ddwrap"><button class="ghost acc-btn" data-action="accMenu" aria-expanded="${!!S.accMenu}"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5A1.5 1.5 0 014 3h8v2.5"/><rect x="2.5" y="5" width="11" height="8" rx="1.5"/><path d="M10.5 9h3"/></svg><span class="acc-lbl">${esc(label)}</span><span class="car">${S.accMenu ? '▴' : '▾'}</span></button>${menu}</div>
-    <button class="ghost${n ? ' on' : ''}" data-action="filters">Filters${n ? ` <span class="chip">${n}</span>` : ''}</button>${n ? '<button class="icon-btn" data-action="clearFilters" aria-label="Clear all filters" title="Clear filters">✕</button>' : ''}`;
+  return `<div class="ddwrap"><button class="gb-btn acc-btn" data-action="accMenu" aria-expanded="${!!S.accMenu}"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5A1.5 1.5 0 014 3h8v2.5"/><rect x="2.5" y="5" width="11" height="8" rx="1.5"/><path d="M10.5 9h3"/></svg><span class="acc-lbl">${esc(label)}</span><span class="car">${S.accMenu ? '▴' : '▾'}</span></button>${menu}</div>`;
 }
 
 /* ---------- instruments & commissions ---------- */
@@ -4841,6 +4861,8 @@ document.addEventListener('mousedown', e => {
   if (S.slash && !e.target.closest('.slash-menu')) slashClose();
   if (S.edPop && !e.target.closest('.ed-wrap')) closeEdPop();
   if (S.nbPop && !e.target.closest('.nb-popwrap')) { S.nbPop = null; rerender(); }
+  if (S.drpG && !e.target.closest('.gb-date')) { S.drpG = false; S.drp = null; rerender(); }
+  if (S.unitMenu && !e.target.closest('.gb-unit') && !e.target.closest('.gb-menu')) { S.unitMenu = false; rerender(); }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Tab' && !S.slash) { const c = e.target.closest && e.target.closest('.editor[contenteditable]') && inCell(); if (c) { e.preventDefault(); const cells = [...c.closest('table').querySelectorAll('td,th')], n = cells[cells.indexOf(c) + (e.shiftKey ? -1 : 1)]; if (n) { const r = document.createRange(); r.selectNodeContents(n); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } } } });
 document.addEventListener('change', e => {
@@ -4986,7 +5008,7 @@ const TAG_COLS = ['violet', 'blue', 'teal', 'green', 'amber', 'orange', 'red', '
 const tagCol = t => TAG_COLS[[...t].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) % TAG_COLS.length];
 function nbFolders() { const fx = S.nbSet.fixed || {}; return [...FIXED_FOLDERS.map(f => ({ ...f, ...(fx[f.id] || {}) })), ...S.folders]; }
 const fname = id => (nbFolders().find(x => x.id === id) || {}).name || 'My notes';
-function placeDrp() { const m = document.querySelector('.nb-pop.drp'), b = document.querySelector('[data-drp-anchor]'); if (!m || !b || innerWidth <= 900) return; const r = b.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.bottom + 6)) + 'px'; }
+function placeDrp() { const m = document.querySelector('.nb-pop.drp'), b = document.querySelector('[data-drp-anchor]'); if (!m || !b || innerWidth <= 900) return; const r = b.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight, L = Math.max(8, Math.min(innerWidth - w - 8, r.left)), T = Math.max(8, Math.min(innerHeight - h - 8, r.bottom + 6)); m.style.left = L + 'px'; m.style.top = T + 'px'; const q = m.getBoundingClientRect(); m.style.left = (L - (q.left - L)) + 'px'; m.style.top = (T - (q.top - T)) + 'px'; }
 function placeNbPop() { placeDrp(); const m = document.querySelector('.nb-pop.fixed'); if (!m) return; const b = document.querySelector('.nbf [data-action="nbPop"][aria-expanded="true"]'); if (!b) return; const r = b.getBoundingClientRect(), w = m.offsetWidth || 200, h = m.offsetHeight || 90; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w)) + 'px'; m.style.top = (r.bottom + h + 8 > innerHeight ? Math.max(8, r.top - h - 4) : r.bottom + 4) + 'px'; }
 addEventListener('scroll', () => { if (S.nbPop && (String(S.nbPop).startsWith('f:') || S.nbPop === 'range' || S.nbPop === 'newsession')) placeNbPop(); }, { passive: true, capture: true });
 addEventListener('resize', () => { if (S.nbPop) placeNbPop(); });
@@ -5143,10 +5165,11 @@ function drpHtml() {
   const D = S.drp; if (!D) return '';
   return `<div class="nb-pop drp" role="dialog" aria-label="Pick a date range"><div class="drp-main"><div class="drp-top"><span class="${D.pick === 0 ? 'on' : ''}">${D.from ? dOf(D.from).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }) : 'Start date'}</span><span>→</span><span class="${D.pick === 1 ? 'on' : ''}">${D.to ? dOf(D.to).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }) : 'End date'}</span></div>
     <div class="drp-ms">${drpMonth(D.m, 0)}${drpMonth(ymAdd(D.m, 1), 1)}</div><p class="hint">${D.mode === 'new' ? 'Pick the dates for the new session recap. ' : ''}${D.pick === 1 ? 'Now pick the end date.' : 'Pick the start date.'}</p></div>
-    <div class="drp-pre">${DRP_PRESETS.map(([k, l]) => `<button data-action="drpPreset" data-v="${k}">${l}</button>`).join('')}</div></div>`;
+    <div class="drp-pre">${D.mode === 'global' ? '<button data-action="gDateClear">All dates</button>' : ''}${DRP_PRESETS.map(([k, l]) => `<button data-action="drpPreset" data-v="${k}">${l}</button>`).join('')}</div></div>`;
 }
 async function applyRange(from, to) {
   if (to < from) [from, to] = [to, from];
+  if (S.drp && S.drp.mode === 'global') { S.dateRange = { from, to }; S.drpG = false; S.drp = null; try { localStorage.setItem('ll-dr', JSON.stringify(S.dateRange)); } catch (e) {} applyFilters(); rerender(); return; }
   if (S.drp && S.drp.mode === 'new') {
     S.nbPop = null; S.drp = null;
     const same = S.notes.find(x => !x.deleted && x.session && x.session.from === from && x.session.to === to);
@@ -5316,6 +5339,24 @@ function filterModal() {
     <div class="fx-foot"><button class="linkish" data-action="fltReset">Reset all</button><span class="hint">${total ? total + ' filter' + (total === 1 ? '' : 's') + ' on' : ''}</span><span style="flex:1"></span><button class="secondary" data-action="close">Cancel</button><button class="primary" data-action="fltApply">Apply filters</button></div></div>`;
 }
 function placeFx() { const s = document.querySelector('.fx-sheet'), b = document.querySelector('[data-action="filters"]'); if (!s || !b || innerWidth < 720) return; const r = b.getBoundingClientRect(), w = s.offsetWidth; s.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w + 40)) + 'px'; s.style.top = Math.min(r.bottom + 6, innerHeight - s.offsetHeight - 8) + 'px'; }
+
+
+/* ---------- v44: sticky global bar (value unit, filters, dates, accounts) ---------- */
+const GB_UNITS = [['$', 'Dollars', '$'], ['R', 'R-multiple', 'R'], ['%', 'Percent of account', '%'], ['hide', 'Hide values', '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8s2.4-4.5 6.5-4.5S14.5 8 14.5 8 12.1 12.5 8 12.5 1.5 8 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 13.5l11-11" stroke="currentColor" stroke-width="1.3"/></svg>']];
+const GB_ICO = { filter: '<path d="M2.5 3h11l-4.2 5.3v4.4l-2.6 1.3V8.3z"/>', cal: '<rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/>', wallet: '<path d="M2.5 4.5A1.5 1.5 0 014 3h8v2.5"/><rect x="2.5" y="5" width="11" height="8" rx="1.5"/><path d="M10.5 9h3"/>' };
+const gIco = k => `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${GB_ICO[k]}</svg>`;
+function renderGbar() {
+  const el = $('gbar'); if (!el) return;
+  const hideAll = ['settings'].includes(S.view), noFilters = ['home', 'settings', 'playbooks', 'replay', 'resources', 'agents', 'props', 'learn', 'chart'].includes(S.view);
+  if (hideAll) { el.innerHTML = ''; el.hidden = true; return; } el.hidden = false;
+  const u = GB_UNITS.find(x => x[0] === S.unit) || GB_UNITS[0], n = fltCount(), dr = S.dateRange;
+  const unit = `<div class="ddwrap gb-seg"><button class="gb-btn gb-unit" data-action="unitMenu" aria-expanded="${!!S.unitMenu}" aria-label="Show values as: ${u[1]}" title="Show values as"><span class="gb-coin">${u[2]}</span><span class="car">▾</span></button>${S.unitMenu ? `<div class="ddmenu gb-menu" role="menu">${GB_UNITS.map(([v, l, ic]) => `<button class="gb-mi${S.unit === v ? ' on' : ''}" role="menuitemradio" aria-checked="${S.unit === v}" data-action="unit" data-v="${v}"><span class="gb-coin sm">${ic}</span>${l}${S.unit === v ? '<span class="gb-ck">✓</span>' : ''}</button>`).join('')}</div>` : ''}</div>`;
+  if (noFilters) { el.innerHTML = `<div class="gb">${unit}</div>`; return; }
+  const filt = `<div class="gb-seg"><button class="gb-btn${n ? ' on' : ''}" data-action="filters">${gIco('filter')}<span>Filters</span>${n ? `<span class="gb-n">${n}</span>` : ''}<span class="car">▾</span></button>${n ? '<button class="gb-x" data-action="clearFilters" aria-label="Clear all filters" title="Clear filters">✕</button>' : ''}</div>`;
+  const date = `<div class="gb-seg gb-date"><button class="gb-btn${dr ? ' on' : ''}" data-action="gDate" aria-expanded="${!!S.drpG}" ${S.drpG ? 'data-drp-anchor' : ''}>${gIco('cal')}<span class="gb-lbl">${dr ? `${fmtShort(dr.from)} - ${fmtShort(dr.to)}` : 'All dates'}</span><span class="car">▾</span></button>${dr ? '<button class="gb-x" data-action="gDateClear" aria-label="Clear date range" title="Clear dates">✕</button>' : ''}${S.drpG ? drpHtml() : ''}</div>`;
+  el.innerHTML = `<div class="gb">${unit}${filt}${date}<div class="gb-seg gb-acc">${acctBtn()}</div></div>`;
+  placeDrp();
+}
 
 /* ---------- v33: NinjaTrader live sync ---------- */
 const NT_ADDON = "#region Using declarations\nusing System;\nusing System.Collections.Generic;\nusing System.Globalization;\nusing System.Linq;\nusing System.Net;\nusing System.Text;\nusing System.Threading;\nusing NinjaTrader.Cbi;\nusing NinjaTrader.NinjaScript;\n#endregion\n\n// Ledger Line live sync for NinjaTrader 8.\n// Sends every fill on your trading accounts to your Ledger Line journal as it happens.\n// Install: put this file in Documents\\NinjaTrader 8\\bin\\Custom\\AddOns\\, then open\n// New \u2192 NinjaScript Editor and press F5 (compile). It starts by itself whenever NinjaTrader is open.\n// Messages appear in New \u2192 NinjaScript Output.\nnamespace NinjaTrader.NinjaScript.AddOns\n{\n\tpublic class LedgerLineSync : AddOnBase\n\t{\n\t\t// ---- your settings (filled in by Ledger Line when you download this file) ----\n\t\tprivate const string SyncUrl = \"{{URL}}\";\n\t\tprivate const string SyncKey = \"{{KEY}}\";\n\t\t// Account names to sync, separated by commas. Leave empty to sync every account except Sim/Playback.\n\t\tprivate const string OnlyAccounts = \"\";\n\t\t// ------------------------------------------------------------------------------\n\n\t\tprivate static readonly object Gate = new object();\n\t\tprivate static LedgerLineSync owner;\n\t\tprivate static readonly HashSet<string> Hooked = new HashSet<string>();\n\t\tprivate static readonly List<Account> HookedAccounts = new List<Account>();\n\t\tprivate static readonly Dictionary<string, string> Queue = new Dictionary<string, string>();\n\t\tprivate static readonly HashSet<string> Sent = new HashSet<string>();\n\t\tprivate static System.Threading.Timer timer;\n\t\tprivate static int busy;\n\t\tprivate static DateTime lastPing = DateTime.MinValue;\n\t\tprivate static bool keyRejected;\n\n\t\tprotected override void OnStateChange()\n\t\t{\n\t\t\tif (State == State.SetDefaults)\n\t\t\t{\n\t\t\t\tName = \"LedgerLineSync\";\n\t\t\t\tDescription = \"Sends your fills to your Ledger Line journal.\";\n\t\t\t}\n\t\t\telse if (State == State.Configure || State == State.Active)\n\t\t\t{\n\t\t\t\tStart();\n\t\t\t}\n\t\t\telse if (State == State.Terminated)\n\t\t\t{\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tif (owner != this) return;\n\t\t\t\t\towner = null;\n\t\t\t\t}\n\t\t\t\tAccount.AccountStatusUpdate -= OnAccountStatus;\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tforeach (Account a in HookedAccounts) a.ExecutionUpdate -= OnExecution;\n\t\t\t\t\tHookedAccounts.Clear();\n\t\t\t\t\tHooked.Clear();\n\t\t\t\t}\n\t\t\t\tif (timer != null) { timer.Dispose(); timer = null; }\n\t\t\t\tFlush();\n\t\t\t}\n\t\t}\n\n\t\t// NinjaTrader calls this for every open window, including right after you compile, so the add-on starts without a restart.\n\t\tprotected override void OnWindowCreated(System.Windows.Window window)\n\t\t{\n\t\t\tStart();\n\t\t}\n\n\t\tprivate void Start()\n\t\t{\n\t\t\tlock (Gate)\n\t\t\t{\n\t\t\t\tif (owner != null) return;\n\t\t\t\towner = this;\n\t\t\t}\n\t\t\ttry\n\t\t\t{\n\t\t\t\ttry { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; } catch { }\n\t\t\t\tAccount.AccountStatusUpdate += OnAccountStatus;\n\t\t\t\tList<Account> all;\n\t\t\t\tlock (Account.All) all = Account.All.ToList();\n\t\t\t\tforeach (Account a in all) Hook(a);\n\t\t\t\ttimer = new System.Threading.Timer(_ => Flush(), null, 3000, 10000);\n\t\t\t\tSay(\"started. Sending fills to \" + SyncUrl + (Hooked.Count == 0 ? \" (no live accounts connected yet; connect to Lucid and they're picked up automatically)\" : \"\"));\n\t\t\t}\n\t\t\tcatch (Exception ex) { Say(\"couldn't start: \" + ex.Message); }\n\t\t}\n\n\t\tprivate static bool Wanted(Account a)\n\t\t{\n\t\t\tif (a == null || string.IsNullOrEmpty(a.Name)) return false;\n\t\t\tif (!string.IsNullOrWhiteSpace(OnlyAccounts))\n\t\t\t\treturn OnlyAccounts.Split(',').Any(n => string.Equals(n.Trim(), a.Name, StringComparison.OrdinalIgnoreCase));\n\t\t\tstring n2 = a.Name.ToLowerInvariant();\n\t\t\treturn !(n2.StartsWith(\"sim\") || n2.StartsWith(\"playback\") || n2.StartsWith(\"backtest\"));\n\t\t}\n\n\t\tprivate void Hook(Account a)\n\t\t{\n\t\t\tif (!Wanted(a)) return;\n\t\t\tlock (Gate)\n\t\t\t{\n\t\t\t\tif (Hooked.Contains(a.Name)) return;\n\t\t\t\tHooked.Add(a.Name);\n\t\t\t\tHookedAccounts.Add(a);\n\t\t\t}\n\t\t\ta.ExecutionUpdate += OnExecution;\n\t\t\tList<Execution> past;\n\t\t\tlock (a.Executions) past = a.Executions.ToList();\n\t\t\tforeach (Execution x in past) Add(x);\n\t\t\tSay(\"watching account \" + a.Name + (past.Count > 0 ? \" (\" + past.Count + \" fills from this session)\" : \"\"));\n\t\t}\n\n\t\tprivate void OnAccountStatus(object sender, AccountStatusEventArgs e)\n\t\t{\n\t\t\tif (e.Status == ConnectionStatus.Connected && e.Account != null) Hook(e.Account);\n\t\t}\n\n\t\tprivate static void OnExecution(object sender, ExecutionEventArgs e)\n\t\t{\n\t\t\tif (e.Execution != null) Add(e.Execution);\n\t\t}\n\n\t\tprivate static string Num(double v) { return v.ToString(\"0.##########\", CultureInfo.InvariantCulture); }\n\t\tprivate static string Str(string s)\n\t\t{\n\t\t\tif (s == null) return \"\\\"\\\"\";\n\t\t\tvar b = new StringBuilder(\"\\\"\");\n\t\t\tforeach (char c in s)\n\t\t\t{\n\t\t\t\tif (c == '\"' || c == '\\\\') b.Append('\\\\').Append(c);\n\t\t\t\telse if (c < ' ') b.Append(\"\\\\u\").Append(((int)c).ToString(\"x4\"));\n\t\t\t\telse b.Append(c);\n\t\t\t}\n\t\t\treturn b.Append('\"').ToString();\n\t\t}\n\n\t\tprivate static void Add(Execution x)\n\t\t{\n\t\t\ttry\n\t\t\t{\n\t\t\t\tif (x == null || x.Instrument == null || x.Account == null || x.Quantity == 0) return;\n\t\t\t\tvar mi = x.Instrument.MasterInstrument;\n\t\t\t\tstring json = \"{\"\n\t\t\t\t\t+ \"\\\"id\\\":\" + Str(x.ExecutionId)\n\t\t\t\t\t+ \",\\\"orderId\\\":\" + Str(x.OrderId)\n\t\t\t\t\t+ \",\\\"account\\\":\" + Str(x.Account.Name)\n\t\t\t\t\t+ \",\\\"instrument\\\":\" + Str(x.Instrument.FullName)\n\t\t\t\t\t+ \",\\\"root\\\":\" + Str(mi.Name)\n\t\t\t\t\t+ \",\\\"side\\\":\" + Str(x.MarketPosition == MarketPosition.Long ? \"Buy\" : \"Sell\")\n\t\t\t\t\t+ \",\\\"qty\\\":\" + x.Quantity.ToString(CultureInfo.InvariantCulture)\n\t\t\t\t\t+ \",\\\"price\\\":\" + Num(x.Price)\n\t\t\t\t\t+ \",\\\"time\\\":\" + Str(x.Time.ToString(\"yyyy-MM-ddTHH:mm:ss.fff\", CultureInfo.InvariantCulture))\n\t\t\t\t\t+ \",\\\"commission\\\":\" + Num(x.Commission)\n\t\t\t\t\t+ \",\\\"pointValue\\\":\" + Num(mi.PointValue)\n\t\t\t\t\t+ \",\\\"tickSize\\\":\" + Num(mi.TickSize)\n\t\t\t\t\t+ \"}\";\n\t\t\t\tstring key = x.Account.Name + \"|\" + x.ExecutionId + \"|\" + x.Quantity + \"|\" + Num(x.Price);\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tif (Sent.Contains(key)) return;\n\t\t\t\t\tQueue[key] = json;\n\t\t\t\t}\n\t\t\t}\n\t\t\tcatch (Exception ex) { Say(\"couldn't read a fill: \" + ex.Message); }\n\t\t}\n\n\t\tprivate static void Flush()\n\t\t{\n\t\t\tif (Interlocked.Exchange(ref busy, 1) == 1) return;\n\t\t\ttry\n\t\t\t{\n\t\t\t\tList<KeyValuePair<string, string>> batch;\n\t\t\t\tstring[] names;\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tbatch = Queue.Take(300).ToList();\n\t\t\t\t\tnames = Hooked.ToArray();\n\t\t\t\t}\n\t\t\t\tbool ping = (DateTime.Now - lastPing).TotalMinutes >= 5;\n\t\t\t\tif (batch.Count == 0 && !ping) return;\n\t\t\t\tif (keyRejected && batch.Count == 0) return;\n\t\t\t\tstring body = \"{\\\"client\\\":\\\"NinjaTrader 8\\\",\\\"accounts\\\":[\" + string.Join(\",\", names.Select(Str))\n\t\t\t\t\t+ \"],\\\"executions\\\":[\" + string.Join(\",\", batch.Select(p => p.Value)) + \"]}\";\n\t\t\t\tusing (var wc = new WebClient())\n\t\t\t\t{\n\t\t\t\t\twc.Encoding = Encoding.UTF8;\n\t\t\t\t\twc.Headers[HttpRequestHeader.ContentType] = \"application/json\";\n\t\t\t\t\twc.Headers[\"x-ledgerline-sync\"] = SyncKey;\n\t\t\t\t\twc.UploadString(SyncUrl, \"POST\", body);\n\t\t\t\t}\n\t\t\t\tlastPing = DateTime.Now;\n\t\t\t\tkeyRejected = false;\n\t\t\t\tlock (Gate)\n\t\t\t\t{\n\t\t\t\t\tforeach (var p in batch) { Queue.Remove(p.Key); Sent.Add(p.Key); }\n\t\t\t\t}\n\t\t\t\tif (batch.Count > 0) Say(\"sent \" + batch.Count + \" fill(s)\");\n\t\t\t}\n\t\t\tcatch (WebException we)\n\t\t\t{\n\t\t\t\tvar r = we.Response as HttpWebResponse;\n\t\t\t\tif (r != null && r.StatusCode == HttpStatusCode.Unauthorized)\n\t\t\t\t{\n\t\t\t\t\tif (!keyRejected) Say(\"the sync key was rejected. Download the add-on again from Ledger Line \u2192 Settings \u2192 Accounts.\");\n\t\t\t\t\tkeyRejected = true;\n\t\t\t\t}\n\t\t\t\telse Say(\"couldn't reach Ledger Line (\" + we.Message + \"). Will retry.\");\n\t\t\t\tlastPing = DateTime.Now;\n\t\t\t}\n\t\t\tcatch (Exception ex) { Say(\"error: \" + ex.Message); }\n\t\t\tfinally { Interlocked.Exchange(ref busy, 0); }\n\t\t}\n\n\t\tprivate static void Say(string m)\n\t\t{\n\t\t\ttry { NinjaTrader.Code.Output.Process(\"Ledger Line: \" + m, PrintTo.OutputTab1); } catch { }\n\t\t}\n\t}\n}\n";
@@ -5633,6 +5674,9 @@ document.addEventListener('click', async e => {
     case 'folderIcon': { S.folderDraft = { ...(S.folderDraft || {}), icon: b.dataset.v }; const nm = $('folderName') ? $('folderName').value : null, st = document.querySelector('.ip-wrap') ? document.querySelector('.ip-wrap').scrollTop : 0; renderModal(); if (nm != null && $('folderName')) $('folderName').value = nm; const w = document.querySelector('.ip-wrap'); if (w) w.scrollTop = st; return; }
     case 'folderReset': { const fx = { ...(S.nbSet.fixed || {}) }; delete fx[b.dataset.v]; S.nbPop = null; await saveNbSettings({ fixed: fx }); toast('Folder reset'); break; }
     case 'folderColor': S.folderDraft = { ...(S.folderDraft || {}), color: b.dataset.v }; { const nm = $('folderName') ? $('folderName').value : null; renderModal(); if (nm != null && $('folderName')) $('folderName').value = nm; } return;
+    case 'unitMenu': S.unitMenu = !S.unitMenu; S.accMenu = false; break;
+    case 'gDate': if (S.drpG) { S.drpG = false; S.drp = null; } else { drpOpen(S.dateRange || {}); S.drp.mode = 'global'; S.drpG = true; S.accMenu = false; S.unitMenu = false; } break;
+    case 'gDateClear': S.dateRange = null; S.drpG = false; S.drp = null; try { localStorage.removeItem('ll-dr'); } catch (e) {} applyFilters(); break;
     case 'ntToggle': S.ntOpen = b.dataset.open ? true : !S.ntOpen; if (b.dataset.open) setTimeout(() => document.querySelector('.nt-card')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 40); break;
     case 'ntSteps': S.ntSteps = !S.ntSteps; break;
     case 'ntKey': await ntMakeKey(); return;
@@ -5644,7 +5688,7 @@ document.addEventListener('click', async e => {
     case 'editTrade': { if (!needDb() || !byId(id)) return; if (S.modal && S.modal.kind === 'preview') { S.prevModal = S.modal; S.modal = null; } return openModal('edit', id); }
     case 'close': return closeModal();
     case 'view': S.view = b.dataset.view; if (b.closest('.nav')) { if (S.view === 'props') S.propTab = 'dash'; if (S.view === 'agents') S.agTab = 'agents'; } S.tagMenu = null; S.accMenu = false; S.prevModal = null; closeModal(); rpStop(); window.scrollTo(0, 0); break;
-    case 'unit': S.unit = b.dataset.v; try { localStorage.setItem('ll-unit', S.unit); } catch (_) {} break;
+    case 'unit': S.unitMenu = false; S.unit = b.dataset.v; try { localStorage.setItem('ll-unit', S.unit); } catch (_) {} break;
     case 'scope': S.scope = b.dataset.v; try { localStorage.setItem('ll-scope', S.scope); } catch (_) {} break;
     case 'month': S.month = new Date(S.month.getFullYear(), S.month.getMonth() + +b.dataset.v, 1); break;
     case 'thisMonth': { const d = new Date(); S.month = new Date(d.getFullYear(), d.getMonth(), 1); break; }
