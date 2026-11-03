@@ -1242,6 +1242,8 @@ tr.acct-arch td{opacity:.6}
 .rc-note{padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface-2)}
 .rc-more{border:0;background:none;color:var(--accent);font-weight:600;padding:12px 14px;font-size:13.5px}
 @media (max-width:700px){.rc-table{table-layout:auto}.rc-table th:nth-child(5),.rc-table td:nth-child(5),.rc-table th:nth-child(7),.rc-table td:nth-child(7){display:none}.rc-dl{padding-left:0}.rc-cur>span:last-child{display:none}}
+.copyb{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;padding:1px 6px;border-radius:6px;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);vertical-align:middle;cursor:help}
+.nt-merge{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px;padding:12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}.nt-merge input{margin-top:2px}.nt-merge>span{display:grid;gap:2px}
 </style>
 
 <div class="app">
@@ -1919,7 +1921,7 @@ function tradeView() {
   const tabs = [['stats', 'Stats'], ['playbook', 'Strategy'], ['executions', 'Executions'], ['attachments', 'Attachments']];
   return `<div class="tv-head"><div class="tv-title">
       <button class="icon-btn" data-action="view" data-view="log" aria-label="Back to trade log"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M7.5 2L3.5 6l4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
-      <h1>${symChip(t.symbol)}</h1><span class="when">${dateLabel(t.date)}${t.time ? ' · ' + esc(t.time) : ''}</span>${t.sample ? '<span class="chip">sample</span>' : ''}</div>
+      <h1>${symChip(t.symbol)}${copyBadge(t)}</h1><span class="when">${dateLabel(t.date)}${t.time ? ' · ' + esc(t.time) : ''}</span>${t.sample ? '<span class="chip">sample</span>' : ''}</div>
     <div class="controls">
       <button class="ghost" data-action="toggleRev" data-id="${t.id}" aria-pressed="${!!t.reviewed}" style="${t.reviewed ? 'color:var(--gain);border-color:var(--gain-line)' : ''}">${t.reviewed ? '✓ Reviewed' : 'Mark reviewed'}</button>
       <button class="icon-btn" data-action="open" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button>
@@ -2361,6 +2363,30 @@ function passFilter(t, f = S.flt) {
   return true;
 }
 function fltCount(f = S.flt) { f = { ...EMPTY_FLT(), ...f }; let n = 0; ['symbols', 'weekdays', 'playbooks', 'tagsIn', 'tagsOut', 'roots', 'months'].forEach(k => { if (f[k].length) n++; }); ['side', 'status', 'reviewed', 'intraday', 'open', 'hasStop', 'rules'].forEach(k => { if (f[k] !== '') n++; }); Object.values({ r: ['rMin', 'rMax'], h: ['hFrom', 'hTo'], px: ['pxEnMin', 'pxEnMax'], pxx: ['pxExMin', 'pxExMax'], q: ['qtyMin', 'qtyMax'], p: ['pnlMin', 'pnlMax'], hd: ['holdMin', 'holdMax'] }).forEach(([a, b]) => { if (f[a] !== '' || f[b] !== '') n++; }); if (f.minRating) n++; return n; }
+// Copy trading: the same trade filled on several NinjaTrader accounts (same journal account, symbol, side, size,
+// entry and exit minute, near-identical prices) is shown once, with one account's P&L. Turn off in Settings → Accounts.
+const copyMergeOn = () => !(S.syncCfg && S.syncCfg.mergeCopies === false);
+function mergeCopies(list) {
+  const groups = new Map(), out = [];
+  for (const t of list) {
+    if (!t.ntAccount) { out.push(t); continue; }
+    const k = [acctOf(t), t.symbol, t.side, t.qty, t.date, t.time, t.exitDate || t.date, t.exitTime].join('|');
+    const g = groups.get(k); let hit = null;
+    if (g) hit = g.find(x => !x.accts.has(t.ntAccount) && Math.abs((+x.rep.entry || 0) - (+t.entry || 0)) <= Math.abs(+t.entry || 0) * 0.001 && Math.abs((+x.rep.exit || 0) - (+t.exit || 0)) <= Math.abs(+t.exit || 0) * 0.001);
+    if (hit) { hit.accts.add(t.ntAccount); hit.items.push(t); continue; }
+    const ng = { rep: t, accts: new Set([t.ntAccount]), items: [t] }; (g || groups.set(k, []).get(k)).push(ng);
+  }
+  for (const gs of groups.values()) for (const g of gs) {
+    if (g.items.length === 1) { out.push(g.rep); continue; }
+    // keep the copy you have worked on (notes/tags/review), else the lowest account number
+    const score = x => (x.reviewed ? 4 : 0) + (hasText(x.note) ? 2 : 0) + (x.tags && Object.values(x.tags).some(v => v && v.length) ? 1 : 0);
+    const rep = g.items.slice().sort((a, b) => score(b) - score(a) || String(a.ntAccount).localeCompare(String(b.ntAccount)))[0];
+    out.push({ ...rep, copies: g.items.length, copyAccts: g.items.map(x => x.ntAccount).sort(), copyIds: g.items.map(x => x.id) });
+  }
+  return out;
+}
+function rebuildTrades() { const raw = S.rawTrades || []; S.allTrades = copyMergeOn() ? mergeCopies(raw) : raw; applyFilters(); }
+const copyBadge = t => t.copies > 1 ? ` <span class="copyb" title="Same trade on ${t.copies} accounts: ${esc(t.copyAccts.join(', '))}. Shown once with one account's P&L.">×${t.copies}</span>` : '';
 function applyFilters() { const sel = S.accSel, arch = new Set(archivedAccounts().map(a => a.id)), dr = S.dateRange; S.trades = S.allTrades.filter(t => (sel ? sel.includes(acctOf(t)) : !arch.has(acctOf(t))) && (!dr || (t.date >= dr.from && t.date <= dr.to)) && passFilter(t)); }
 try { S.dateRange = JSON.parse(localStorage.getItem('ll-dr') || 'null'); } catch (e) { S.dateRange = null; }
 function saveFilterPrefs() { try { localStorage.setItem('ll-flt', JSON.stringify(S.flt)); localStorage.setItem('ll-acc', JSON.stringify(S.accSel)); } catch (e) {} }
@@ -2615,7 +2641,7 @@ function previewSheet() {
   else if (tab === 'notes') { const isTrade = S.noteTab !== 'day'; body = `<div class="note-tabs"><div class="seg"><button data-action="noteTab" data-v="trade" aria-pressed="${isTrade}">Trade note</button><button data-action="noteTab" data-v="day" aria-pressed="${!isTrade}">Daily journal</button></div><span class="saved" id="savedMark"></span></div>${editor(isTrade ? 'trade' : 'journal', isTrade ? t.id : t.date, isTrade ? (t.note || '') : ((S.journal[t.date] || {}).html || ''))}`; }
   else body = attachTab(t);
   return `<div class="drawer" role="dialog" aria-modal="true" aria-labelledby="pvTitle">
-    <div class="dr-head"><div class="tv-title"><button class="icon-btn" data-action="preview" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button><h3 id="pvTitle">${symChip(t.symbol)}</h3><button class="icon-btn" data-action="preview" data-id="${next ? next.id : ''}" ${next ? '' : 'disabled'} aria-label="Older trade">›</button>
+    <div class="dr-head"><div class="tv-title"><button class="icon-btn" data-action="preview" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button><h3 id="pvTitle">${symChip(t.symbol)}${copyBadge(t)}</h3><button class="icon-btn" data-action="preview" data-id="${next ? next.id : ''}" ${next ? '' : 'disabled'} aria-label="Older trade">›</button>
       <span class="tchip ${t.side === 'Long' ? 'blue' : 'violet'}">${esc(t.side.toUpperCase())}</span><span class="tchip ${isOpen(t) ? 'blue' : 'orange'}">${isOpen(t) ? 'Open' : 'Closed'}</span><span class="tchip ${t.pnl > 0 ? 'green' : t.pnl < 0 ? 'red' : 'slate'}">${t.pnl > 0 ? 'Win' : t.pnl < 0 ? 'Loss' : 'Even'}</span></div>
       <span style="display:flex;gap:6px"><button class="secondary sm" data-action="replayTrade" data-id="${t.id}">▶ Replay</button><button class="icon-btn" data-action="close" aria-label="Close">✕</button></span></div>
     <div class="hint">${dateLabel(t.date)}${t.time ? ' · opened ' + esc(t.time) : ''}${t.exitTime ? ' · closed ' + esc(t.exitTime) : ''}${dur ? ' · held ' + dur : ''}${acc ? ' · ' + esc(acc.name) : ''}</div>
@@ -3708,7 +3734,7 @@ const LOG_COLS = {
   reviewed: ['Reviewed', t => `<td><button class="rev${t.reviewed ? ' on' : ''}" data-action="toggleRev" data-id="${t.id}" aria-label="${t.reviewed ? 'Reviewed' : 'Not reviewed'}" aria-pressed="${!!t.reviewed}"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 5.2l2 2 4-4.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button></td>`],
   date: ['Open date', t => `<td class="num">${t.date}</td>`],
   time: ['Open time', t => `<td class="num">${esc(t.time || '–')}</td>`],
-  symbol: ['Symbol', t => `<td><span class="tick" style="--c:var(--c-${symInfo(t.symbol).color})">${esc(t.symbol)}</span>${t.sample ? ' <span class="chip">sample</span>' : ''}</td>`],
+  symbol: ['Symbol', t => `<td><span class="tick" style="--c:var(--c-${symInfo(t.symbol).color})">${esc(t.symbol)}</span>${copyBadge(t)}${t.sample ? ' <span class="chip">sample</span>' : ''}</td>`],
   status: ['Status', t => { const st = t.pnl > 0 ? 'win' : t.pnl < 0 ? 'loss' : 'be'; return `<td><span class="status ${st}">${st === 'be' ? 'EVEN' : st.toUpperCase()}</span></td>`; }],
   side: ['Side', t => `<td><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span></td>`],
   entry: ['Entry price', t => `<td class="r num">${t.entry ?? '–'}</td>`, 1],
@@ -5552,7 +5578,7 @@ function dayGamePlan(d, ts) {
 }
 function dayTradesTable(ts) {
   if (!ts.length) return '<p class="hint" style="padding:12px 0">No trades on this day yet.</p>';
-  return `<div class="table-scroll"><table class="rtable dv-tt"><thead><tr><th>Symbol</th><th>Time</th><th>Status</th><th class="r">Entry</th><th class="r">Exit</th><th class="r">Net P&amp;L</th><th class="r">Net ROI</th></tr></thead><tbody>${ts.map(t => { const r = roi(t); return `<tr class="row" data-action="preview" data-id="${t.id}"><td>${symChip(t.symbol)}</td><td class="num">${esc(t.time || '–')}</td><td><b class="${t.pnl > 0 ? 'gain' : t.pnl < 0 ? 'loss' : ''}" style="font-size:12px;letter-spacing:.05em">${t.pnl > 0 ? 'WIN' : t.pnl < 0 ? 'LOSS' : 'EVEN'}</b></td><td class="r num">${t.entry ?? '–'}</td><td class="r num">${t.exit ?? '–'}</td><td class="r num ${cls(t.pnl)}">${priv(money(t.pnl))}</td><td class="r num ${cls(t.pnl)}">${r == null ? '–' : r.toFixed(2) + '%'}</td></tr>`; }).join('')}</tbody></table></div>`;
+  return `<div class="table-scroll"><table class="rtable dv-tt"><thead><tr><th>Symbol</th><th>Time</th><th>Status</th><th class="r">Entry</th><th class="r">Exit</th><th class="r">Net P&amp;L</th><th class="r">Net ROI</th></tr></thead><tbody>${ts.map(t => { const r = roi(t); return `<tr class="row" data-action="preview" data-id="${t.id}"><td>${symChip(t.symbol)}${copyBadge(t)}</td><td class="num">${esc(t.time || '–')}</td><td><b class="${t.pnl > 0 ? 'gain' : t.pnl < 0 ? 'loss' : ''}" style="font-size:12px;letter-spacing:.05em">${t.pnl > 0 ? 'WIN' : t.pnl < 0 ? 'LOSS' : 'EVEN'}</b></td><td class="r num">${t.entry ?? '–'}</td><td class="r num">${t.exit ?? '–'}</td><td class="r num ${cls(t.pnl)}">${priv(money(t.pnl))}</td><td class="r num ${cls(t.pnl)}">${r == null ? '–' : r.toFixed(2) + '%'}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
 /* auto-tagger suggestions, worked out from the trade data itself */
 function suggestTags(t, ts) {
@@ -5687,6 +5713,7 @@ function ntSyncPanel() {
   const showSteps = setup || S.syncKeyShown || S.ntSteps;
   return `<section class="nt-card open">${head}<div class="nt-body">${keyBox}${on && !setup ? mapping : ''}${showSteps ? steps : ''}${on && !setup ? mapping ? '' : '' : mapping}
     ${on ? `<div class="nt-actions">${!setup && !S.syncKeyShown ? `<button class="ghost sm" data-action="ntSteps" aria-expanded="${!!S.ntSteps}">${S.ntSteps ? 'Hide setup steps' : 'Setup steps & new key'}</button>` : ''}<span style="flex:1"></span><button class="del${S.armed === 'ntoff' ? ' armed' : ''}" data-action="ntOff">${S.armed === 'ntoff' ? 'Confirm: turn off live sync' : 'Turn off live sync'}</button></div>` : ''}
+    <label class="nt-merge"><input type="checkbox" data-action="ntMerge" ${copyMergeOn() ? 'checked' : ''}><span><b>Combine copied trades</b><span class="hint">When the same trade fills on several NinjaTrader accounts (copy trading), show it once with one account's P&amp;L, marked ×4 etc. Turn off to see every account's fill.</span></span></label>
     <p class="hint nt-foot">Synced trades keep your tags, notes and screenshots when they update. Fees come from NinjaTrader, or from your Commissions &amp; fees table when NinjaTrader reports none. Sim and Playback accounts are skipped.</p></div></section>`;
 }
 
@@ -5785,7 +5812,7 @@ function _renderModal() {
     const ts = S.trades.filter(t => t.date === m.arg).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
     const net = ts.reduce((a, t) => a + t.pnl, 0), r = ts.reduce((a, t) => a + rOf(t), 0);
     box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><div><h3 id="mTitle">${dateLabel(m.arg)}</h3>${ts.length ? `<div class="hint">${ts.length} trade${ts.length > 1 ? 's' : ''} · <span class="num ${cls(net)}">${fmt(net, r)}</span></div>` : ''}</div><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
-      <div class="daylist">${ts.length ? ts.map(t => `<button class="dtrade" data-action="preview" data-id="${t.id}"><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span><div>${symChip(t.symbol)} <span class="hint num">${esc(t.time || '')}</span><small>${esc(tagsOf(t, 'setups').join(', '))}</small></div><span class="num ${cls(t.pnl)}">${fmt(t.pnl, rOf(t))}</span></button>`).join('') : '<div class="hint">No trades on this day.</div>'}</div>
+      <div class="daylist">${ts.length ? ts.map(t => `<button class="dtrade" data-action="preview" data-id="${t.id}"><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span><div>${symChip(t.symbol)}${copyBadge(t)} <span class="hint num">${esc(t.time || '')}</span><small>${esc(tagsOf(t, 'setups').join(', '))}</small></div><span class="num ${cls(t.pnl)}">${fmt(t.pnl, rOf(t))}</span></button>`).join('') : '<div class="hint">No trades on this day.</div>'}</div>
       <div class="actions"><button class="secondary" data-action="jGo" data-d="${m.arg}">Open daily journal</button><button class="primary" data-action="add" data-d="${m.arg}">Add trade on this day</button></div></div>`;
   } else if (m.kind === 'pb') box.innerHTML = pbEditor();
   else if (m.kind === 'stratNew') box.innerHTML = stratCreateModal();
@@ -5814,7 +5841,7 @@ function _renderModal() {
     box.innerHTML = `<div class="sheet wide tlist" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet-head"><div><div class="hint">Cross analysis</div><h3 id="mTitle">${esc(T.title)}</h3></div><button class="icon-btn" data-action="close" aria-label="Close">✕</button></div>
       <div class="tl-sum">${[['Net P&L', `<b class="${cls(st.net)}">${priv(money(st.net))}</b>`], ['Trades', st.n], ['Win rate', (st.wr * 100).toFixed(0) + '%'], ['Winners / losers', `${st.w} / ${st.l}`], ['Profit factor', ratioTxt(st.pf)], ['Avg trade', `<span class="${cls(st.n ? st.net / st.n : 0)}">${priv(money(st.n ? st.net / st.n : 0))}</span>`]].map(([k, v]) => `<div><span>${k}</span>${v}</div>`).join('')}</div>
       <div class="table-scroll"><table class="rtable"><thead><tr>${th('date', 'Date')}<th>Time</th><th>Symbol</th><th>Side</th><th class="r">Qty</th>${th('pnl', 'Net P&amp;L', 'r')}<th class="r">R</th><th>Setup</th></tr></thead><tbody>
-      ${ts.map(t => `<tr class="row" data-action="preview" data-id="${t.id}" tabindex="0"><td class="num">${shortDate(t.date)}</td><td class="num">${esc(t.time || '–')}</td><td>${symChip(t.symbol)}</td><td><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span></td><td class="r num">${t.qty ?? '–'}</td><td class="r num ${cls(t.pnl)}">${priv(money(t.pnl))}</td><td class="r num">${riskOf(t) ? rOf(t).toFixed(2) + 'R' : '–'}</td><td>${esc(tagsOf(t, 'setups').join(', ')) || '–'}</td></tr>`).join('')}</tbody></table></div>
+      ${ts.map(t => `<tr class="row" data-action="preview" data-id="${t.id}" tabindex="0"><td class="num">${shortDate(t.date)}</td><td class="num">${esc(t.time || '–')}</td><td>${symChip(t.symbol)}${copyBadge(t)}</td><td><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span></td><td class="r num">${t.qty ?? '–'}</td><td class="r num ${cls(t.pnl)}">${priv(money(t.pnl))}</td><td class="r num">${riskOf(t) ? rOf(t).toFixed(2) + 'R' : '–'}</td><td>${esc(tagsOf(t, 'setups').join(', ')) || '–'}</td></tr>`).join('')}</tbody></table></div>
       <p class="hint" style="margin:0">Click a trade to open it. Close the trade to come back to this list.</p></div>`;
   }
   else if (m.kind === 'tplLib') { box.innerHTML = tplLibModal(); box.className = 'scrim tl-scrim'; if (S.tl.mode !== 'view') setTimeout(() => (S.tl.mode === 'new' ? $('tlTitle') : $('tplEd'))?.focus(), 30); }
@@ -6004,13 +6031,13 @@ document.addEventListener('click', async e => {
     case 'bulkReview': { if (!needDb()) return; const v = b.dataset.v === '1'; for (const tid of S.sel) patchTrade(tid, { reviewed: v }, true); toast(`${S.sel.size} trades updated`); S.sel.clear(); break; }
     case 'bulkDelete': {
       if (S.armed !== 'bulk') { S.armed = 'bulk'; break; }
-      S.armed = null; if (!needDb()) return; const ids = [...S.sel]; S.sel.clear();
-      try { for (const tid of ids) await S.db.collection('trades').doc(tid).delete(); toast(`${ids.length} trades deleted`); } catch (err) { writeErr(err); } return;
+      S.armed = null; if (!needDb()) return; const n = S.sel.size, ids = [...S.sel].flatMap(x => (byId(x) || {}).copyIds || [x]); S.sel.clear();
+      try { for (const tid of ids) await S.db.collection('trades').doc(tid).delete(); toast(`${n} trades deleted`); } catch (err) { writeErr(err); } return;
     }
     case 'delTrade': {
       if (S.armed !== 'tv-' + id) { S.armed = 'tv-' + id; break; }
       S.armed = null; if (!needDb()) return; S.view = 'log';
-      try { await S.db.collection('trades').doc(id).delete(); toast('Trade deleted'); } catch (err) { writeErr(err); } break;
+      try { for (const x of (byId(id) || {}).copyIds || [id]) await S.db.collection('trades').doc(x).delete(); toast('Trade deleted'); } catch (err) { writeErr(err); } break;
     }
     case 'clearSamples': {
       if (S.armed !== 'samples') { S.armed = 'samples'; break; }
@@ -6185,6 +6212,7 @@ document.addEventListener('click', async e => {
     case 'calPop': S.calPop = S.calPop === b.dataset.v ? '' : b.dataset.v; break;
     case 'calOpen': S.calOpen = S.calOpen === b.dataset.v ? '' : b.dataset.v; break;
     case 'calMore': S.calMore += 30; break;
+    case 'ntMerge': { const C = { ...(S.syncCfg || {}), mergeCopies: !copyMergeOn() }; S.syncCfg = C; rebuildTrades(); rerender(); try { await S.db.doc('settings/sync').set(C); toast(C.mergeCopies ? 'Copied trades are combined.' : 'Showing every account\'s trade.'); } catch (err) { writeErr(err); } return; }
     case 'calBack': S.calBack += 30; break;
     case 'calRetry': calLoad(true); break;
     case 'calAdd': { const [at, cur, ...t] = b.dataset.v.split('|'), title = t.join('|'), ev = S.cal.events.find(e => e.at === at && e.cur === cur && e.title === title); if (!ev || !S.db) return; const d = new Date(at);
@@ -6607,7 +6635,7 @@ render();
   S.db = db;
   window.claude.use('assets').then(a => { S.assets = a; safeRender(); }).catch(() => {});
   db.collection('trades').onSnapshot(snap => {
-    S.allTrades = snap.docs.map(d => { const x = d.data(); return { ...x, id: d.id, pnl: +x.pnl || 0 }; }).filter(t => t.date); applyFilters();
+    S.rawTrades = snap.docs.map(d => { const x = d.data(); return { ...x, id: d.id, pnl: +x.pnl || 0 }; }).filter(t => t.date); rebuildTrades();
     S.loaded = true; safeRender();
   }, () => { S.loaded = true; safeRender(); });
   db.collection('tagcats').onSnapshot(snap => { S.cats = snap.docs.map(d => ({ ...d.data(), id: d.id })).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)); safeRender(); }, () => {});
@@ -6624,7 +6652,7 @@ render();
   db.collection('templates').onSnapshot(snap => { S.templates = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(t => t.name); safeRender(); }, () => {});
   db.doc('settings/fees').onSnapshot(s => { S.fees = s.exists ? (s.data().rows || []) : []; safeRender(); }, () => {});
   db.collection('cash').onSnapshot(snap => { S.cash = snap.docs.map(d => ({ ...d.data(), id: d.id })).filter(c => c.date && typeof c.amount === 'number'); safeRender(); }, () => {});
-  db.doc('settings/sync').onSnapshot(sn => { S.syncCfg = sn.exists ? sn.data() : null; safeRender(); }, () => {});
+  db.doc('settings/sync').onSnapshot(sn => { const was = copyMergeOn(); S.syncCfg = sn.exists ? sn.data() : null; if (was !== copyMergeOn()) rebuildTrades(); safeRender(); }, () => {});
   db.doc('settings/syncStatus').onSnapshot(sn => { S.syncStat = sn.exists ? sn.data() : null; safeRender(); }, () => {});
   db.doc('settings/symbols').onSnapshot(sn => { if (sn.exists) { S.symSet = { list: [], ...sn.data() }; safeRender(); } }, () => {});
   db.collection('videos').onSnapshot(snap => { S.videos = snap.docs.map(d => ({ ...d.data(), id: d.id })); safeRender(); }, () => {});
