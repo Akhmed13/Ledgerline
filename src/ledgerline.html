@@ -1230,6 +1230,7 @@ tr.acct-arch td{opacity:.6}
 @media (max-width:700px){.rc-table{table-layout:auto}.rc-table th:nth-child(5),.rc-table td:nth-child(5),.rc-table th:nth-child(7),.rc-table td:nth-child(7){display:none}.rc-dl{padding-left:0}.rc-cur>span:last-child{display:none}}
 .copyb{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;padding:1px 6px;border-radius:6px;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);vertical-align:middle;cursor:help}
 .nt-merge{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px;padding:12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}.nt-merge input{margin-top:2px}.nt-merge>span{display:grid;gap:2px}
+.be-set{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:8px;margin-top:6px}.be-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px}.be-row input{width:80px}
 </style>
 
 <div class="app">
@@ -1523,6 +1524,10 @@ function riskOf(t) {
 }
 function targetOf(t) { const e = num(t.entry), g = num(t.target), q = num(t.qty); return (e != null && g != null && q) ? Math.abs(g - e) * q * (num(t.mult) || 1) : null; }
 const rOf = t => { const r = riskOf(t); return r > 0 ? t.pnl / r : 0; };
+// Result of a trade: 1 win, -1 loss, 0 breakeven. Trades with a known risk that end within ±beR (default 1R) count as breakeven.
+const beR = () => { const v = S.settings && S.settings.beR; return v == null || v === '' ? 1 : Math.max(0, +v || 0); };
+const resOf = t => { const th = beR(); if (th > 0) { const r = riskOf(t); if (r > 0 && Math.abs(t.pnl / r) < th) return 0; } return t.pnl > 0 ? 1 : t.pnl < 0 ? -1 : 0; };
+const isWin = t => resOf(t) > 0, isLoss = t => resOf(t) < 0;
 function points(t) { const e = num(t.entry), x = num(t.exit); return (e != null && x != null) ? (x - e) * dirOf(t) : null; }
 function roi(t) { const e = num(t.entry), q = num(t.qty); return (e && q) ? t.pnl / (e * q * (num(t.mult) || 1)) * 100 : null; }
 function duration(t) {
@@ -1569,9 +1574,9 @@ const ratioTxt = x => x === Infinity ? '∞' : x.toFixed(2);
 function hour() { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; }
 
 function stats(ts) {
-  let gw = 0, gl = 0, w = 0, l = 0, be = 0, rs = 0;
-  ts.forEach(t => { rs += rOf(t); if (t.pnl > 0) { gw += t.pnl; w++; } else if (t.pnl < 0) { gl -= t.pnl; l++; } else be++; });
-  const n = ts.length, net = gw - gl, wr = (w + l) ? w / (w + l) : 0;
+  let gw = 0, gl = 0, w = 0, l = 0, be = 0, rs = 0, beSum = 0;
+  ts.forEach(t => { rs += rOf(t); const o = resOf(t); if (o > 0) { gw += t.pnl; w++; } else if (o < 0) { gl -= t.pnl; l++; } else { be++; beSum += t.pnl; } });
+  const n = ts.length, net = gw - gl + beSum, wr = (w + l) ? w / (w + l) : 0;
   const pf = gl ? gw / gl : (gw ? Infinity : 0);
   const avgW = w ? gw / w : 0, avgL = l ? gl / l : 0, ratio = avgL ? avgW / avgL : (avgW ? Infinity : 0);
   const byDay = {}; ts.forEach(t => { byDay[t.date] = (byDay[t.date] || 0) + t.pnl; });
@@ -1583,7 +1588,7 @@ function stats(ts) {
   const clamp = x => Math.max(0, Math.min(1, x));
   const bal0 = startBal() || 25000;
   const axes = [['Win %', clamp(wr / 0.6)], ['Profit factor', pf === Infinity ? 1 : clamp((pf - 1) / 1.5)], ['Avg win/loss', ratio === Infinity ? 1 : clamp(ratio / 2.5)], ['Recovery factor', maxDD ? clamp(net / maxDD / 4) : (net > 0 ? 1 : 0)], ['Max drawdown', n ? clamp(1 - maxDD / (0.1 * bal0)) : 0], ['Consistency', days.length ? clamp(green / days.length / 0.7) : 0]];
-  const rAvg = win => { const xs = ts.filter(t => win ? t.pnl > 0 : t.pnl < 0); return xs.length ? xs.reduce((a, t) => a + rOf(t), 0) / xs.length : 0; };
+  const rAvg = win => { const xs = ts.filter(t => win ? isWin(t) : isLoss(t)); return xs.length ? xs.reduce((a, t) => a + rOf(t), 0) / xs.length : 0; };
   return { red: days.filter(d => byDay[d] < 0).length, n, net, rs, w, l, be, wr, pf, avgW, avgL, ratio, rW: rAvg(true), rL: rAvg(false), exp: n ? net / n : 0, expR: n ? rs / n : 0, byDay, days, green, maxDD, curve,
     tStreak: streak(sorted.map(t => t.pnl)), dStreak: streak([...days].reverse().map(d => byDay[d])), axes, score: n ? axes.reduce((a, x) => a + x[1], 0) / axes.length * 100 : 0, gw, gl };
 }
@@ -1753,7 +1758,7 @@ function calendar() {
       if (!inMonth) { cells += `<div class="day out"><span class="dnum">${d.getDate()}</span></div>`; continue; }
       const ts = byDate[key] || [], hasNote = S.journal[key] && S.journal[key].html ? noteIcon : '';
       if (!ts.length) { cells += `<button class="day${today}" data-action="day" data-d="${key}" aria-label="${key}, no trades">${hasNote}<span class="dnum">${d.getDate()}</span></button>`; continue; }
-      const net = ts.reduce((a, t) => a + t.pnl, 0), r = ts.reduce((a, t) => a + rOf(t), 0), wins = ts.filter(t => t.pnl > 0).length, dec = ts.filter(t => t.pnl !== 0).length;
+      const net = ts.reduce((a, t) => a + t.pnl, 0), r = ts.reduce((a, t) => a + rOf(t), 0), wins = ts.filter(t => isWin(t)).length, dec = ts.filter(t => resOf(t) !== 0).length;
       wNet += net; wR += r; wDays++;
       cells += `<button class="day ${net > 0 ? 'win' : net < 0 ? 'lose' : 'even'}${today}" data-action="day" data-d="${key}">${hasNote}<span class="dnum">${d.getDate()}</span><span class="dval">${fmt(net, r, true)}</span><span class="dmeta">${ts.length} trade${ts.length > 1 ? 's' : ''}</span><span class="dmeta">${r.toFixed(2)}R · ${dec ? Math.round(wins / dec * 100) : 0}%</span></button>`;
     }
@@ -1887,8 +1892,8 @@ function cashModal() {
 function filteredTrades() {
   const f = S.filters, q = f.q.trim().toLowerCase();
   return [...S.trades].sort(byNewest).filter(t => {
-    if (f.status === 'win' && !(t.pnl > 0)) return false;
-    if (f.status === 'loss' && !(t.pnl < 0)) return false;
+    if (f.status === 'win' && !(isWin(t))) return false;
+    if (f.status === 'loss' && !(isLoss(t))) return false;
     if (f.reviewed === 'yes' && !t.reviewed) return false;
     if (f.reviewed === 'no' && t.reviewed) return false;
     if (q) { const hay = [t.symbol, t.side, ...S.cats.flatMap(c => tagsOf(t, c.id)), (S.playbooks.find(p => p.id === t.playbookId) || {}).name].join(' ').toLowerCase(); if (!hay.includes(q)) return false; }
@@ -2118,7 +2123,7 @@ const ruleIcon = e => `<span class="ri ${e.applies ? (e.pass ? 'ok' : 'bad') : '
 /* ---------- daily journal ---------- */
 function dayStats(ts) {
   let w = 0, l = 0, gw = 0, gl = 0, fees = 0, vol = 0, net = 0;
-  ts.forEach(t => { net += t.pnl; fees += num(t.fees) || 0; vol += num(t.qty) || 0; if (t.pnl > 0) { w++; gw += t.pnl; } else if (t.pnl < 0) { l++; gl -= t.pnl; } });
+  ts.forEach(t => { net += t.pnl; fees += num(t.fees) || 0; vol += num(t.qty) || 0; if (isWin(t)) { w++; gw += t.pnl; } else if (isLoss(t)) { l++; gl -= t.pnl; } });
   return { n: ts.length, w, l, net, gross: net + fees, fees, vol, wr: (w + l) ? w / (w + l) : 0, pf: gl ? gw / gl : (gw ? Infinity : 0) };
 }
 function intraday(ts) { let c = 0; return [['', 0], ...ts.slice().sort((a, b) => (a.time || '').localeCompare(b.time || '')).map(t => [t.time || '', c += t.pnl])]; }
@@ -2212,7 +2217,7 @@ function summary(ts) {
   const planned = ts.map(t => { const g = targetOf(t), r = riskOf(t); return g != null && r ? g / r : null; }).filter(v => v != null);
   const realized = ts.filter(t => riskOf(t)).map(rOf);
   const holds = ts.map(t => (t.time && t.exitTime) ? toMin(t.exitTime) - toMin(t.time) : null).filter(v => v != null && v >= 0);
-  let cw = 0, cl = 0, mw = 0, ml = 0; [...ts].sort((a, b) => byNewest(b, a)).forEach(t => { if (t.pnl > 0) { cw++; cl = 0; } else if (t.pnl < 0) { cl++; cw = 0; } else { cw = cl = 0; } mw = Math.max(mw, cw); ml = Math.max(ml, cl); });
+  let cw = 0, cl = 0, mw = 0, ml = 0; [...ts].sort((a, b) => byNewest(b, a)).forEach(t => { if (isWin(t)) { cw++; cl = 0; } else if (isLoss(t)) { cl++; cw = 0; } else { cw = cl = 0; } mw = Math.max(mw, cw); ml = Math.max(ml, cl); });
   const pnls = ts.map(t => t.pnl), m$ = v => v == null ? '–' : priv(money(v)), aw = avg(winD), al = avg(lossD), ah = avg(holds);
   return [
     ['Net P&L', fmt(st.net, st.rs), cls(st.net)], ['Trade expectancy', fmt(st.exp, st.expR), cls(st.exp)], ['Avg daily net P&L', nd ? m$(st.net / nd) : '–', cls(st.net)], ['Avg daily volume', nd ? (vol / nd).toFixed(1) : '–'],
@@ -2319,8 +2324,8 @@ const dowOf = d => { const [y, m, dd] = d.split('-'); return new Date(+y, +m - 1
 function passFilter(t, f = S.flt) {
   if (f.symbols.length && !f.symbols.includes(t.symbol)) return false;
   if (f.side && t.side !== f.side) return false;
-  if (f.status === 'win' && !(t.pnl > 0)) return false;
-  if (f.status === 'loss' && !(t.pnl < 0)) return false;
+  if (f.status === 'win' && !(isWin(t))) return false;
+  if (f.status === 'loss' && !(isLoss(t))) return false;
   if (f.status === 'even' && t.pnl !== 0) return false;
   if (f.minRating && (t.rating || 0) < f.minRating) return false;
   if (f.reviewed === 'yes' && !t.reviewed) return false;
@@ -2549,7 +2554,7 @@ async function importRun() {
 }
 
 /* ---------- trade preview drawer ---------- */
-const statusPill = t => t.pnl > 0 ? '<span class="status win">WIN</span>' : t.pnl < 0 ? '<span class="status loss">LOSS</span>' : '<span class="status be">EVEN</span>';
+const statusPill = t => isWin(t) ? '<span class="status win">WIN</span>' : isLoss(t) ? '<span class="status loss">LOSS</span>' : '<span class="status be">EVEN</span>';
 
 function pathPts(t) {
   const rp = runningPnl(t);
@@ -2628,7 +2633,7 @@ function previewSheet() {
   else body = attachTab(t);
   return `<div class="drawer" role="dialog" aria-modal="true" aria-labelledby="pvTitle">
     <div class="dr-head"><div class="tv-title"><button class="icon-btn" data-action="preview" data-id="${prev ? prev.id : ''}" ${prev ? '' : 'disabled'} aria-label="Newer trade">‹</button><h3 id="pvTitle">${symChip(t.symbol)}${copyBadge(t)}</h3><button class="icon-btn" data-action="preview" data-id="${next ? next.id : ''}" ${next ? '' : 'disabled'} aria-label="Older trade">›</button>
-      <span class="tchip ${t.side === 'Long' ? 'blue' : 'violet'}">${esc(t.side.toUpperCase())}</span><span class="tchip ${isOpen(t) ? 'blue' : 'orange'}">${isOpen(t) ? 'Open' : 'Closed'}</span><span class="tchip ${t.pnl > 0 ? 'green' : t.pnl < 0 ? 'red' : 'slate'}">${t.pnl > 0 ? 'Win' : t.pnl < 0 ? 'Loss' : 'Even'}</span></div>
+      <span class="tchip ${t.side === 'Long' ? 'blue' : 'violet'}">${esc(t.side.toUpperCase())}</span><span class="tchip ${isOpen(t) ? 'blue' : 'orange'}">${isOpen(t) ? 'Open' : 'Closed'}</span><span class="tchip ${isWin(t) ? 'green' : isLoss(t) ? 'red' : 'slate'}">${isWin(t) ? 'Win' : isLoss(t) ? 'Loss' : 'Even'}</span></div>
       <span style="display:flex;gap:6px"><button class="secondary sm" data-action="replayTrade" data-id="${t.id}">▶ Replay</button><button class="icon-btn" data-action="close" aria-label="Close">✕</button></span></div>
     <div class="hint">${dateLabel(t.date)}${t.time ? ' · opened ' + esc(t.time) : ''}${t.exitTime ? ' · closed ' + esc(t.exitTime) : ''}${dur ? ' · held ' + dur : ''}${acc ? ' · ' + esc(acc.name) : ''}</div>
     ${netBox(t)}
@@ -2789,7 +2794,7 @@ function parsePatternQ(q, ts) {
 }
 function patternFind(q) {
   const P = insightPool(), sl = parsePatternQ(q, P.ts), A = P.ts.filter(sl.test), B = P.ts.filter(t => !sl.test(t));
-  const net = A.reduce((a, t) => a + t.pnl, 0), losses = A.filter(t => t.pnl < 0), wins = A.filter(t => t.pnl > 0), F = [];
+  const net = A.reduce((a, t) => a + t.pnl, 0), losses = A.filter(t => isLoss(t)), wins = A.filter(t => isWin(t)), F = [];
   const timed = losses.filter(t => t.time);
   if (timed.length >= 2) {
     const late = timed.filter(t => t.time >= '14:00').length / timed.length, early = timed.filter(t => t.time < '10:00').length / timed.length;
@@ -2805,7 +2810,7 @@ function patternFind(q) {
   if (A.length && B.length) {
     const diff = perDay(A) - perDay(B), r = Math.round(diff * 10) / 10;
     F.push({ big: (r > 0 ? '+' : '') + r, txt: `${Math.abs(r) === 1 ? 'trade' : 'trades'} per day vs other ${sl.short === sl.label && DOW_FULL.includes(sl.label) ? 'days' : 'trades'}`, tone: r > 0 ? 'loss' : 'gain', hit: r >= 1 });
-    const wa = A.length ? wins.length / A.length : 0, wb = B.filter(t => t.pnl > 0).length / B.length, dd = Math.round((wa - wb) * 100);
+    const wa = A.length ? wins.length / A.length : 0, wb = B.filter(t => isWin(t)).length / B.length, dd = Math.round((wa - wb) * 100);
     F.push({ big: (dd > 0 ? '+' : '') + dd + ' pts', txt: 'win rate vs everything else', tone: dd < 0 ? 'loss' : 'gain', hit: dd <= -10 });
   }
   return { q, sl, span: P.span, n: A.length, net, F, hits: F.filter(f => f.hit).length };
@@ -2832,7 +2837,7 @@ function revengeStats() {
     for (let i = 1; i < day.length; i++) {
       const p = day[i - 1], t = day[i]; if (p.pnl >= 0) continue;
       const gap = toMin(t.time) - toMin(p.exitTime && p.exitTime >= p.time ? p.exitTime : p.time); if (gap < 0) continue;
-      after++; if (gap < 4) { quick++; if (t.pnl > 0) quickW++; } if (gap >= 30) { waited++; if (t.pnl > 0) waitedW++; }
+      after++; if (gap < 4) { quick++; if (isWin(t)) quickW++; } if (gap >= 30) { waited++; if (isWin(t)) waitedW++; }
     }
   });
   return { span: P.span, after, quick, quickPct: after ? quick / after : 0, quickWr: quick ? quickW / quick : null, waited, waitedWr: waited ? waitedW / waited : null };
@@ -3074,7 +3079,7 @@ function sideStats(list) {
   return [['Trades', s.n], ['Total P&L', fmt(s.net, s.rs)], ['Average P&L', s.n ? fmt(s.exp, s.expR) : '–'], ['Largest', s.n ? priv(money(list.reduce((a, t) => Math.abs(t.pnl) > Math.abs(a) ? t.pnl : a, 0))) : '–'], ['Average R', rr.length ? avg(rr).toFixed(2) + 'R' : '–'], ['Average hold time', ah != null ? durTxt(ah) : '–'], ['Average size', qty ? qty.toFixed(1) : '–'], ['Most common entry hour', bh ? bh[0] + ':00' : '–'], ['Top setups', top('setups')], ['Top mistakes', top('mistakes')], ['Long / short', `${list.filter(t => t.side === 'Long').length} / ${list.filter(t => t.side === 'Short').length}`]];
 }
 function winsLossesTab(ts) {
-  const W = ts.filter(t => t.pnl > 0), L = ts.filter(t => t.pnl < 0), a = sideStats(W), b = sideStats(L);
+  const W = ts.filter(t => isWin(t)), L = ts.filter(t => isLoss(t)), a = sideStats(W), b = sideStats(L);
   return `<section class="panel log"><div class="table-scroll"><table class="rtable"><thead><tr><th></th><th class="r gain">Winning trades</th><th class="r loss">Losing trades</th></tr></thead><tbody>${a.map(([k, v], i) => `<tr><td class="muted">${k}</td><td class="r num">${esc(String(v))}</td><td class="r num">${esc(String(b[i][1]))}</td></tr>`).join('')}</tbody></table></div><div class="hint">Large differences in hold time, size or entry hour between winners and losers often point at a habit worth fixing.</div></section>`;
 }
 function compareTab(ts) {
@@ -3615,7 +3620,7 @@ function crossAnalysis(ts, sub) {
   const cd = S.rep.cross || 'month', cv = S.rep.cval || 'pnl', rowsG = groupBy(ts, sub), colsG = groupBy(ts, cd);
   const rows = orderKeys(Object.keys(rowsG), sub, rowsG), cols = orderKeys(Object.keys(colsG), cd, colsG);
   const cell = {}; ts.forEach(t => subKeys(t, sub).forEach(r => subKeys(t, cd).forEach(c => { const k = r + '\u0001' + c; (cell[k] = cell[k] || []).push(t); })));
-  const val = l => { if (!l) return null; if (cv === 'trades') return l.length; if (cv === 'wr') { const w = l.filter(t => t.pnl > 0).length, d = l.filter(t => t.pnl !== 0).length; return d ? w / d * 100 : 0; } return l.reduce((a, t) => a + t.pnl, 0); };
+  const val = l => { if (!l) return null; if (cv === 'trades') return l.length; if (cv === 'wr') { const w = l.filter(t => isWin(t)).length, d = l.filter(t => resOf(t) !== 0).length; return d ? w / d * 100 : 0; } return l.reduce((a, t) => a + t.pnl, 0); };
   const all = Object.values(cell).map(val).filter(v => v != null), mx = Math.max(1, ...all.map(Math.abs));
   const paint = (good, f) => { const pct = Math.round(30 + 70 * Math.min(1, f)); return `background:color-mix(in srgb,${good ? 'var(--gain)' : 'var(--loss)'} ${pct}%,var(--surface));color:${pct >= 60 ? '#fff' : 'var(--ink)'};font-weight:600`; };
   const bg = (v, l) => { if (v == null) return ''; if (cv === 'trades') { const net = (l || []).reduce((a, t) => a + t.pnl, 0); return v ? (net === 0 ? `background:var(--surface-2);font-weight:600` : paint(net > 0, v / mx)) : ''; } if (cv === 'wr') return paint(v >= 50, Math.abs(v - 50) / 50); return v === 0 ? '' : paint(v > 0, Math.abs(v) / mx); };
@@ -3657,7 +3662,7 @@ function grpPass(t, g) {
   if (g.symbols.length && !g.symbols.includes(t.symbol)) return false;
   if (g.tags.length && !g.tags.some(k => { const i = k.indexOf('::'); return tagsOf(t, k.slice(0, i)).includes(k.slice(i + 2)); })) return false;
   if (g.side && t.side !== g.side) return false;
-  if (g.result === 'win' && !(t.pnl > 0)) return false; if (g.result === 'loss' && !(t.pnl < 0)) return false;
+  if (g.result === 'win' && !(isWin(t))) return false; if (g.result === 'loss' && !(isLoss(t))) return false;
   if (g.from && t.date < g.from) return false; if (g.to && t.date > g.to) return false;
   return true;
 }
@@ -3678,7 +3683,7 @@ function ring(pct, w, l) {
 }
 function grpStats(list) {
   const s = stats(list), days = new Set(list.map(t => t.date)).size, vol = list.reduce((a, t) => a + (num(t.qty) || 0), 0), fees = list.reduce((a, t) => a + (num(t.fees) || 0), 0);
-  let cw = 0, cl = 0, mw = 0, ml = 0; list.slice().sort((a, b) => byNewest(b, a)).forEach(t => { if (t.pnl > 0) { cw++; cl = 0; } else if (t.pnl < 0) { cl++; cw = 0; } else { cw = cl = 0; } mw = Math.max(mw, cw); ml = Math.max(ml, cl); });
+  let cw = 0, cl = 0, mw = 0, ml = 0; list.slice().sort((a, b) => byNewest(b, a)).forEach(t => { if (isWin(t)) { cw++; cl = 0; } else if (isLoss(t)) { cl++; cw = 0; } else { cw = cl = 0; } mw = Math.max(mw, cw); ml = Math.max(ml, cl); });
   return { s, rows: [['Total P&L', fmt(s.net, s.rs), cls(s.net)], ['Average daily volume', days ? (vol / days).toFixed(2) : '–'], ['Average winning trade', s.w ? priv(money(s.avgW)) : 'N/A', 'gain'], ['Average losing trade', s.l ? priv(money(-s.avgL)) : 'N/A', 'loss'], ['Number of winning trades', s.w], ['Number of losing trades', s.l], ['Total commissions', priv(money(fees))], ['Max consecutive wins', mw], ['Max consecutive losses', ml], ['Profit factor', ratioTxt(s.pf)], ['Trade expectancy', fmt(s.exp, s.expR), cls(s.exp)]] };
 }
 function compareView() {
@@ -3721,7 +3726,7 @@ const LOG_COLS = {
   date: ['Open date', t => `<td class="num">${t.date}</td>`],
   time: ['Open time', t => `<td class="num">${esc(t.time || '–')}</td>`],
   symbol: ['Symbol', t => `<td><span class="tick" style="--c:var(--c-${symInfo(t.symbol).color})">${esc(t.symbol)}</span>${copyBadge(t)}${t.sample ? ' <span class="chip">sample</span>' : ''}</td>`],
-  status: ['Status', t => { const st = t.pnl > 0 ? 'win' : t.pnl < 0 ? 'loss' : 'be'; return `<td><span class="status ${st}">${st === 'be' ? 'EVEN' : st.toUpperCase()}</span></td>`; }],
+  status: ['Status', t => { const st = isWin(t) ? 'win' : isLoss(t) ? 'loss' : 'be'; return `<td><span class="status ${st}">${st === 'be' ? 'EVEN' : st.toUpperCase()}</span></td>`; }],
   side: ['Side', t => `<td><span class="side ${t.side === 'Long' ? 'gain' : 'loss'}">${esc(t.side)}</span></td>`],
   entry: ['Entry price', t => `<td class="r num">${t.entry ?? '–'}</td>`, 1],
   exit: ['Exit price', t => `<td class="r num">${t.exit ?? '–'}</td>`, 1],
@@ -3941,6 +3946,7 @@ function profileSettings() {
     <div class="form"><label class="full">Display name<input id="profName" data-keep value="${esc(S.settings.displayName || '')}" placeholder="Trader" maxlength="40"></label></div>
     <div><div class="label" style="margin-bottom:6px">Avatar color</div><div class="prof-colors">${COLORS.map(c => `<button data-action="profColor" data-v="${c}" aria-pressed="${cur === c}" aria-label="${c}" style="background:var(--c-${c})"></button>`).join('')}</div></div>
     ${themeCards()}
+    <div class="be-set"><div class="label">Breakeven trades</div><label class="be-row">Count a trade as breakeven when its result is smaller than <input id="beR" type="number" min="0" max="10" step="0.05" value="${beR()}" aria-label="Breakeven threshold in R"> R either way</label><div class="hint">With 1, a trade between −1R and +1R is breakeven: its P&amp;L still counts, but it isn't a win or a loss in win rate, profit factor or streaks. Only trades with a stop or risk set have an R; the rest are judged by their P&amp;L. Use 0 to turn this off.</div></div>
     <div class="actions" style="justify-content:flex-start"><button class="primary" data-action="profSave">Save profile</button></div>`;
 }
 async function saveProfile(patch) {
@@ -3964,7 +3970,7 @@ function actFilter(f = {}) {
     if (f.from && t.date < f.from) return false; if (f.to && t.date > f.to) return false;
     if (f.symbol && rootOf(t.symbol) !== rootOf(String(f.symbol).toUpperCase()) && t.symbol !== String(f.symbol).toUpperCase()) return false;
     if (f.side && t.side !== f.side) return false;
-    if (f.result === 'win' && !(t.pnl > 0)) return false; if (f.result === 'loss' && !(t.pnl < 0)) return false; if (f.result === 'be' && t.pnl !== 0) return false;
+    if (f.result === 'win' && !(isWin(t))) return false; if (f.result === 'loss' && !(isLoss(t))) return false; if (f.result === 'be' && resOf(t) !== 0) return false;
     if (f.weekday != null && f.weekday !== '' && ![].concat(f.weekday).map(Number).includes(dowOf(t.date))) return false;
     if (f.timeFrom && !(t.time && t.time >= f.timeFrom)) return false; if (f.timeTo && !(t.time && t.time < f.timeTo)) return false;
     if (f.minPnl != null && !(t.pnl >= +f.minPnl)) return false; if (f.maxPnl != null && !(t.pnl <= +f.maxPnl)) return false;
@@ -4026,11 +4032,11 @@ const CTX_FIELDS = [['sinceLoss', 'Minutes since last loss (same day)'], ['trade
 function ctxVal(t, f) {
   const prev = dayBefore(t);
   switch (f) {
-    case 'sinceLoss': { const l = prev.filter(x => x.pnl < 0).pop(); if (!l || !t.time) return null; const g = toMin(t.time) - toMin(l.exitTime && l.exitTime >= l.time ? l.exitTime : l.time); return g >= 0 ? g : null; }
+    case 'sinceLoss': { const l = prev.filter(x => isLoss(x)).pop(); if (!l || !t.time) return null; const g = toMin(t.time) - toMin(l.exitTime && l.exitTime >= l.time ? l.exitTime : l.time); return g >= 0 ? g : null; }
     case 'tradeNo': return prev.length + 1;
     case 'sizeVsUsual': { const m = medQty(t.symbol), q = num(t.qty); return m && q ? Math.round(q / m * 100) : null; }
     case 'dayPnlBefore': return prev.reduce((a, x) => a + x.pnl, 0);
-    case 'lossStreak': { let n = 0; for (let i = prev.length - 1; i >= 0 && prev[i].pnl < 0; i--) n++; return n; }
+    case 'lossStreak': { let n = 0; for (let i = prev.length - 1; i >= 0 && isLoss(prev[i]); i--) n++; return n; }
   }
   return fieldVal(t, f);
 }
@@ -4050,10 +4056,10 @@ function alertFeed(days = 30) {
 function behaviorStats() {
   const P = insightPool(), L = S.agents.limits || {}, maxT = +L.maxTrades || 3, out = [];
   const big = P.ts.filter(t => { const v = ctxVal(t, 'sizeVsUsual'); return v != null && v >= 140; });
-  if (big.length) { const wr = big.filter(t => t.pnl > 0).length / big.length, net = big.reduce((a, t) => a + t.pnl, 0); out.push({ tone: net < 0 ? 'warn' : 'ok', title: net < 0 ? 'Oversizing' : 'Larger size holds up', txt: `${big.length} trade${big.length === 1 ? '' : 's'} at 40%+ above your usual size · ${Math.round(wr * 100)}% win rate · ${money(net, 0)}` }); }
+  if (big.length) { const wr = big.filter(t => isWin(t)).length / big.length, net = big.reduce((a, t) => a + t.pnl, 0); out.push({ tone: net < 0 ? 'warn' : 'ok', title: net < 0 ? 'Oversizing' : 'Larger size holds up', txt: `${big.length} trade${big.length === 1 ? '' : 's'} at 40%+ above your usual size · ${Math.round(wr * 100)}% win rate · ${money(net, 0)}` }); }
   const byD = {}; P.ts.forEach(t => (byD[t.date] = byD[t.date] || []).push(t));
   let early = [], late = []; Object.values(byD).forEach(d => { d.sort((a, b) => (a.time || '').localeCompare(b.time || '')); early.push(...d.slice(0, maxT)); late.push(...d.slice(maxT)); });
-  if (late.length >= 3) { const we = early.filter(t => t.pnl > 0).length / early.length, wl = late.filter(t => t.pnl > 0).length / late.length, drop = Math.round((we - wl) * 100); out.push({ tone: drop >= 10 ? 'warn' : 'ok', title: drop >= 10 ? 'Overtrading' : 'Late trades hold up', txt: `Win rate ${Math.round(wl * 100)}% after trade #${maxT} vs ${Math.round(we * 100)}% before (${drop > 0 ? '−' + drop : '+' + -drop} pts)` }); }
+  if (late.length >= 3) { const we = early.filter(t => isWin(t)).length / early.length, wl = late.filter(t => isWin(t)).length / late.length, drop = Math.round((we - wl) * 100); out.push({ tone: drop >= 10 ? 'warn' : 'ok', title: drop >= 10 ? 'Overtrading' : 'Late trades hold up', txt: `Win rate ${Math.round(wl * 100)}% after trade #${maxT} vs ${Math.round(we * 100)}% before (${drop > 0 ? '−' + drop : '+' + -drop} pts)` }); }
   const days = Object.keys(byD).sort(); let streak = 0; for (let i = days.length - 1; i >= 0 && byD[days[i]].length <= maxT; i--) streak++;
   if (days.length) out.push({ tone: streak >= 3 ? 'ok' : 'neutral', title: 'Session limit', txt: streak ? `Kept to ${maxT} trades or fewer ${streak} day${streak === 1 ? '' : 's'} in a row` : `Your last session went over ${maxT} trades` });
   return { list: out, maxT };
@@ -4128,7 +4134,7 @@ function runBacktest() {
     const pts = (exit - entry) * d, pnl = pts * (+B.mult || 1) * (+B.qty || 1) - (+B.fees || 0);
     trades.push({ date, sym, side, entry, exit, pts, pnl, why, t0: minToHM(c.m[ei]), t1: minToHM(c.m[xi]) });
   });
-  const st = { n: trades.length, w: trades.filter(t => t.pnl > 0).length, net: trades.reduce((a, t) => a + t.pnl, 0), gw: trades.filter(t => t.pnl > 0).reduce((a, t) => a + t.pnl, 0), gl: -trades.filter(t => t.pnl < 0).reduce((a, t) => a + t.pnl, 0) };
+  const st = { n: trades.length, w: trades.filter(t => isWin(t)).length, net: trades.reduce((a, t) => a + t.pnl, 0), gw: trades.filter(t => isWin(t)).reduce((a, t) => a + t.pnl, 0), gl: -trades.filter(t => isLoss(t)).reduce((a, t) => a + t.pnl, 0) };
   let eq = 0, peak = 0, dd = 0; const pts = [['', 0], ...trades.map(t => { eq += t.pnl; peak = Math.max(peak, eq); dd = Math.max(dd, peak - eq); return [t.date, eq]; })];
   S.btRes = { trades, ...st, wr: st.n ? st.w / st.n : 0, pf: st.gl ? st.gw / st.gl : (st.gw ? Infinity : 0), dd, pts, days: days.length, at: Date.now(), cfg: { ...B } };
 }
@@ -4572,7 +4578,7 @@ const MARKETS = ['Stocks', 'Options', 'Futures', 'Forex', 'Crypto'];
 function stratPb(st) { return S.playbooks.find(p => p.stratId === st.id && !p.archived) || S.playbooks.find(p => p.name === st.name && !p.archived); }
 function stratStats(st) {
   const pb = stratPb(st); if (!pb) return null;
-  const ts = S.allTrades.filter(t => t.playbookId === pb.id), w = ts.filter(t => t.pnl > 0), l = ts.filter(t => t.pnl < 0), gw = w.reduce((a, t) => a + t.pnl, 0), gl = -l.reduce((a, t) => a + t.pnl, 0);
+  const ts = S.allTrades.filter(t => t.playbookId === pb.id), w = ts.filter(t => isWin(t)), l = ts.filter(t => isLoss(t)), gw = w.reduce((a, t) => a + t.pnl, 0), gl = -l.reduce((a, t) => a + t.pnl, 0);
   return { pb, ts, n: ts.length, wr: ts.length ? w.length / ts.length : 0, wl: w.length && l.length ? (gw / w.length) / (gl / l.length) : null, pf: gl ? gw / gl : (gw ? Infinity : null) };
 }
 function stratStatRow(st) {
@@ -5564,7 +5570,7 @@ function dayGamePlan(d, ts) {
 }
 function dayTradesTable(ts) {
   if (!ts.length) return '<p class="hint" style="padding:12px 0">No trades on this day yet.</p>';
-  return `<div class="table-scroll"><table class="rtable dv-tt"><thead><tr><th>Symbol</th><th>Time</th><th>Status</th><th class="r">Entry</th><th class="r">Exit</th><th class="r">Net P&amp;L</th><th class="r">Net ROI</th></tr></thead><tbody>${ts.map(t => { const r = roi(t); return `<tr class="row" data-action="preview" data-id="${t.id}"><td>${symChip(t.symbol)}${copyBadge(t)}</td><td class="num">${esc(t.time || '–')}</td><td><b class="${t.pnl > 0 ? 'gain' : t.pnl < 0 ? 'loss' : ''}" style="font-size:12px;letter-spacing:.05em">${t.pnl > 0 ? 'WIN' : t.pnl < 0 ? 'LOSS' : 'EVEN'}</b></td><td class="r num">${t.entry ?? '–'}</td><td class="r num">${t.exit ?? '–'}</td><td class="r num ${cls(t.pnl)}">${priv(money(t.pnl))}</td><td class="r num ${cls(t.pnl)}">${r == null ? '–' : r.toFixed(2) + '%'}</td></tr>`; }).join('')}</tbody></table></div>`;
+  return `<div class="table-scroll"><table class="rtable dv-tt"><thead><tr><th>Symbol</th><th>Time</th><th>Status</th><th class="r">Entry</th><th class="r">Exit</th><th class="r">Net P&amp;L</th><th class="r">Net ROI</th></tr></thead><tbody>${ts.map(t => { const r = roi(t); return `<tr class="row" data-action="preview" data-id="${t.id}"><td>${symChip(t.symbol)}${copyBadge(t)}</td><td class="num">${esc(t.time || '–')}</td><td><b class="${isWin(t) ? 'gain' : isLoss(t) ? 'loss' : ''}" style="font-size:12px;letter-spacing:.05em">${isWin(t) ? 'WIN' : isLoss(t) ? 'LOSS' : 'EVEN'}</b></td><td class="r num">${t.entry ?? '–'}</td><td class="r num">${t.exit ?? '–'}</td><td class="r num ${cls(t.pnl)}">${priv(money(t.pnl))}</td><td class="r num ${cls(t.pnl)}">${r == null ? '–' : r.toFixed(2) + '%'}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
 /* auto-tagger suggestions, worked out from the trade data itself */
 function suggestTags(t, ts) {
@@ -5573,15 +5579,15 @@ function suggestTags(t, ts) {
   if (h != null) out.push(h < 1 ? 'scalp-under-1m' : h < 5 ? '1-5-minutes' : h < 15 ? '5-15-minutes' : h < 60 ? '15-60-minutes' : 'over-1-hour');
   if (riskOf(t)) { const r = rOf(t); if (r >= 2) out.push('big-winner'); else if (r <= -1.2) out.push('loss-over-1R'); else if (r > 0 && r < .5) out.push('small-win'); }
   else out.push('no-stop-set');
-  if (prev && prev.pnl < 0) { if (prev.exitTime && t.time && toMin(t.time.slice(0, 5)) - toMin(prev.exitTime.slice(0, 5)) <= 5) out.push('quick-reentry-after-loss'); if ((num(t.qty) || 0) > (num(prev.qty) || 0)) out.push('size-up-after-loss'); }
-  if (i >= 2 && ts.slice(0, i).filter(x => x.pnl < 0).length >= 2) out.push('after-2-losses');
+  if (prev && isLoss(prev)) { if (prev.exitTime && t.time && toMin(t.time.slice(0, 5)) - toMin(prev.exitTime.slice(0, 5)) <= 5) out.push('quick-reentry-after-loss'); if ((num(t.qty) || 0) > (num(prev.qty) || 0)) out.push('size-up-after-loss'); }
+  if (i >= 2 && ts.slice(0, i).filter(x => isLoss(x)).length >= 2) out.push('after-2-losses');
   const have = new Set(Object.values(t.tags || {}).flat()); return out.filter(x => !have.has(x));
 }
 async function ensureAutoCat() { let c = catById('auto'); if (!c) { c = { id: 'auto', name: 'Auto-tags', color: 'violet', order: 99, tags: [] }; S.cats = [...S.cats, c]; await saveCat(c); } return c; }
 async function applyAutoTags(t, tags) { if (!tags.length || !needDb()) return; const c = await ensureAutoCat(); tags.forEach(x => ensureTagInCat(c.id, x)); const cur = (t.tags && t.tags.auto) || []; await patchTrade(t.id, { tags: { ...(t.tags || {}), auto: [...new Set([...cur, ...tags])] } }); }
 function dayTagger(ts) {
   if (!ts.length) return '';
-  const cards = ts.map(t => { const sug = suggestTags(t, ts), tags = Object.entries(t.tags || {}).flatMap(([c, l]) => (l || []).map(x => [c, x])); return `<div class="dv-tc"><div class="dv-tch"><b>${esc(t.symbol)}</b><span class="num ${cls(t.pnl)}">${priv(money(t.pnl))}</span></div><div class="hint"><b class="${t.pnl > 0 ? 'gain' : t.pnl < 0 ? 'loss' : ''}" style="font-size:11px;letter-spacing:.05em">${t.pnl > 0 ? 'WIN' : t.pnl < 0 ? 'LOSS' : 'EVEN'}</b> · ${t.entry ?? '–'} → ${t.exit ?? '–'}${t.time ? ' · ' + esc(t.time) : ''}</div>
+  const cards = ts.map(t => { const sug = suggestTags(t, ts), tags = Object.entries(t.tags || {}).flatMap(([c, l]) => (l || []).map(x => [c, x])); return `<div class="dv-tc"><div class="dv-tch"><b>${esc(t.symbol)}</b><span class="num ${cls(t.pnl)}">${priv(money(t.pnl))}</span></div><div class="hint"><b class="${isWin(t) ? 'gain' : isLoss(t) ? 'loss' : ''}" style="font-size:11px;letter-spacing:.05em">${isWin(t) ? 'WIN' : isLoss(t) ? 'LOSS' : 'EVEN'}</b> · ${t.entry ?? '–'} → ${t.exit ?? '–'}${t.time ? ' · ' + esc(t.time) : ''}</div>
       <div class="dv-tags">${tags.map(([c, x]) => `<span class="dv-tag" style="--tc:var(--c-${(catById(c) || {}).color || 'slate'})">🏷 ${esc(x)}</span>`).join('')}${sug.map(x => `<button class="dv-tag sug" data-action="dayTag" data-id="${t.id}" data-v="${esc(x)}" title="Add this tag">+ ${esc(x)}</button>`).join('')}${!tags.length && !sug.length ? '<span class="hint">No suggestions</span>' : ''}</div>
       ${sug.length ? `<button class="linkish dv-apply" data-action="dayTagAll" data-id="${t.id}">Apply ${sug.length} suggestion${sug.length === 1 ? '' : 's'}</button>` : ''}</div>`; }).join('');
   const total = ts.reduce((a, t) => a + suggestTags(t, ts).length, 0);
@@ -6228,7 +6234,7 @@ document.addEventListener('click', async e => {
     case 'vidPlay': S.vidPlay = b.dataset.v; break;
     case 'vidCat': S.vidCat = b.dataset.v; break;
     case 'vidDel': { const k = b.dataset.v; if (S.armed !== 'vid-' + k) { S.armed = 'vid-' + k; break; } S.armed = null; S.db.collection('videos').doc(k).delete().catch(writeErr); break; }
-    case 'calcMine': { const st = stats(S.trades.filter(t => riskOf(t))), ts = S.trades.filter(t => riskOf(t)), w = ts.filter(t => t.pnl > 0), l = ts.filter(t => t.pnl < 0); if (!ts.length) { toast('Log the risk on your trades first, so results can be measured in R.'); return; } S.calc = { ...S.calc, wr: +(w.length / ts.length * 100).toFixed(1), aw: +(w.reduce((a, t) => a + rOf(t), 0) / (w.length || 1)).toFixed(2), al: +Math.abs(l.reduce((a, t) => a + rOf(t), 0) / (l.length || 1)).toFixed(2) }; break; }
+    case 'calcMine': { const st = stats(S.trades.filter(t => riskOf(t))), ts = S.trades.filter(t => riskOf(t)), w = ts.filter(t => isWin(t)), l = ts.filter(t => isLoss(t)); if (!ts.length) { toast('Log the risk on your trades first, so results can be measured in R.'); return; } S.calc = { ...S.calc, wr: +(w.length / ts.length * 100).toFixed(1), aw: +(w.reduce((a, t) => a + rOf(t), 0) / (w.length || 1)).toFixed(2), al: +Math.abs(l.reduce((a, t) => a + rOf(t), 0) / (l.length || 1)).toFixed(2) }; break; }
     case 'propNav': S.view = 'props'; S.propTab = b.dataset.v; window.scrollTo(0, 0); break;
     case 'patQ': S.patternQ = b.dataset.v; break;
     case 'agTab': S.agTab = b.dataset.v; S.view = 'agents'; S.profMenu = false; window.scrollTo(0, 0); break;
@@ -6346,7 +6352,7 @@ document.addEventListener('click', async e => {
     case 'netErrClose': S.netErr = ''; break;
     case 'profMenu': S.profMenu = !S.profMenu; S.accMenu = false; S.dashMenu = false; S.repMenu = false; renderProfile(); return;
     case 'profColor': saveProfile({ avatarColor: b.dataset.v }); break;
-    case 'profSave': { const v = ($('profName') ? $('profName').value : '').trim().slice(0, 40); await saveProfile({ displayName: v }); toast('Profile saved'); break; }
+    case 'profSave': { const v = ($('profName') ? $('profName').value : '').trim().slice(0, 40), be = $('beR') ? Math.max(0, Math.min(10, +$('beR').value || 0)) : beR(); await saveProfile({ displayName: v, beR: be }); toast('Profile saved'); break; }
     case 'catColor': { const c = catById(b.dataset.cat); if (!c || !needDb()) return; c.color = b.dataset.v; saveCat(c); break; }
     case 'newCatColor': { S.newCatColor = b.dataset.v; const nm = $('catName') ? $('catName').value : ''; renderModal(); if ($('catName')) { $('catName').value = nm; $('catName').focus(); } return; }
     case 'repTab': S.rep.tab = b.dataset.v; S.repMenu = false; break;
